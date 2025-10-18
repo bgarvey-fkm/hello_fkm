@@ -1,0 +1,4 @@
+openai
+pdfplumber
+python-dotenv
+azure-ai-formrecognizer
