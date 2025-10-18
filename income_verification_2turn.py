@@ -379,34 +379,30 @@ Create a comprehensive reconciliation report comparing the two and identifying a
 
 def main():
     """
-    Run the 2-turn income verification process
+    Run the independent income verification analysis
     """
     
     print("\n" + "="*60)
-    print("2-TURN INCOME VERIFICATION PROCESS")
+    print("INDEPENDENT INCOME VERIFICATION ANALYSIS")
     print("="*60)
     print("\nThis process will:")
-    print("1. Independently analyze income from source documents")
-    print("2. Compare analysis with Spring EQ underwriting worksheet")
-    print("3. Identify and assess any discrepancies")
+    print("1. Analyze income from source documents (excluding Spring EQ)")
+    print("2. Determine appropriate monthly qualifying income")
+    print("3. Generate markdown report")
     
-    # Turn 1: Independent analysis without Spring EQ worksheet
+    # Independent analysis without Spring EQ worksheet
     turn1_result = turn_1_independent_analysis()
     
     if not turn1_result:
-        print("\nError in Turn 1 analysis. Aborting.")
+        print("\nError in analysis. Aborting.")
         return
     
-    # Turn 2: Reconciliation with Spring EQ worksheet
-    turn_2_reconciliation(turn1_result)
-    
     print("\n" + "="*60)
-    print("2-TURN PROCESS COMPLETE")
+    print("INCOME VERIFICATION COMPLETE")
     print("="*60)
-    print("\nGenerated files:")
-    print("  1. loan_summary/turn1_independent_income_analysis.md")
-    print("  2. loan_summary/turn2_income_reconciliation.html")
-    print("\nOpen the HTML file to see the reconciliation report!")
+    print("\nGenerated file:")
+    print("  - loan_summary/turn1_independent_income_analysis.md")
+    print("\nThis report contains the qualifying monthly income determination.")
 
 
 if __name__ == "__main__":
