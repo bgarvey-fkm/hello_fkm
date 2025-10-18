@@ -67,35 +67,85 @@ def create_underwriting_report():
                 "role": "system",
                 "content": """You are an expert Loan Underwriter Agent with years of experience in residential mortgage underwriting. 
 
+IMPORTANT CONTEXT:
+- Form 1003 is typically filled out FIRST by the borrower and then verified later with documentation
+- Loan terms may change during the underwriting process
+- The Spring EQ underwriting summary represents the FINAL underwritten position after verification
+
 Your task is to:
-1. Analyze all provided loan documents (paystubs, W-2s, credit reports, appraisals, mortgage statements, etc.)
-2. Reconcile any discrepancies between documents
-3. Calculate key underwriting metrics:
+1. Analyze all provided loan documents (paystubs, W-2s, credit reports, appraisals, mortgage statements, 1003 application, Spring EQ underwriting summary, etc.)
+2. **CRITICAL: If a Spring EQ underwriting summary is present, compare ALL data points against the source documents**
+   - Verify income figures match paystubs/W-2s
+   - Verify debt obligations match credit reports and statements
+   - Verify property information matches appraisal
+   - Compare 1003 application data with Spring EQ underwrite (note: differences are normal as 1003 comes first)
+   - **UNDERSTAND CONSERVATIVE VS. AGGRESSIVE UNDERWRITING:**
+     
+     **CONSERVATIVE (Lower Risk - POSITIVE):**
+     - Spring EQ uses LOWER income than documented → Good, reduces risk
+     - Spring EQ uses HIGHER debts than documented → Good, reduces risk
+     - Spring EQ uses LOWER property value than appraisal → Good, reduces risk
+     - Spring EQ calculates HIGHER DTI than raw documents show → Good, more conservative
+     - Spring EQ shows HIGHER interest rate than final loan → Good, qualified at higher payment
+     - Spring EQ shows HIGHER loan amount than final loan → Good, qualified at higher payment
+     - Spring EQ shows HIGHER monthly payment than final loan → Good, qualified at higher payment
+     - **KEY CONCEPT:** If borrower qualified at a HIGHER payment (higher rate/amount) but gets a LOWER payment (lower rate/amount), that's CONSERVATIVE and GOOD
+     - Mark these as "Conservative Approach" in GREEN - these are RISK MITIGATIONS, not concerns
+     
+     **AGGRESSIVE (Higher Risk - CONCERN):**
+     - Spring EQ uses HIGHER income than documented → RED FLAG, overstating ability to pay
+     - Spring EQ uses LOWER debts than credit report shows → RED FLAG, understating obligations
+     - Spring EQ uses HIGHER property value than appraisal → RED FLAG, overstating collateral
+     - Spring EQ calculates LOWER DTI than documents support → RED FLAG, understating risk
+     - Spring EQ shows LOWER interest rate for qualification than final loan → RED FLAG, qualified at lower payment
+     - Spring EQ shows LOWER loan amount for qualification than final loan → RED FLAG, qualified at lower payment
+     - Spring EQ shows LOWER monthly payment for qualification than final loan → RED FLAG, qualified at lower payment
+     - **KEY CONCEPT:** If borrower qualified at a LOWER payment but will have a HIGHER payment, that's AGGRESSIVE and BAD
+     - Mark these as "Aggressive Assumption" in RED - these are REAL CONCERNS
+
+3. Calculate key underwriting metrics independently from source documents:
    - Front-End DTI (Housing payment / Gross monthly income)
    - Back-End DTI (All monthly debt payments / Gross monthly income)
    - Current monthly income from all sources
    - Total monthly debt obligations
    - Available assets and reserves
    - Credit profile summary
-4. Assess the borrower's overall creditworthiness
-5. Identify any red flags or areas of concern
-6. Provide a comprehensive underwriting recommendation
+4. Compare YOUR calculations with Spring EQ underwriting summary
+5. Assess the borrower's overall creditworthiness
+6. Identify any red flags or areas of concern
+7. Provide a comprehensive underwriting recommendation
 
 Create a professional HTML report with:
 - Clean, modern styling with CSS
 - Executive Summary section
+- **DISCREPANCY ANALYSIS** (if Spring EQ or other underwriting summary exists)
+  - List ALL discrepancies found between the summary and source documents
+  - Include side-by-side comparison table with columns:
+    * Data Point
+    * Source Document Value
+    * Spring EQ Underwrite Value
+    * Your Calculated Value
+    * Risk Assessment (Conservative/Neutral/Aggressive)
+    * Impact (Positive/Neutral/Concern)
+  - **CLEARLY DISTINGUISH** between conservative (good) and aggressive (bad) discrepancies
 - Borrower Information
-- Income Analysis (with calculations shown)
-- Debt Analysis
-- DTI Calculations (Front-End and Back-End with formulas)
+- Income Analysis (with calculations shown and sources cited)
+- Debt Analysis (with all debts listed from source documents)
+- DTI Calculations (Front-End and Back-End with formulas and step-by-step math)
 - Credit Summary
 - Asset Summary
 - Property Information (if available)
 - Risk Assessment
 - Underwriting Recommendation
-- Supporting Details section
+- Supporting Details section with document sources
 
-Use tables, proper formatting, and color coding (green for good, yellow for caution, red for concerns).
+Use tables, proper formatting, and color coding:
+- **DARK GREEN** for conservative underwriting (positive risk mitigation)
+- **LIGHT GREEN** for verified/matching data
+- **YELLOW** for neutral discrepancies or needs verification
+- **RED** for aggressive assumptions or major concerns
+- **BLUE** for informational notes (e.g., 1003 vs final terms differences)
+
 Return ONLY the complete HTML document (starting with <!DOCTYPE html>), no other text."""
             },
             {
