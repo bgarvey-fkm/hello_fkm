@@ -108,26 +108,32 @@ Remember: Return ONLY the JSON object, no other text."""
         return {"error": "Invalid JSON response", "raw_response": json_response}
 
 
-async def create_document_json_files():
+async def create_document_json_files(loan_id="1000182277"):
     """
-    Process each document in loan_docs_inputs and create individual JSON files in parallel
+    Process each document in loan_docs/{loan_id}/base64 and loan_docs/{loan_id}/text 
+    and create individual JSON files in parallel
     """
     
-    input_dir = Path("loan_docs_inputs")
-    output_dir = Path("loan_docs_json")
+    input_base64_dir = Path(f"loan_docs/{loan_id}/base64")
+    input_text_dir = Path(f"loan_docs/{loan_id}/text")
+    output_dir = Path(f"loan_docs/{loan_id}/json")
     
     # Create output directory
-    output_dir.mkdir(exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    if not input_dir.exists():
-        print(f"Error: {input_dir} directory not found!")
+    if not input_base64_dir.exists() and not input_text_dir.exists():
+        print(f"Error: Neither {input_base64_dir} nor {input_text_dir} directory found!")
         return
     
     # Get ALL text files (both text extractions and base64)
-    all_files = list(input_dir.glob("*.txt"))
+    all_files = []
+    if input_base64_dir.exists():
+        all_files.extend(list(input_base64_dir.glob("*.txt")))
+    if input_text_dir.exists():
+        all_files.extend(list(input_text_dir.glob("*.txt")))
     
     if not all_files:
-        print("No files found in loan_docs_inputs/")
+        print("No files found to process")
         return
     
     print(f"Found {len(all_files)} documents to process")

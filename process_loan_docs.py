@@ -3,32 +3,32 @@ import base64
 from pathlib import Path
 import pdfplumber
 
-def process_image_files():
+def process_image_files(loan_id="1000182277"):
     """
-    Process all PDF and PNG files in the image_files directory.
-    - PNG files: Convert to base64
-    - PDF files: Extract text
-    Output saved to loan_docs_inputs directory
+    Process all PDF and PNG files in the loan_docs/{loan_id}/source_pdfs and images directories.
+    - PNG files: Convert to base64 → loan_docs/{loan_id}/base64/
+    - PDF files: Extract text → loan_docs/{loan_id}/text/
     """
     
     # Define directories
-    input_dir = Path("image_files")
-    output_dir = Path("loan_docs_inputs")
+    loan_dir = Path(f"loan_docs/{loan_id}")
+    source_pdfs_dir = loan_dir / "source_pdfs"
+    images_dir = loan_dir / "images"
+    base64_output_dir = loan_dir / "base64"
+    text_output_dir = loan_dir / "text"
     
-    # Create output directory if it doesn't exist
-    output_dir.mkdir(exist_ok=True)
+    # Create output directories if they don't exist
+    base64_output_dir.mkdir(parents=True, exist_ok=True)
+    text_output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Check if input directory exists
-    if not input_dir.exists():
-        print(f"Error: {input_dir} directory not found!")
+    # Check if input directories exist
+    if not source_pdfs_dir.exists() and not images_dir.exists():
+        print(f"Error: Neither {source_pdfs_dir} nor {images_dir} directory found!")
         return
     
-    # Get all files in the directory
-    all_files = list(input_dir.glob("*"))
-    
-    # Filter for PDF and PNG files
-    pdf_files = [f for f in all_files if f.suffix.lower() == ".pdf"]
-    png_files = [f for f in all_files if f.suffix.lower() == ".png"]
+    # Get all files from both directories
+    pdf_files = list(source_pdfs_dir.glob("*.pdf")) if source_pdfs_dir.exists() else []
+    png_files = list(images_dir.glob("*.PNG")) if images_dir.exists() else []
     
     print(f"Found {len(pdf_files)} PDF files and {len(png_files)} PNG files")
     print("=" * 60)
@@ -42,7 +42,7 @@ def process_image_files():
             
             # Save base64 to output directory
             output_filename = f"{png_file.stem}_base64.txt"
-            output_path = output_dir / output_filename
+            output_path = base64_output_dir / output_filename
             
             with open(output_path, "w", encoding="utf-8") as f:
                 f.write(base64_data)
@@ -66,7 +66,7 @@ def process_image_files():
             
             # Save text to output directory
             output_filename = f"{pdf_file.stem}_text.txt"
-            output_path = output_dir / output_filename
+            output_path = text_output_dir / output_filename
             
             with open(output_path, "w", encoding="utf-8") as f:
                 f.write(text)
@@ -78,7 +78,9 @@ def process_image_files():
     
     print()
     print("=" * 60)
-    print(f"Processing complete! Output saved to: {output_dir}/")
+    print(f"Processing complete!")
+    print(f"  Base64 files: {base64_output_dir}/")
+    print(f"  Text files: {text_output_dir}/")
     print(f"Total files processed: {len(pdf_files) + len(png_files)}")
 
 

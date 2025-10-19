@@ -13,12 +13,12 @@ subscription_key = os.getenv("AZURE_OPENAI_KEY")
 api_version = os.getenv("AZURE_OPENAI_API_VERSION")
 
 
-def load_markdown_files():
+def load_markdown_files(loan_id="1000182277"):
     """Load the independent analysis markdown files"""
-    summary_dir = Path("loan_summary")
+    summary_dir = Path("reports")
     
-    income_md_path = summary_dir / "turn1_independent_income_analysis.md"
-    debt_md_path = summary_dir / "turn1_independent_debt_analysis.md"
+    income_md_path = summary_dir / f"{loan_id}_income_analysis.md"
+    debt_md_path = summary_dir / f"{loan_id}_debt_analysis.md"
     
     markdown_data = {}
     
@@ -39,9 +39,9 @@ def load_markdown_files():
     return markdown_data
 
 
-def load_spring_eq_files():
+def load_spring_eq_files(loan_id="1000182277"):
     """Load Spring EQ JSON files"""
-    json_dir = Path("loan_docs_json")
+    json_dir = Path(f"loan_docs/{loan_id}/json")
     
     if not json_dir.exists():
         return {}
@@ -61,9 +61,9 @@ def load_spring_eq_files():
     return spring_data
 
 
-def load_all_source_json_files():
+def load_all_source_json_files(loan_id="1000182277"):
     """Load all source document JSON files for reference"""
-    json_dir = Path("loan_docs_json")
+    json_dir = Path(f"loan_docs/{loan_id}/json")
     
     if not json_dir.exists():
         return {}
@@ -452,9 +452,9 @@ Focus on Front-End DTI and Back-End DTI only. Compare independent agent determin
     reconciliation_html = response.choices[0].message.content
     
     # Save reconciliation report
-    output_dir = Path("loan_summary")
+    output_dir = Path("reports")
     output_dir.mkdir(exist_ok=True)
-    output_path = output_dir / "dti_reconciliation_report.html"
+    output_path = output_dir / "1000182277_dti_reconciliation.html"
     
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(reconciliation_html)

@@ -12,7 +12,11 @@ __pycache__/
 *$py.class
 *.so
 
-# Sensitive data directories
+# Sensitive data directories - NEW STRUCTURE
+loan_docs/
+reports/
+
+# Sensitive data directories - OLD STRUCTURE (can be deleted after migration)
 image_files/
 loan_summary/
 loan_docs_inputs/

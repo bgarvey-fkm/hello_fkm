@@ -13,9 +13,9 @@ subscription_key = os.getenv("AZURE_OPENAI_KEY")
 api_version = os.getenv("AZURE_OPENAI_API_VERSION")
 
 
-def load_all_json_files(exclude_spring=False):
-    """Load all JSON files from loan_docs_json directory"""
-    json_dir = Path("loan_docs_json")
+def load_all_json_files(exclude_spring=False, loan_id="1000182277"):
+    """Load all JSON files from loan_docs/{loan_id}/json directory"""
+    json_dir = Path(f"loan_docs/{loan_id}/json")
     
     if not json_dir.exists():
         print(f"Error: {json_dir} directory not found!")
@@ -39,9 +39,9 @@ def load_all_json_files(exclude_spring=False):
     return all_data
 
 
-def load_spring_eq_files():
+def load_spring_eq_files(loan_id="1000182277"):
     """Load only Spring EQ related JSON files"""
-    json_dir = Path("loan_docs_json")
+    json_dir = Path(f"loan_docs/{loan_id}/json")
     
     if not json_dir.exists():
         return {}
@@ -217,9 +217,9 @@ Provide your complete analysis in Markdown format."""
     turn1_markdown = response.choices[0].message.content
     
     # Save Turn 1 analysis to markdown file
-    output_dir = Path("loan_summary")
+    output_dir = Path("reports")
     output_dir.mkdir(exist_ok=True)
-    turn1_path = output_dir / "turn1_independent_income_analysis.md"
+    turn1_path = output_dir / "1000182277_income_analysis.md"
     
     with open(turn1_path, "w", encoding="utf-8") as f:
         f.write(turn1_markdown)
@@ -401,7 +401,7 @@ def main():
     print("INCOME VERIFICATION COMPLETE")
     print("="*60)
     print("\nGenerated file:")
-    print("  - loan_summary/turn1_independent_income_analysis.md")
+    print("  - reports/1000182277_income_analysis.md")
     print("\nThis report contains the qualifying monthly income determination.")
 
 
