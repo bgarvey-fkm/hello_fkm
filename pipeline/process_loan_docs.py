@@ -1,88 +1,144 @@
 import os
 import sys
-import base64
+import json
+import asyncio
 from pathlib import Path
-import pdfplumber
+from azure.ai.documentintelligence.aio import DocumentIntelligenceClient
+from azure.core.credentials import AzureKeyCredential
+from dotenv import load_dotenv
 
-def process_image_files(loan_id="1000182227"):
+load_dotenv()
+
+async def process_single_pdf(client, pdf_file, json_output_dir):
     """
-    Process all PDF and PNG files in the loan_docs/{loan_id}/source_pdfs and images directories.
-    - PNG files: Convert to base64 → loan_docs/{loan_id}/base64/
-    - PDF files: Extract text → loan_docs/{loan_id}/text/
+    Process a single PDF file with Document Intelligence.
+    Returns: (success: bool, filename: str, error: str or None)
     """
+    try:
+        print(f"Processing: {pdf_file.name}...")
+        
+        # Read the PDF file
+        with open(pdf_file, "rb") as f:
+            pdf_data = f.read()
+        
+        # Analyze with Document Intelligence
+        poller = await client.begin_analyze_document(
+            model_id="prebuilt-layout",
+            body=pdf_data,
+            content_type="application/pdf"
+        )
+        
+        result = await poller.result()
+        
+        # Extract structured data
+        doc_data = {
+            "document_name": pdf_file.name,
+            "api_version": result.api_version,
+            "model_id": "prebuilt-layout",
+            "content": result.content,
+            "pages_count": len(result.pages) if result.pages else 0,
+            "tables": [
+                {
+                    "row_count": table.row_count,
+                    "column_count": table.column_count,
+                    "cells": [
+                        {
+                            "row": cell.row_index,
+                            "col": cell.column_index,
+                            "content": cell.content,
+                            "kind": cell.kind if hasattr(cell, 'kind') else None
+                        }
+                        for cell in table.cells
+                    ]
+                }
+                for table in (result.tables or [])
+            ],
+            "paragraphs": [
+                {
+                    "content": para.content,
+                    "role": para.role if hasattr(para, 'role') else None
+                }
+                for para in (result.paragraphs or [])[:50]  # Limit to first 50 paragraphs
+            ] if result.paragraphs else []
+        }
+        
+        # Save to JSON
+        output_filename = f"{pdf_file.stem}.json"
+        output_path = json_output_dir / output_filename
+        
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(doc_data, f, indent=2, ensure_ascii=False)
+        
+        print(f"  ✓ {pdf_file.name}: {len(doc_data['content'])} chars, "
+              f"{len(doc_data['tables'])} tables, "
+              f"{len(doc_data['paragraphs'])} paragraphs")
+        
+        return (True, pdf_file.name, None)
+    
+    except Exception as e:
+        print(f"  ✗ {pdf_file.name}: Error - {e}")
+        return (False, pdf_file.name, str(e))
+
+
+async def process_image_files(loan_id="1000182227"):
+    """
+    Process all PDF files using Azure Document Intelligence (async).
+    - PDF files: Extract structured content (text, tables, layout) → loan_docs/{loan_id}/json/
+    
+    Processes multiple PDFs in parallel for faster execution!
+    """
+    
+    # Azure Document Intelligence Configuration
+    DOC_INTELLIGENCE_ENDPOINT = "https://jwink-mcf50yni-swedencentral.cognitiveservices.azure.com/"
+    DOC_INTELLIGENCE_KEY = os.getenv("AZURE_OPENAI_KEY")
     
     # Define directories
     loan_dir = Path(f"loan_docs/{loan_id}")
     source_pdfs_dir = loan_dir / "source_pdfs"
-    images_dir = loan_dir / "images"
-    base64_output_dir = loan_dir / "base64"
-    text_output_dir = loan_dir / "text"
+    json_output_dir = loan_dir / "json"
     
-    # Create output directories if they don't exist
-    base64_output_dir.mkdir(parents=True, exist_ok=True)
-    text_output_dir.mkdir(parents=True, exist_ok=True)
+    # Create output directory
+    json_output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Check if input directories exist
-    if not source_pdfs_dir.exists() and not images_dir.exists():
-        print(f"Error: Neither {source_pdfs_dir} nor {images_dir} directory found!")
+    # Check if input directory exists
+    if not source_pdfs_dir.exists():
+        print(f"Error: {source_pdfs_dir} directory not found!")
         return
     
-    # Get all files from both directories
-    pdf_files = list(source_pdfs_dir.glob("*.pdf")) if source_pdfs_dir.exists() else []
-    png_files = list(images_dir.glob("*.PNG")) if images_dir.exists() else []
+    # Get all PDF files
+    pdf_files = list(source_pdfs_dir.glob("*.pdf"))
     
-    print(f"Found {len(pdf_files)} PDF files and {len(png_files)} PNG files")
-    print("=" * 60)
-    
-    # Process PNG files - convert to base64
-    for png_file in png_files:
-        try:
-            with open(png_file, "rb") as f:
-                png_data = f.read()
-                base64_data = base64.b64encode(png_data).decode("utf-8")
-            
-            # Save base64 to output directory
-            output_filename = f"{png_file.stem}_base64.txt"
-            output_path = base64_output_dir / output_filename
-            
-            with open(output_path, "w", encoding="utf-8") as f:
-                f.write(base64_data)
-            
-            print(f"✓ Converted PNG to base64: {png_file.name} -> {output_filename}")
-        
-        except Exception as e:
-            print(f"✗ Error processing {png_file.name}: {e}")
-    
+    print(f"Found {len(pdf_files)} PDF files")
+    print("=" * 80)
+    print("Using Azure Document Intelligence (prebuilt-layout model)")
+    print("Processing PDFs in parallel with async I/O...")
+    print("=" * 80)
     print()
     
-    # Process PDF files - extract text
-    for pdf_file in pdf_files:
-        try:
-            with pdfplumber.open(pdf_file) as pdf:
-                text = ""
-                for page in pdf.pages:
-                    page_text = page.extract_text()
-                    if page_text:
-                        text += page_text + "\n"
-            
-            # Save text to output directory
-            output_filename = f"{pdf_file.stem}_text.txt"
-            output_path = text_output_dir / output_filename
-            
-            with open(output_path, "w", encoding="utf-8") as f:
-                f.write(text)
-            
-            print(f"✓ Extracted text from PDF: {pdf_file.name} -> {output_filename}")
+    # Initialize async client
+    async with DocumentIntelligenceClient(
+        endpoint=DOC_INTELLIGENCE_ENDPOINT,
+        credential=AzureKeyCredential(DOC_INTELLIGENCE_KEY)
+    ) as client:
         
-        except Exception as e:
-            print(f"✗ Error processing {pdf_file.name}: {e}")
+        # Process all PDFs concurrently
+        tasks = [process_single_pdf(client, pdf_file, json_output_dir) for pdf_file in pdf_files]
+        results = await asyncio.gather(*tasks)
+    
+    # Count successes and failures
+    successful = [r for r in results if r[0]]
+    failed = [r for r in results if not r[0]]
     
     print()
-    print("=" * 60)
+    print("=" * 80)
     print(f"Processing complete!")
-    print(f"  Base64 files: {base64_output_dir}/")
-    print(f"  Text files: {text_output_dir}/")
-    print(f"Total files processed: {len(pdf_files) + len(png_files)}")
+    print(f"  ✓ Successfully processed: {len(successful)} files")
+    if failed:
+        print(f"  ✗ Errors: {len(failed)} files")
+        for _, filename, error in failed:
+            print(f"    - {filename}: {error}")
+    print(f"  Output directory: {json_output_dir}/")
+    print("=" * 80)
 
 
 if __name__ == "__main__":
@@ -92,4 +148,4 @@ if __name__ == "__main__":
     else:
         loan_id = "1000182227"
     
-    process_image_files(loan_id)
+    asyncio.run(process_image_files(loan_id))

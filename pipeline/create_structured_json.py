@@ -17,86 +17,67 @@ api_version = os.getenv("AZURE_OPENAI_API_VERSION")
 
 async def process_loan_document(file_path, client):
     """
-    Process a single loan document and return structured JSON
+    Process a single Document Intelligence JSON output and enrich it with LLM analysis.
+    The file already contains structured content and tables from Document Intelligence.
+    We just add intelligent extraction of key fields.
     """
     
-    # Read the document content
+    # Read the Document Intelligence JSON
     with open(file_path, "r", encoding="utf-8") as f:
-        content = f.read()
+        doc_intel_data = json.load(f)
     
     print(f"Processing: {file_path.name}...")
     
-    # Check if this is a base64 image file
-    is_base64 = "_base64" in file_path.name
+    # Extract the content and tables
+    content = doc_intel_data.get("content", "")
+    tables = doc_intel_data.get("tables", [])
     
-    if is_base64:
-        # For base64 images, use vision capabilities
-        response = await client.chat.completions.create(     
-            messages=[         
-                {
-                    "role": "system",
-                    "content": """You are a Mortgage Loan Origination Document Processor. Your job is to analyze mortgage loan documents and extract all relevant information into a structured JSON format.
+    # Create a summary of tables for the LLM
+    tables_summary = []
+    for idx, table in enumerate(tables[:5]):  # Limit to first 5 tables
+        cells_text = "\n".join([
+            f"  [{cell['row']},{cell['col']}]: {cell['content']}"
+            for cell in table['cells'][:20]  # First 20 cells per table
+        ])
+        tables_summary.append(f"Table {idx + 1} ({table['row_count']}x{table['column_count']}):\n{cells_text}")
+    
+    tables_text = "\n\n".join(tables_summary) if tables_summary else "No tables found"
+    
+    # Use LLM to extract structured data from the Document Intelligence output
+    response = await client.chat.completions.create(     
+        messages=[         
+            {
+                "role": "system",
+                "content": """You are a Mortgage Loan Origination Document Processor. You receive structured content extracted from PDFs by Azure Document Intelligence (text + tables).
 
-For each document you receive:
-1. Identify what type of document it is (paystub, W-2, credit report, appraisal, mortgage statement, bank statement, etc.)
+Your job:
+1. Identify the document type (paystub, W-2, Form 1003, credit report, appraisal, loan estimate, etc.)
 2. Extract ALL relevant data fields specific to that document type
-3. Return a well-structured JSON object with appropriate schema for that document type
-4. Include a "document_type" field at the top level
-5. Include a "document_date" field if a date is present
-6. Be thorough - capture all financial figures, dates, names, addresses, and other relevant information
+3. Use the table data when available - it's already structured with row/column positions
+4. Return a well-structured JSON object with:
+   - "document_type" field
+   - "document_date" field if present
+   - All relevant financial figures, dates, names, addresses
+   - For forms with tables, preserve the table structure
 
 Return ONLY valid JSON, no explanations or markdown."""
-                },
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": "Please analyze this document image and extract all relevant information into a structured JSON format. Return ONLY the JSON object, no other text."
-                        },
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/png;base64,{content}"
-                            }
-                        }
-                    ]
-                }    
-            ],
-            max_completion_tokens=16384, 
-            model=deployment
-        )
-    else:
-        # For text files, use standard text processing
-        response = await client.chat.completions.create(     
-            messages=[         
-                {
-                    "role": "system",
-                    "content": """You are a Mortgage Loan Origination Document Processor. Your job is to analyze mortgage loan documents and extract all relevant information into a structured JSON format.
+            },
+            {
+                "role": "user",
+                "content": f"""Analyze this document and extract all relevant information into structured JSON.
 
-For each document you receive:
-1. Identify what type of document it is (paystub, W-2, credit report, appraisal, mortgage statement, bank statement, etc.)
-2. Extract ALL relevant data fields specific to that document type
-3. Return a well-structured JSON object with appropriate schema for that document type
-4. Include a "document_type" field at the top level
-5. Include a "document_date" field if a date is present
-6. Be thorough - capture all financial figures, dates, names, addresses, and other relevant information
+DOCUMENT TEXT:
+{content[:30000]}
 
-Return ONLY valid JSON, no explanations or markdown."""
-                },
-                {
-                    "role": "user",
-                    "content": f"""Please analyze this document and extract all relevant information into a structured JSON format.
+TABLES EXTRACTED:
+{tables_text}
 
-DOCUMENT CONTENT:
-{content}
-
-Remember: Return ONLY the JSON object, no other text."""
-                }    
-            ],
-            max_completion_tokens=16384, 
-            model=deployment
-        )
+Return ONLY the JSON object with all extracted data."""
+            }    
+        ],
+        max_completion_tokens=16384, 
+        model=deployment
+    )
     
     json_response = response.choices[0].message.content
     
@@ -115,30 +96,22 @@ async def create_document_json_files(loan_id="1000182227"):
     and create individual JSON files in parallel
     """
     
-    input_base64_dir = Path(f"loan_docs/{loan_id}/base64")
-    input_text_dir = Path(f"loan_docs/{loan_id}/text")
-    output_dir = Path(f"loan_docs/{loan_id}/json")
+    json_dir = Path(f"loan_docs/{loan_id}/json")
     
-    # Create output directory
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    if not input_base64_dir.exists() and not input_text_dir.exists():
-        print(f"Error: Neither {input_base64_dir} nor {input_text_dir} directory found!")
+    if not json_dir.exists():
+        print(f"Error: {json_dir} directory not found!")
+        print(f"Run 'process_loan_docs.py {loan_id}' first to generate Document Intelligence outputs")
         return
     
-    # Get ALL text files (both text extractions and base64)
-    all_files = []
-    if input_base64_dir.exists():
-        all_files.extend(list(input_base64_dir.glob("*.txt")))
-    if input_text_dir.exists():
-        all_files.extend(list(input_text_dir.glob("*.txt")))
+    # Get all JSON files from Document Intelligence (not already analyzed)
+    all_files = [f for f in json_dir.glob("*.json") if not f.stem.endswith("_analyzed")]
     
     if not all_files:
-        print("No files found to process")
+        print("No Document Intelligence JSON files found to process")
         return
     
-    print(f"Found {len(all_files)} documents to process")
-    print("="*60)
+    print(f"Found {len(all_files)} Document Intelligence outputs to analyze")
+    print("="*80)
     
     # Initialize Azure OpenAI async client
     client = AsyncAzureOpenAI(
@@ -153,9 +126,9 @@ async def create_document_json_files(loan_id="1000182227"):
             # Process the document
             json_data = await process_loan_document(file, client)
             
-            # Create output filename (remove _text or _base64 suffix)
-            output_filename = file.stem.replace("_text", "").replace("_base64", "") + ".json"
-            output_path = output_dir / output_filename
+            # Create output filename with _analyzed suffix
+            output_filename = file.stem + "_analyzed.json"
+            output_path = json_dir / output_filename
             
             # Save JSON file
             with open(output_path, "w", encoding="utf-8") as f:
@@ -171,8 +144,8 @@ async def create_document_json_files(loan_id="1000182227"):
     # Run all processing tasks in parallel
     results = await asyncio.gather(*[process_and_save(file) for file in all_files])
     
-    print("="*60)
-    print(f"Processing complete! JSON files saved to: {output_dir}/")
+    print("="*80)
+    print(f"Processing complete! Analyzed JSON files saved to: {json_dir}/")
     print(f"Total files processed: {len(all_files)}")
     print(f"Successful: {sum(results)}, Failed: {len(results) - sum(results)}")
 
