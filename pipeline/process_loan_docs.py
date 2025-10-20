@@ -1,9 +1,10 @@
 import os
+import sys
 import base64
 from pathlib import Path
 import pdfplumber
 
-def process_image_files(loan_id="1000182277"):
+def process_image_files(loan_id="1000182227"):
     """
     Process all PDF and PNG files in the loan_docs/{loan_id}/source_pdfs and images directories.
     - PNG files: Convert to base64 → loan_docs/{loan_id}/base64/
@@ -85,4 +86,10 @@ def process_image_files(loan_id="1000182277"):
 
 
 if __name__ == "__main__":
-    process_image_files()
+    # Accept loan_id from command line argument or use default
+    if len(sys.argv) > 1:
+        loan_id = sys.argv[1]
+    else:
+        loan_id = "1000182227"
+    
+    process_image_files(loan_id)

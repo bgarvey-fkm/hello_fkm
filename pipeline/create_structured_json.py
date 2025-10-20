@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import asyncio
 from pathlib import Path
@@ -108,7 +109,7 @@ Remember: Return ONLY the JSON object, no other text."""
         return {"error": "Invalid JSON response", "raw_response": json_response}
 
 
-async def create_document_json_files(loan_id="1000182277"):
+async def create_document_json_files(loan_id="1000182227"):
     """
     Process each document in loan_docs/{loan_id}/base64 and loan_docs/{loan_id}/text 
     and create individual JSON files in parallel
@@ -177,4 +178,10 @@ async def create_document_json_files(loan_id="1000182277"):
 
 
 if __name__ == "__main__":
-    asyncio.run(create_document_json_files())
+    # Accept loan_id from command line argument or use default
+    if len(sys.argv) > 1:
+        loan_id = sys.argv[1]
+    else:
+        loan_id = "1000182227"
+    
+    asyncio.run(create_document_json_files(loan_id))

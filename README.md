@@ -6,38 +6,42 @@ A sophisticated Python-based system for processing mortgage loan documents using
 
 - **🚀 Parallel Document Processing**: Async Azure OpenAI calls for maximum speed (30+ docs in seconds)
 - **👁️ Vision AI Analysis**: Extract data from both PDFs and images using GPT-4 vision
-- **💰 Income Verification Agent**: Independent analysis with 2-year averaging for variable income
-- **💳 Debt Verification Agent**: DTI calculations with debt consolidation and payoff detection
-- **🔄 DTI Reconciliation Agent**: 3-way comparison (income + debt + Spring EQ worksheet)
+- **� Form 1003 Anchoring**: Use Form 1003 as the starting point - all validation flows from borrower assertions
+- **✅ Document Verification**: Automatically check if file has sufficient docs to verify all assertions
 - **📊 Loan ID Organization**: Scalable folder structure supporting multiple loans
-- **🔍 Conservative vs Aggressive Assessment**: Intelligent risk evaluation
-- **📄 Professional Reports**: Markdown and HTML reports with detailed citations
+- **🔍 Gap Analysis**: Identify missing documents, stale docs, and discrepancies
+- **📄 Professional Reports**: JSON and Markdown reports with detailed findings
+- **⏱️ Timeline Analysis**: Distinguish process timeline from historical data timeline
 
 ## Project Structure
 
 ```
 hello_fkm/
-├── process_loan_docs.py              # Step 1: Extract text from PDFs and base64 from PNGs
-├── create_underwriting_summary.py    # Step 2: Async parallel analysis with Azure OpenAI
-├── income_verification_2turn.py      # Step 3: Independent income analysis agent
-├── debt_verification_2turn.py        # Step 4: Independent debt analysis agent
-├── dti_reconciliation_agent.py       # Step 5: DTI reconciliation report
-├── reorganize_by_loan_id.py          # Utility: Reorganize files by loan ID
-├── move_text_files.py                # Utility: Move text files to new structure
-├── requirements.txt                  # Python dependencies
-├── .env.example                      # Example environment variables
-├── PIPELINE.md                       # Complete processing pipeline documentation
-├── loan_docs/                        # Loan documents organized by loan ID (gitignored)
+├── pipeline/                         # 🔄 Core Processing Pipeline
+│   ├── process_loan_docs.py          # Step 1: Extract text from PDFs and base64 from PNGs
+│   ├── create_structured_json.py     # Step 2: Async parallel analysis with Azure OpenAI
+│   ├── form_1003_analysis_agent.py   # Step 3: Extract Form 1003 assertions (2-turn)
+│   ├── document_verification_agent.py # Step 4: Verify docs match 1003 assertions
+│   └── README.md                     # Pipeline documentation
+├── agents/                           # 🤖 Optional Analysis Agents (WIP)
+├── utils/                            # 🛠️ Utility Scripts
+├── loan_docs/                        # 📁 Loan documents organized by loan ID (gitignored)
 │   └── {loan_id}/
 │       ├── source_pdfs/              # Original PDF documents
 │       ├── images/                   # PNG images from PDFs
 │       ├── text/                     # Extracted text from PDFs
 │       ├── base64/                   # Base64 encoded images for API
 │       └── json/                     # Structured JSON from Azure OpenAI
-└── reports/                          # Generated analysis reports (gitignored)
-    ├── {loan_id}_income_analysis.md
-    ├── {loan_id}_debt_analysis.md
-    └── {loan_id}_dti_reconciliation.html
+├── reports/                          # 📊 Generated analysis reports (gitignored)
+│   ├── form_1003_analysis_*.json     # Form 1003 extraction results
+│   ├── verification_analysis_*.json  # Document verification results
+│   ├── verification_analysis_*.md    # Human-readable reports
+│   └── PIPELINE_COMPARISON.md        # Multi-loan comparison
+├── requirements.txt                  # Python dependencies
+├── .env.example                      # Example environment variables
+├── PIPELINE.md                       # Complete processing pipeline documentation
+├── PROJECT_STRUCTURE.md              # Detailed structure guide
+└── README.md                         # This file
 ```
 
 ## Setup
@@ -94,7 +98,7 @@ mkdir -p reports
 
 ### Complete Pipeline (Recommended)
 
-See [PIPELINE.md](PIPELINE.md) for detailed step-by-step documentation.
+See [pipeline/README.md](pipeline/README.md) for detailed step-by-step documentation.
 
 **Quick Start:**
 
@@ -104,41 +108,43 @@ See [PIPELINE.md](PIPELINE.md) for detailed step-by-step documentation.
 # - PNGs → loan_docs/{loan_id}/images/
 
 # Step 2: Extract text from PDFs and convert PNGs to base64
-python process_loan_docs.py
+python pipeline/process_loan_docs.py
 
 # Step 3: Process all documents in parallel with Azure OpenAI
-python create_underwriting_summary.py
+python pipeline/create_underwriting_summary.py
 
-# Step 4: Run income verification agent
-python income_verification_2turn.py
+# Step 4: Extract Form 1003 assertions (what borrowers declared)
+python pipeline/form_1003_analysis_agent.py
 
-# Step 5: Run debt verification agent
-python debt_verification_2turn.py
-
-# Step 6: Generate DTI reconciliation report
-python dti_reconciliation_agent.py
+# Step 5: Verify documentation matches 1003 assertions
+python pipeline/document_verification_agent.py
 ```
 
 ### Output Reports
 
 All reports are generated in the `reports/` folder with loan ID prefixes:
 
-1. **`{loan_id}_income_analysis.md`** - Qualifying monthly income determination
-   - 2-year averaging for variable income
-   - Detailed calculations with citations
-   - Income source breakdown
+1. **`form_1003_analysis_{loan_id}_{timestamp}.json`** - Form 1003 extraction
+   - Application date (Day 0 of underwriting)
+   - Borrower assertions (income, debts, assets, property)
+   - Employment details
+   - Loan details
+   - Declarations
 
-2. **`{loan_id}_debt_analysis.md`** - Debt obligations and DTI analysis
-   - Front-End and Back-End DTI calculations
-   - Debt consolidation and payoff identification
-   - Interest rate estimation for unclear debts
-   - Current DTI vs Proposed DTI comparison
+2. **`verification_analysis_{loan_id}_{timestamp}.json`** - Verification results
+   - What assertions are verified ✅
+   - What documents are missing ❌
+   - Discrepancies found ⚠️
+   - Document freshness issues
+   - Overall file completeness
 
-3. **`{loan_id}_dti_reconciliation.html`** - Comprehensive 3-way comparison
-   - Independent income analysis vs Spring EQ
-   - Independent debt analysis vs Spring EQ
-   - Variance analysis with conservative/aggressive assessment
-   - Source document verification
+3. **`verification_analysis_{loan_id}_{timestamp}.md`** - Human-readable report
+   - Executive summary
+   - Employment & income verification
+   - Liabilities verification
+   - Property verification
+   - Missing documents list
+   - Recommendations
 
 ## Document Types Supported
 

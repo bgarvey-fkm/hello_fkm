@@ -1,0 +1,361 @@
+{
+  "loan_id": "string",
+  "analysis_date": "ISO 8601 timestamp",
+  "form_1003_files": ["array of filenames containing 1003 data"],
+  "assertions": {
+    "process_anchor": {
+      "application_date": "YYYY-MM-DD",
+      "borrower_signatures": [
+        {
+          "name": "FULL NAME",
+          "role": "Primary Borrower|Co-Borrower",
+          "signature_date": "YYYY-MM-DD",
+          "e_signature": true,
+          "e_signature_events": {
+            "email": "email@example.com",
+            "phone": "(XXX) XXX-XXXX",
+            "ip_addresses_used": ["IP addresses"],
+            "login_success_time": "ISO 8601 timestamp",
+            "documents_signed_and_submitted": "ISO 8601 timestamp"
+          }
+        }
+      ],
+      "submission_method": {
+        "method": "electronic|paper",
+        "e_consent_obtained": true,
+        "e_sign_package_id": "string or null",
+        "tamper_seal": "verified|not verified|null",
+        "documents_signed": ["list of document names"]
+      }
+    },
+    "borrower_information": {
+      "primary_borrower": {
+        "name": "FULL NAME",
+        "ssn_last_4": "XXXX",
+        "date_of_birth": "YYYY-MM-DD",
+        "citizenship": "U.S. Citizen|Permanent Resident|Non-Permanent Resident",
+        "marital_status": "Married|Single|Separated|Unmarried",
+        "dependents": {
+          "count": 0,
+          "ages": []
+        },
+        "contact": {
+          "cell_phone": "(XXX) XXX-XXXX",
+          "home_phone": "string or null",
+          "work_phone": "string or null",
+          "email": "EMAIL@EXAMPLE.COM",
+          "current_address": {
+            "street": "STREET ADDRESS",
+            "unit": "string or null",
+            "city": "CITY",
+            "state": "ST",
+            "zip": "XXXXX",
+            "country": "US",
+            "years_at_address": 0,
+            "months_at_address": 0,
+            "mailing_address_different": false,
+            "housing_status": "Own|Rent|Living Rent Free"
+          }
+        },
+        "credit_score": {
+          "score": 0,
+          "source": "Experian|Equifax|TransUnion",
+          "date": "YYYY-MM-DD",
+          "key_factors_adversely_affecting_score": []
+        }
+      },
+      "co_borrower": {
+        "name": "FULL NAME or null",
+        "alternate_names": "string or null",
+        "ssn_last_4": "XXXX or null",
+        "date_of_birth": "YYYY-MM-DD or null",
+        "citizenship": "U.S. Citizen|Permanent Resident|Non-Permanent Resident or null",
+        "marital_status": "Married|Single|Separated|Unmarried or null",
+        "dependents": {
+          "count": 0,
+          "ages": []
+        },
+        "contact": {
+          "cell_phone": "string or null",
+          "home_phone": "string or null",
+          "work_phone": "string or null",
+          "email": "string or null",
+          "current_address": {
+            "street": "string or null",
+            "unit": "string or null",
+            "city": "string or null",
+            "state": "string or null",
+            "zip": "string or null",
+            "country": "string or null",
+            "years_at_address": 0,
+            "months_at_address": 0,
+            "mailing_address_different": false,
+            "housing_status": "string or null"
+          }
+        },
+        "credit_score": {
+          "score": 0,
+          "source": "string or null",
+          "date": "string or null",
+          "key_factors_adversely_affecting_score": []
+        }
+      }
+    },
+    "employment_and_income": {
+      "primary_borrower": {
+        "employer_name": "EMPLOYER NAME",
+        "employer_phone": "(XXX) XXX-XXXX",
+        "position_title": "JOB TITLE",
+        "start_date": "YYYY-MM-DD",
+        "years_in_line_of_work": 0,
+        "employment_type": "W-2 (not self-employed)|Self-Employed",
+        "gross_monthly_income": {
+          "base": 0.0,
+          "overtime": 0.0,
+          "bonus": 0.0,
+          "commission": 0.0,
+          "military_entitlements": 0.0,
+          "other": 0.0,
+          "total": 0.0,
+          "period": "month"
+        },
+        "documents_needed_to_validate": []
+      },
+      "co_borrower": {
+        "employer_name": "string or null",
+        "employer_phone": "string or null",
+        "position_title": "string or null",
+        "start_date": "string or null",
+        "years_in_line_of_work": 0,
+        "employment_type": "string or null",
+        "gross_monthly_income": {
+          "base": 0.0,
+          "overtime": 0.0,
+          "bonus": 0.0,
+          "commission": 0.0,
+          "military_entitlements": 0.0,
+          "other": 0.0,
+          "total": 0.0,
+          "period": "month"
+        },
+        "documents_needed_to_validate": []
+      },
+      "notes": "string or null"
+    },
+    "assets": {
+      "declared_on_1003": {
+        "bank_accounts": [],
+        "retirement_accounts": [],
+        "other_assets": []
+      },
+      "real_estate_owned_listed_as_asset": [
+        {
+          "address": "FULL ADDRESS",
+          "county": "COUNTY NAME",
+          "status": "Retained Primary Residence|Investment|etc",
+          "number_of_units": 1,
+          "estimated_value": 0.0,
+          "monthly_insurance_taxes_association_dues_not_included_in_mortgage": 0.0,
+          "mortgage_loans_on_property": [
+            {
+              "creditor_name": "CREDITOR NAME",
+              "account_number": "ACCOUNT NUMBER",
+              "type": "Other (mortgage)|Conventional|FHA|VA",
+              "monthly_payment": 0.0,
+              "unpaid_balance": 0.0,
+              "to_be_paid_off_at_closing": false
+            }
+          ],
+          "documents_needed_to_validate": []
+        }
+      ],
+      "notes": "string or null"
+    },
+    "liabilities": {
+      "summary_from_1003_section_2_and_following_pages": {
+        "notes": "string or null",
+        "liabilities": [
+          {
+            "account_type": "Other|Installment|Revolving",
+            "company_name": "COMPANY NAME",
+            "account_number": "ACCOUNT NUMBER",
+            "joint_account": true,
+            "unpaid_balance": 0.0,
+            "monthly_payment": 0.0,
+            "to_be_paid_off_at_closing": false,
+            "note": "string or null"
+          }
+        ]
+      },
+      "documents_needed_to_validate": []
+    },
+    "property_information": {
+      "property_address": {
+        "street": "STREET ADDRESS",
+        "unit": "string or null",
+        "city": "CITY",
+        "state": "ST",
+        "zip": "XXXXX",
+        "county": "COUNTY",
+        "country": "US"
+      },
+      "property_type": {
+        "number_of_units": 1,
+        "project_type": "string",
+        "special_property_types": {
+          "manufactured_home": false,
+          "mixed_use": false
+        }
+      },
+      "occupancy": "Primary Residence|Second Home|Investment Property",
+      "estimated_value_on_application": 0.0,
+      "purchase_price": null,
+      "mortgages_on_property": [
+        {
+          "creditor_name": "CREDITOR NAME",
+          "account_number": "ACCOUNT NUMBER",
+          "monthly_mortgage_payment": 0.0,
+          "unpaid_balance": 0.0,
+          "to_be_paid_off_at_closing": false
+        }
+      ],
+      "declared_real_estate_ownership": true,
+      "documents_needed_to_validate": []
+    },
+    "loan_details": {
+      "loan_amount_requested": 0.0,
+      "loan_purpose": "Subordinate Lien|Purchase|Refinance|Cash-Out Refinance",
+      "loan_type_applied_for": "Conventional|FHA|VA|USDA|Other",
+      "note_rate_percent": 0.0,
+      "loan_term_months": 0,
+      "amortization_type": "Fixed Rate|Adjustable Rate|Interest Only",
+      "mortgage_lien_type_declared_on_Lender_section": {
+        "first_lien": false,
+        "note": "string or null"
+      },
+      "proposed_monthly_payment_for_property": {
+        "first_mortgage_p_and_i": 0.0,
+        "subordinate_lien_p_and_i": 0.0,
+        "homeowner_insurance": 0.0,
+        "property_taxes": 0.0,
+        "total_estimated_monthly_payment": 0.0
+      },
+      "loan_estimate_details": {
+        "purpose": "string",
+        "product": "string",
+        "loan_term_years": 0,
+        "interest_rate_percent": 0.0,
+        "monthly_principal_and_interest": 0.0,
+        "apr_percent": 0.0,
+        "total_estimated_closing_costs": 0.0,
+        "estimated_cash_to_close": 0.0,
+        "points_percent": 0.0,
+        "points_amount": 0.0,
+        "loan_origination_fee": 0.0,
+        "lock_choice": {
+          "locked": false,
+          "lock_date": "string or null",
+          "lock_days": 0,
+          "lock_expiration_date": "string or null",
+          "interest_rate_percent": 0.0,
+          "loan_program": "string or null",
+          "loan_term_months": 0
+        },
+        "closing_cost_breakdown": {
+          "loan_costs": 0.0,
+          "other_costs": 0.0,
+          "prepaid_interest": 0.0,
+          "taxes_and_government_fees": 0.0
+        }
+      },
+      "qualifying_minimum_required_funds": {
+        "due_from_borrower_total": 0.0,
+        "credit_cards_and_other_debts_paid_off": 0.0,
+        "borrower_closing_costs_including_prepaids_and_initial_escrow": 0.0,
+        "discount_points": 0.0,
+        "cash_from_or_to_borrower": 0.0,
+        "note": "string or null"
+      },
+      "documents_needed_to_validate": []
+    },
+    "declarations_and_acknowledgements": {
+      "explicit_declaration_answers_recorded": [
+        {
+          "question": "string",
+          "answer": "YES|NO|string"
+        }
+      ],
+      "borrowers_certification_and_authorization": {
+        "date_signed": "YYYY-MM-DD",
+        "summary": "string",
+        "signatures": []
+      },
+      "tax_transcript_consent": {
+        "4506_c_signed_for": [
+          {
+            "taxpayer_name": "NAME",
+            "tin_last4": "XXXX",
+            "years_requested": [],
+            "signature_date": "YYYY-MM-DD",
+            "IVES_participant": "string"
+          }
+        ]
+      },
+      "third_party_data_sharing_and_soft_pull_consent": {
+        "Method_Financial_consent": {
+          "date": "string or null",
+          "consent_summary": "string or null"
+        }
+      },
+      "other_disclosures_signed": [],
+      "declaration_questions_requiring_follow_up_if_answered_affirmatively": {
+        "outstanding_judgments": "string",
+        "bankruptcy_history": "string",
+        "foreclosure_history": "string",
+        "lawsuit_involvement": "string",
+        "loan_on_property": "string",
+        "down_payment_borrowed": "string"
+      }
+    },
+    "validation_map": {
+      "employment_and_income": "string",
+      "assets": "string",
+      "liabilities": "string",
+      "property_value": "string",
+      "title_and_lien_position": "string",
+      "tax_income": "string",
+      "credit_scores": "string",
+      "identity": "string",
+      "insurance": "string"
+    },
+    "additional_notes_and_items_requested_by_lender": {
+      "notice_of_incomplete_application_requested_items": [],
+      "response_deadline_for_requested_items": "string or null",
+      "lock_information": {
+        "lock_date": "string or null",
+        "lock_expiration_date": "string or null",
+        "interest_rate_locked_percent": 0.0,
+        "lock_days": 0
+      },
+      "fees_itemization_present": {
+        "points": 0.0,
+        "loan_origination_fee": 0.0,
+        "appraisal_fee": 0.0,
+        "credit_report_fee": 0.0,
+        "document_prep_fee": 0.0,
+        "flood_cert_fee": 0.0,
+        "mers_registration_fee": 0.0,
+        "title_and_recording_fees": 0.0,
+        "recording_and_govt_fees": 0.0,
+        "prepaid_interest": 0.0
+      }
+    }
+  },
+  "metadata": {
+    "description": "Form 1003 is the anchor of the underwriting process. All other documents validate these assertions.",
+    "validation_categories": {
+      "pulled_data": [],
+      "submitted_documents": []
+    }
+  }
+}

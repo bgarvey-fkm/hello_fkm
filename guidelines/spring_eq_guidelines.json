@@ -1,0 +1,320 @@
+{
+  "documents": [
+    {
+      "filename": "Spring EQ - Home Equity Matrix - Released 10.14.25.pdf",
+      "document_type": "Lending Matrix",
+      "release_date": "10/14/2025",
+      "summary": "Product guidelines and requirements matrix for Spring EQ home equity lending products including HELOAN and HELOC offerings",
+      "key_topics": [
+        "FICO and CLTV requirements by occupancy type",
+        "Product terms for fixed and variable rate loans",
+        "Draw requirements and restrictions",
+        "Index, rates, and caps",
+        "Debt-to-income ratios",
+        "Loan amounts and financing limits",
+        "Appraisal requirements",
+        "Income documentation standards",
+        "Credit requirements",
+        "Property eligibility",
+        "Insurance requirements"
+      ]
+    },
+    {
+      "filename": "Spring EQ- Underwriting Guide - Released 10.14.25.pdf",
+      "document_type": "Underwriting Guidelines",
+      "release_date": "10/14/2025",
+      "effective_date": "10/14/2025",
+      "summary": "Comprehensive underwriting policies and procedures for Spring EQ home equity mortgage loans covering credit philosophy, borrower eligibility, documentation requirements, and property valuation standards",
+      "key_topics": [
+        "Credit philosophy and underwriting methods",
+        "Borrower eligibility and types",
+        "Identity and SSN verification",
+        "Credit report requirements and scoring",
+        "Asset requirements and acceptable sources",
+        "Liability calculations and DTI ratios",
+        "Employment and income documentation",
+        "Self-employed borrower requirements",
+        "Property valuation methods",
+        "Title and insurance requirements",
+        "Transaction types and restrictions"
+      ]
+    }
+  ],
+  "cross_reference_topics": {
+    "fico_cltv_requirements": {
+      "matrix_reference": "FICO/CLTV matrix by occupancy type",
+      "owner_occupied_max_cltv": {
+        "740+": "90%",
+        "720-739": "90%",
+        "700-719": "90%",
+        "680-699": "90%",
+        "660-679": "80%",
+        "640-659": "70%"
+      },
+      "second_home_investment_max_cltv": {
+        "740+": "80%",
+        "720-739": "70%",
+        "700-719": "70%",
+        "680-699": "70%"
+      }
+    },
+    "product_offerings": {
+      "fixed_rate_heloan": ["10 year", "15 year", "20 year", "30 year"],
+      "variable_rate_heloc": [
+        "HELOC15103 (15yr, 3yr draw, 3yr IO, 12yr amort)",
+        "HELOC20103 (30yr, 3yr draw, 10yr IO, 20yr amort)",
+        "HELOC3033 (30yr, 3yr draw, 3yr IO, 27yr amort)",
+        "HELOC2033 (20yr, 3yr draw, 3yr IO, 17yr amort)",
+        "HELOC20103 (20yr, 3yr draw, 10yr IO, 10yr amort)"
+      ],
+      "fixed_rate_heloc": [
+        "HELOCF153 (15yr, 3yr draw, fully amortizing)",
+        "HELOCF203 (20yr, 3yr draw, fully amortizing)",
+        "HELOCF303 (30yr, 3yr draw, fully amortizing)"
+      ]
+    },
+    "loan_limits": {
+      "minimum_loan_amount": "$25,000",
+      "maximum_single_loan": "$500,000",
+      "owner_occupied_total_financing": "$3,000,000",
+      "second_home_total_financing": "$2,000,000",
+      "investment_total_financing": "$2,000,000",
+      "single_borrower_aggregate": "$500,000",
+      "financed_properties_limit": "10 properties"
+    },
+    "debt_to_income": {
+      "max_50_percent_dti": "Min 740 FICO OR min 700 FICO with $3,500 monthly residual income",
+      "max_45_percent_dti": "All other scenarios",
+      "payment_calculation": "30yr fully amortized at start rate + 2%, total credit limit used",
+      "io_senior_lien": "Use fully amortizing payment to qualify"
+    },
+    "appraisal_requirements": {
+      "loans_400k_or_less": [
+        "AVM with exterior inspection (restrictions apply)",
+        "Prior use appraisal",
+        "Drive-by appraisal",
+        "Full interior appraisal (1004/1025/1073)"
+      ],
+      "loans_over_400k": [
+        "Prior use appraisal",
+        "Full interior appraisal"
+      ],
+      "prior_use_recertification": "Report within 12 months, Desktop Review and Property Condition Report required"
+    },
+    "income_documentation": {
+      "self_employed_5_years_plus": "Most recent year personal/business tax returns and 1040 transcripts",
+      "self_employed_under_5_years": "Most recent 2 years personal/business tax returns and 1040 transcripts",
+      "wage_earners": "Paystubs, W-2s, WVOE/VOI as needed",
+      "verification_of_employment": "Verbal verification within 10 business days of note date"
+    },
+    "credit_requirements": {
+      "credit_report_type": "Experian single repository (Spring EQ originated) or Tri-merge (third party)",
+      "score_selection": "Lowest score among all borrowers",
+      "tradeline_minimum": "3 tradelines with 1 active within 6 months OR current mortgage paid 36 months",
+      "non_traditional_credit": "Not permitted",
+      "housing_history": "0x30x6 (no lates in 6 months), max 1x30x24 (except investment 0x30x24)"
+    },
+    "significant_derogatory_credit_waiting_periods": {
+      "foreclosure": "7 years",
+      "charge_off_deed_in_lieu_short_sale": "4 years",
+      "chapter_7_11_bankruptcy": "4 years from discharge/dismissal",
+      "chapter_13_bankruptcy": "2 years from discharge, 4 years from dismissal",
+      "mortgage_bankruptcy_discharge": "Greater of bankruptcy or foreclosure period",
+      "multiple_events_restriction": "Not permitted within 7 years"
+    },
+    "property_types": {
+      "eligible": [
+        "Single family",
+        "PUDs",
+        "Modular homes",
+        "Condominiums",
+        "1-4 unit properties (2-4 unit primary only)"
+      ],
+      "ineligible": [
+        "Cooperatives",
+        "Condotels",
+        "Mobile/manufactured homes",
+        "Commercial operations",
+        "Working farms/ranches",
+        "Properties >20 acres",
+        "Timeshares",
+        "Mixed use",
+        "2-4 unit investment"
+      ]
+    },
+    "title_insurance": {
+      "under_250k": "Owner and Encumbrance Property Report",
+      "over_250k": "Full title required",
+      "piggyback": "Title insurance and CPL required"
+    },
+    "homeowners_insurance": {
+      "under_250k": "Existing coverage acceptable, no increases required",
+      "250k_and_over": "Coverage = lesser of 100% insurable value OR all liens + new loan amount"
+    },
+    "borrower_eligibility": {
+      "eligible": [
+        "US citizens",
+        "Permanent residents (form I-551)",
+        "Non-permanent residents (with EAD/VISA)"
+      ],
+      "ineligible": [
+        "Diplomatic immunity holders",
+        "Foreign nationals without proper documentation",
+        "Non-occupant co-borrowers",
+        "Guarantors/co-signers"
+      ]
+    },
+    "transaction_types": {
+      "eligible": [
+        "Refinance",
+        "Purchase money",
+        "Simultaneous closings (piggyback)",
+        "Cash out to purchase (with restrictions)"
+      ],
+      "ineligible": "First lien position loans (except HELOCs)",
+      "non_arms_length": "Not allowed except tenant buying from landlord"
+    },
+    "ineligible_senior_liens": [
+      "Active forbearance/deferment",
+      "Negative amortization",
+      "Balloon payment within 5 years",
+      "Reverse mortgages",
+      "Private mortgages opened within 12 months"
+    ],
+    "document_expiration": {
+      "credit_report": "60 days from note date",
+      "income_documents": "60 days from note date",
+      "asset_documents": "60 days from note date",
+      "collateral": "90 days from note date",
+      "title": "90 days from note date",
+      "appraisal": "90 days from note date (recertification if older)"
+    },
+    "state_restrictions": {
+      "texas": [
+        "Piggyback refinances/purchases not permitted",
+        "Properties >1 unit ineligible"
+      ],
+      "first_lien_heloc_not_allowed": ["PA", "TN"],
+      "first_lien_heloc_purchase_restriction": "Cannot be used for purchase transactions"
+    },
+    "asset_requirements": {
+      "cash_to_close_documentation": "Required if >1 month PITIA payment",
+      "acceptable_sources": [
+        "Checking/savings/money market",
+        "Certificates of deposit",
+        "Retirement accounts",
+        "Stocks/bonds/brokerage accounts",
+        "Trust accounts",
+        "Foreign assets (must be in US account)"
+      ],
+      "unacceptable_sources": [
+        "Business funds",
+        "Gift funds",
+        "Crypto currencies",
+        "Stock options/non-vested RSUs",
+        "Borrowed funds",
+        "Unverifiable cash"
+      ],
+      "large_deposit_definition": "Single deposit >50% of total monthly qualifying income",
+      "bank_statements": "2 months most recent required"
+    },
+    "liability_treatment": {
+      "debt_payoff": "Permitted to qualify",
+      "debt_paydown": "Not permitted to qualify",
+      "lease_payments": "Must be included, cannot be excluded",
+      "student_loans": "Use actual payment, documentation from lender, or 1% of balance",
+      "heloc": "Include if balance exists and has payment",
+      "authorized_user_accounts": "Can be omitted from debt calculation"
+    },
+    "employment_income_standards": {
+      "employment_history": "Minimum 2 years generally required",
+      "continuance_requirement": "Income must continue for 3 years",
+      "employment_gaps": "6+ months gap requires 6 months current employment",
+      "income_types": [
+        "Wage earners",
+        "Self-employed",
+        "Bonus/overtime",
+        "Commission",
+        "Rental income",
+        "Retirement/pension",
+        "Social Security",
+        "Disability",
+        "Military",
+        "Alimony/child support"
+      ],
+      "unacceptable_income": [
+        "Future income",
+        "Foreign income",
+        "Gambling income",
+        "Temporary income",
+        "Mortgage credit certificates",
+        "Stock options",
+        "Trailing co-borrower income"
+      ]
+    },
+    "self_employed_requirements": {
+      "definition": "25% or greater ownership OR receives 1099s",
+      "minimum_history": "2 consecutive years same business, same location",
+      "five_years_plus": "Most recent year tax returns and transcripts",
+      "under_five_years": "Most recent 2 years tax returns and transcripts",
+      "business_verification": "Third party verification within 30 days of note date"
+    },
+    "property_valuation_methods": {
+      "full_interior_appraisal": "Forms 1004/1025/1073 - complete interior/exterior evaluation",
+      "drive_by_appraisal": "Exterior only visual inspection (Hybrid or 2055)",
+      "prior_use_appraisal": "Existing appraisal within 12 months with Desktop Review and PCI",
+      "avm": "Automated Valuation Model with Property Condition Inspection",
+      "desktop_review": "Licensed appraiser review of prior use appraisal",
+      "property_condition_report": "Exterior visual inspection used with AVM or prior use appraisal"
+    },
+    "piggyback_requirements": [
+      "Final approval from first lien lender",
+      "Final Closing Disclosure from first lien",
+      "Title policy from first lien with insurance/CPL/wire instructions",
+      "Existing appraisal from first lien acceptable with CDA",
+      "Agreement of sale on purchases",
+      "Texas refinances/purchases not permitted"
+    ],
+    "ucc_filings": {
+      "requirements": "Verify monthly obligation, include in debt calculation",
+      "payment_calculation": "Use highest payment within next 3 years if variable",
+      "pace_hero_loans": "Must be paid in full"
+    },
+    "trust_requirements": {
+      "eligible_trust_types": [
+        "Inter vivos revocable trusts",
+        "Living trusts",
+        "Illinois land trusts"
+      ],
+      "ineligible_trust_types": ["Irrevocable trusts"],
+      "documentation": "Fully executed trust agreement or certification of trust",
+      "key_requirements": [
+        "Established by natural person during lifetime",
+        "Beneficiary is person who established trust",
+        "Trustee powers include borrowing and pledging",
+        "Revocable by establisher"
+      ]
+    },
+    "value_ownership_seasoning": {
+      "value_seasoning_0_6_months": "Use lower of acquisition value or appraised value",
+      "value_seasoning_over_6_months": "Use appraised value",
+      "ownership_seasoning_investment": "6 months required",
+      "inherited_properties": "Use value from acquisition date"
+    }
+  },
+  "parsing_metadata": {
+    "parse_date": "2025-10-19",
+    "source_documents": 2,
+    "total_pages_processed": "Matrix: 4 pages, Guide: 42 pages",
+    "content_structure": "Hierarchical JSON with cross-references",
+    "key_sections_captured": [
+      "Product specifications",
+      "Eligibility requirements",
+      "Credit standards",
+      "Income documentation",
+      "Property requirements",
+      "Insurance standards",
+      "Transaction restrictions"
+    ]
+  }
+}

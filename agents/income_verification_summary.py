@@ -64,7 +64,7 @@ def load_spring_eq_files(loan_id="1000182277"):
 def turn_1_independent_analysis():
     """
     TURN 1: Analyze all documents EXCEPT Spring EQ underwriting worksheet
-    Generate independent income determination
+    Generate independent income determination in JSON format
     """
     
     print("\n" + "="*60)
@@ -127,75 +127,101 @@ Analyze all provided loan documents (paystubs, W-2s, credit reports, 1003 applic
    - Explain why each component is included or excluded
    - Provide final determination
 
-4. **Output Format (Markdown):**
+4. **Output Format - Return ONLY valid JSON with this structure:**
 
-# Independent Income Verification Analysis
+{
+  "analysis_metadata": {
+    "analysis_date": "YYYY-MM-DD",
+    "analyst": "Independent Income Verification Agent",
+    "documents_reviewed": 99,
+    "confidence_level": "High|Medium|Low",
+    "confidence_rationale": "Explanation of confidence level"
+  },
+  "income_determination": {
+    "total_qualifying_monthly_income": 99999.99,
+    "methodology_summary": "2-3 sentence explanation of approach"
+  },
+  "borrowers": [
+    {
+      "name": "Borrower Name",
+      "total_monthly_income": 99999.99,
+      "income_components": [
+        {
+          "type": "Base Salary|Bonus|Commission|Overtime|Self-Employment|Investment|Other",
+          "monthly_amount": 9999.99,
+          "annual_amount": 99999.99,
+          "calculation": "Detailed calculation showing math",
+          "source_documents": ["document1.pdf", "document2.pdf"],
+          "source_dates": ["YYYY-MM-DD"],
+          "included": true,
+          "rationale": "Why included or excluded",
+          "concerns": ["Any concerns about this income"]
+        }
+      ]
+    }
+  ],
+  "cross_reference": {
+    "form_1003_stated_income": 99999.99,
+    "verified_income": 99999.99,
+    "variance_amount": 999.99,
+    "variance_percentage": 9.99,
+    "variance_explanation": "Explanation of any difference"
+  },
+  "documentation_review": {
+    "paystubs": [
+      {
+        "borrower": "Name",
+        "document": "filename",
+        "date": "YYYY-MM-DD",
+        "pay_period_end": "YYYY-MM-DD",
+        "days_old": 99,
+        "gross_pay": 9999.99,
+        "ytd_gross": 99999.99,
+        "status": "Fresh|Stale",
+        "usable": true
+      }
+    ],
+    "w2_forms": [
+      {
+        "borrower": "Name",
+        "year": 2024,
+        "employer": "Company Name",
+        "box1_wages": 99999.99,
+        "document": "filename"
+      }
+    ],
+    "other_documents": [
+      {
+        "type": "VOE|Tax Return|Bank Statement|Other",
+        "borrower": "Name",
+        "date": "YYYY-MM-DD",
+        "key_data": "Relevant information extracted"
+      }
+    ]
+  },
+  "income_trends": {
+    "overall_trend": "Stable|Increasing|Decreasing",
+    "analysis": "Multi-year comparison if available",
+    "stability_assessment": "Assessment of income continuance likelihood"
+  },
+  "components_excluded": [
+    {
+      "income_type": "Type of income",
+      "potential_amount": 9999.99,
+      "reason_excluded": "Detailed explanation"
+    }
+  ],
+  "recommendations": [
+    "Additional documentation needed",
+    "Concerns about income continuance",
+    "Other recommendations"
+  ],
+  "red_flags": [
+    "Any concerns identified during analysis"
+  ]
+}
 
-## DETERMINATION
-**Qualifying Monthly Income: $[AMOUNT]**
-
-[2-3 sentences explaining your methodology and key reasoning]
-
-## CALCULATION BREAKDOWN
-
-### Base Salary
-- Amount: $[amount]
-- Source: [document name, date]
-- Calculation: [show math to get monthly]
-- Rationale: [why included]
-
-### Variable Income (Bonus/Commission/Overtime)
-- [If applicable, show 2-year analysis]
-- Year 1: $[amount] (Source: [doc])
-- Year 2: $[amount] (Source: [doc])
-- 2-Year Average: $[amount]
-- Monthly: $[amount] ÷ 12 = $[monthly]
-- Rationale: [why included or excluded]
-
-### Other Income Sources
-[List all other income with same detail]
-
-## TOTAL QUALIFYING INCOME
-| Income Type | Monthly Amount | Included? | Rationale |
-|------------|---------------|-----------|-----------|
-| Base Salary | $X,XXX | Yes | [reason] |
-| Bonus (2-yr avg) | $XXX | Yes/No | [reason] |
-| [etc.] | $XXX | Yes/No | [reason] |
-| **TOTAL** | **$X,XXX** | | |
-
-## INCOME COMPONENTS EXCLUDED
-- [List any income NOT included and explain why]
-
-## CROSS-REFERENCE ANALYSIS
-- 1003 Stated Income: $[amount]
-- Documented Income: $[amount]
-- Variance: $[difference]
-- Explanation: [why any difference exists]
-
-## DOCUMENTATION REVIEW
-### Paystubs
-- [List paystubs reviewed with dates and key data]
-
-### W-2 Forms
-- [List W-2s reviewed with years and amounts]
-
-### Other Documents
-- [List other income docs reviewed]
-
-## INCOME TREND ANALYSIS
-- [Is income stable, increasing, or decreasing?]
-- [Multi-year comparison if available]
-
-## CONFIDENCE LEVEL
-[High/Medium/Low] - [Explain based on documentation quality and completeness]
-
-## RECOMMENDATIONS
-- [Any additional documentation needed?]
-- [Any concerns about income continuance?]
-
----
-
-Return your analysis in clean Markdown format. Be thorough and show all work."""
+Return ONLY the JSON structure above. Do NOT include markdown, code blocks, or any other text. Just pure JSON."""
             },
             {
                 "role": "user",
@@ -207,26 +233,41 @@ Here are all the loan documents in JSON format:
 
 {documents_json}
 
-Provide your complete analysis in Markdown format."""
+Return ONLY valid JSON following the specified structure. No markdown, no code blocks, just JSON."""
             }    
         ],
         max_completion_tokens=16384, 
         model=deployment
     )
     
-    turn1_markdown = response.choices[0].message.content
+    response_content = response.choices[0].message.content.strip()
     
-    # Save Turn 1 analysis to markdown file
-    output_dir = Path("reports")
-    output_dir.mkdir(exist_ok=True)
-    turn1_path = output_dir / "1000182277_income_analysis.md"
+    # Remove markdown code blocks if present
+    if response_content.startswith("```"):
+        lines = response_content.split('\n')
+        response_content = '\n'.join(lines[1:-1])  # Remove first and last lines
+    
+    # Parse to validate it's proper JSON
+    try:
+        income_analysis = json.loads(response_content)
+    except json.JSONDecodeError as e:
+        print(f"\n❌ Error: LLM did not return valid JSON: {e}")
+        print("Response was:")
+        print(response_content[:500])
+        return None
+    
+    # Save Turn 1 analysis to JSON file in loan-specific reports
+    loan_id = "1000182227"
+    output_dir = Path(f"loan_docs/{loan_id}/reports")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    turn1_path = output_dir / "income_verification.json"
     
     with open(turn1_path, "w", encoding="utf-8") as f:
-        f.write(turn1_markdown)
+        json.dump(income_analysis, f, indent=2)
     
     print(f"\n✓ Turn 1 Independent Analysis saved to: {turn1_path}")
     
-    return turn1_markdown
+    return income_analysis
 
 
 def turn_2_reconciliation(turn1_analysis):
@@ -388,7 +429,7 @@ def main():
     print("\nThis process will:")
     print("1. Analyze income from source documents (excluding Spring EQ)")
     print("2. Determine appropriate monthly qualifying income")
-    print("3. Generate markdown report")
+    print("3. Generate JSON report for next agent in chain")
     
     # Independent analysis without Spring EQ worksheet
     turn1_result = turn_1_independent_analysis()
@@ -401,8 +442,8 @@ def main():
     print("INCOME VERIFICATION COMPLETE")
     print("="*60)
     print("\nGenerated file:")
-    print("  - reports/1000182277_income_analysis.md")
-    print("\nThis report contains the qualifying monthly income determination.")
+    print("  - loan_docs/1000182227/reports/income_verification.json")
+    print("\nThis JSON file can be consumed by the next agent in the chain.")
 
 
 if __name__ == "__main__":
