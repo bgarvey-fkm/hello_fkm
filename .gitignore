@@ -16,6 +16,12 @@ __pycache__/
 loan_docs/
 reports/
 
+# Sensitive data files
+loan_documents_harvest_urls.json
+loan_files_inputs/
+test_harvest_download.pdf
+*.html
+
 # Sensitive data directories - OLD STRUCTURE (can be deleted after migration)
 image_files/
 loan_summary/

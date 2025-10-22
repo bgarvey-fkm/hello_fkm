@@ -1,0 +1,148 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Settlement Statement Schema",
+  "description": "Semantic schema for ALTA Settlement Statement and closing documents",
+  "type": "object",
+  "required": ["document_type", "loan_number", "property_address", "borrowers", "settlement_date"],
+  "properties": {
+    "document_type": {
+      "type": "string",
+      "enum": ["alta_settlement_statement"]
+    },
+    "loan_number": {
+      "type": "string",
+      "description": "Loan identifier"
+    },
+    "file_number": {
+      "type": "string",
+      "description": "Escrow/file number"
+    },
+    "property_address": {
+      "type": "object",
+      "required": ["street", "city", "state", "zip"],
+      "properties": {
+        "street": {"type": "string"},
+        "city": {"type": "string"},
+        "state": {"type": "string"},
+        "zip": {"type": "string"}
+      }
+    },
+    "borrowers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {"type": "string"},
+          "address": {"type": "string"}
+        }
+      }
+    },
+    "lender": {
+      "type": "string",
+      "description": "Lender name"
+    },
+    "settlement_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of settlement (MM/DD/YYYY or full date)"
+    },
+    "disbursement_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "title_company": {
+      "type": "object",
+      "properties": {
+        "name": {"type": "string"},
+        "address": {"type": "string"},
+        "officer_name": {"type": "string"},
+        "phone": {"type": "string"}
+      }
+    },
+    "loan_details": {
+      "type": "object",
+      "required": ["loan_amount"],
+      "properties": {
+        "loan_amount": {
+          "type": "number",
+          "description": "New loan amount"
+        },
+        "loan_purpose": {
+          "type": "string",
+          "enum": ["purchase", "refinance", "cash_out"]
+        },
+        "loan_program": {
+          "type": "string"
+        }
+      }
+    },
+    "financial_summary": {
+      "type": "object",
+      "required": ["total_debits", "total_credits", "cash_to_from_borrower"],
+      "properties": {
+        "total_debits": {
+          "type": "number",
+          "description": "Total amount borrower owes"
+        },
+        "total_credits": {
+          "type": "number",
+          "description": "Total amount borrower receives"
+        },
+        "cash_to_from_borrower": {
+          "type": "number",
+          "description": "Net cash to (+) or from (-) borrower"
+        }
+      }
+    },
+    "loan_charges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["description", "amount"],
+        "properties": {
+          "description": {"type": "string"},
+          "payee": {"type": "string"},
+          "amount": {"type": "number"}
+        }
+      }
+    },
+    "title_charges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["description", "amount"],
+        "properties": {
+          "description": {"type": "string"},
+          "payee": {"type": "string"},
+          "amount": {"type": "number"}
+        }
+      }
+    },
+    "payoffs": {
+      "type": "array",
+      "description": "Debts paid off at closing",
+      "items": {
+        "type": "object",
+        "required": ["description", "payee", "amount"],
+        "properties": {
+          "description": {"type": "string"},
+          "payee": {"type": "string"},
+          "amount": {"type": "number"}
+        }
+      }
+    },
+    "recording_charges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["description", "amount"],
+        "properties": {
+          "description": {"type": "string"},
+          "payee": {"type": "string"},
+          "amount": {"type": "number"}
+        }
+      }
+    }
+  }
+}
