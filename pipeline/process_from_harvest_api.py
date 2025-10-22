@@ -16,6 +16,11 @@ Example:
 import json
 import sys
 import os
+
+# Fix console encoding for Windows
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding='utf-8')
+    sys.stderr.reconfigure(encoding='utf-8')
 from pathlib import Path
 import urllib.parse
 import asyncio

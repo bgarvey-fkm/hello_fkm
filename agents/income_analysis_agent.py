@@ -16,9 +16,174 @@ from openai import AsyncAzureOpenAI
 # Load environment variables
 load_dotenv()
 
-def load_income_documents(loan_id):
+
+def load_freddie_mac_guidelines():
     """
-    Load all paystub and W2 documents from semantic_json directory.
+    Load the compressed Freddie Mac guidelines for income calculation.
+    
+    Returns:
+        String containing relevant income calculation rules
+    """
+    guidelines_file = Path("guidelines/freddie_mac_guide_5300_5400_compressed.json")
+    
+    if not guidelines_file.exists():
+        return ""
+    
+    try:
+        with open(guidelines_file, 'r', encoding='utf-8') as f:
+            guidelines = json.load(f)
+        
+        # Format the rules into a readable string
+        rules_text = "FREDDIE MAC INCOME CALCULATION GUIDELINES:\n\n"
+        for rule in guidelines.get('rules', []):
+            rules_text += f"Section {rule['section']} - {rule['topic']}:\n"
+            rules_text += f"  {rule['rule']}\n"
+            if rule.get('details'):
+                for detail in rule['details']:
+                    rules_text += f"  • {detail}\n"
+            rules_text += "\n"
+        
+        return rules_text
+        
+    except Exception as e:
+        print(f"Warning: Could not load Freddie Mac guidelines: {e}")
+        return ""
+
+
+async def filter_income_documents_by_guidelines(loan_id):
+    """
+    Load ALL semantic JSON files and use Freddie Mac guidelines to determine
+    which documents are relevant for income verification.
+    
+    Args:
+        loan_id: The loan identifier
+        
+    Returns:
+        List of document objects relevant for income verification
+    """
+    semantic_dir = Path(f"loan_docs/{loan_id}/semantic_json")
+    
+    if not semantic_dir.exists():
+        print(f"Error: Directory {semantic_dir} does not exist")
+        return []
+    
+    # Load Freddie Mac guidelines
+    guidelines = load_freddie_mac_guidelines()
+    if not guidelines:
+        print("Warning: No Freddie Mac guidelines found, falling back to basic filter")
+        return load_income_documents_basic(loan_id)
+    
+    # Initialize Azure OpenAI client
+    client = AsyncAzureOpenAI(
+        api_key=os.getenv("AZURE_OPENAI_KEY"),
+        api_version=os.getenv("AZURE_OPENAI_API_VERSION", "2024-02-15-preview"),
+        azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT")
+    )
+    
+    print("\n>> Analyzing all documents to determine income verification relevance...")
+    
+    all_docs = []
+    for json_file in semantic_dir.glob("*.json"):
+        try:
+            with open(json_file, 'r', encoding='utf-8') as f:
+                doc = json.load(f)
+            all_docs.append({
+                'file_path': str(json_file),
+                'file_id': doc.get('metadata', {}).get('FileId'),
+                'file_name': doc.get('metadata', {}).get('FileName'),
+                'doc_type': doc.get('semantic_content', {}).get('document_type', 'unknown'),
+                'metadata': doc.get('metadata', {}),
+                'semantic_content': doc.get('semantic_content', {})
+            })
+        except Exception as e:
+            continue
+    
+    print(f">> Found {len(all_docs)} total documents")
+    print(f">> Filtering based on Freddie Mac income verification guidelines...")
+    
+    # Create a summary of each document for filtering
+    doc_summaries = []
+    for doc in all_docs:
+        doc_summaries.append({
+            'file_id': doc['file_id'],
+            'file_name': doc['file_name'],
+            'document_type': doc['doc_type'],
+            'summary': doc['semantic_content'].get('summary', ''),
+            'content_preview': str(doc['semantic_content'])[:500]
+        })
+    
+    # Ask LLM to filter based on guidelines
+    filter_prompt = f"""Based on the Freddie Mac income verification guidelines below, review the following list of documents and identify which ones are RELEVANT for verifying a borrower's income.
+
+{guidelines}
+
+DOCUMENTS TO REVIEW:
+{json.dumps(doc_summaries, indent=2)}
+
+Return a JSON object with this structure:
+{{
+  "income_verification_documents": [
+    {{
+      "file_id": <file_id>,
+      "reason": "<why this document is relevant per Freddie Mac guidelines>"
+    }}
+  ],
+  "excluded_documents": [
+    {{
+      "file_id": <file_id>,
+      "reason": "<why this document is NOT relevant for income verification>"
+    }}
+  ]
+}}
+
+ONLY include documents that are acceptable income verification sources per Freddie Mac guidelines (paystubs, W-2s, tax returns, employment verification, 1099s, pension statements, etc.)."""
+
+    try:
+        response = await client.chat.completions.create(
+            model=os.getenv("AZURE_OPENAI_DEPLOYMENT"),
+            messages=[
+                {"role": "system", "content": "You are an expert mortgage underwriter who knows Freddie Mac income verification guidelines."},
+                {"role": "user", "content": filter_prompt}
+            ],
+            response_format={"type": "json_object"}
+        )
+        
+        filter_result = json.loads(response.choices[0].message.content)
+        
+        # Extract the file IDs that should be included
+        included_file_ids = set(doc['file_id'] for doc in filter_result.get('income_verification_documents', []))
+        
+        # Filter the original documents
+        income_docs = []
+        for doc in all_docs:
+            if doc['file_id'] in included_file_ids:
+                reason = next((d['reason'] for d in filter_result['income_verification_documents'] if d['file_id'] == doc['file_id']), 'Relevant')
+                income_docs.append({
+                    'file_id': doc['file_id'],
+                    'file_name': doc['file_name'],
+                    'document_type': doc['doc_type'],
+                    'upload_date': doc['metadata'].get('FileUploadDate'),
+                    'semantic_content': doc['semantic_content'],
+                    'inclusion_reason': reason
+                })
+                print(f">> ✓ Included: {doc['file_name'][:60]} - {reason[:80]}")
+        
+        print(f"\n>> Filtered to {len(income_docs)} income verification documents (from {len(all_docs)} total)")
+        
+        await client.close()
+        return income_docs
+        
+    except Exception as e:
+        print(f"Error during document filtering: {e}")
+        print("Falling back to basic filter")
+        await client.close()
+        return load_income_documents_basic(loan_id)
+
+
+def load_income_documents_basic(loan_id):
+    """
+    Basic document filter - fallback when LLM filtering fails.
+    Load documents based on simple document_type matching.
     
     Args:
         loan_id: The loan identifier
@@ -42,7 +207,7 @@ def load_income_documents(loan_id):
             # Check if document_type is paystub, w2, or 1099-r
             doc_type = doc.get('semantic_content', {}).get('document_type', '').lower()
             
-            if doc_type in ['paystub', 'w2', 'form_1099-r']:
+            if doc_type in ['paystub', 'w2', 'form_1099-r', 'tax_return', 'employment_verification']:
                 income_docs.append({
                     'file_id': doc.get('metadata', {}).get('FileId'),
                     'file_name': doc.get('metadata', {}).get('FileName'),
@@ -82,15 +247,20 @@ async def analyze_income(income_docs, loan_id, run_number=1):
         azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT")
     )
     
+    # Load Freddie Mac guidelines
+    guidelines = load_freddie_mac_guidelines()
+    
     # Create prompt with income documents
-    prompt = f"""You are a mortgage underwriting income analyst. Analyze the following income documents and calculate the borrower's monthly income using generally accepted mortgage underwriting standards.
+    prompt = f"""You are a mortgage underwriting income analyst. Analyze the following income documents and calculate the borrower's monthly income using Freddie Mac guidelines.
+
+{guidelines}
 
 INCOME DOCUMENTS:
 {json.dumps(income_docs, indent=2)}
 
 INSTRUCTIONS:
 1. Review all paystubs, W2 documents, and 1099-R forms provided
-2. Apply generally accepted mortgage underwriting standards for income calculation:
+2. Apply the Freddie Mac guidelines above for income calculation:
    - For paystubs: Calculate year-to-date average if multiple paystubs available
    - For W2s: Use most recent year's income divided by 12 for monthly amount
    - For 1099-R (pension/retirement): Use gross distribution divided by 12 for monthly amount
@@ -98,8 +268,9 @@ INSTRUCTIONS:
    - Account for pay frequency (weekly, bi-weekly, semi-monthly, monthly)
    - Include base pay, overtime, bonuses, commissions (with 2-year average if applicable)
    - Include pension/retirement income from 1099-R forms
+   - Follow the specific requirements in the guidelines above (2-year history, continuance, etc.)
 3. Calculate total monthly gross income
-4. Provide detailed methodology showing how you arrived at the calculation
+4. Provide detailed methodology showing how you arrived at the calculation and which Freddie Mac rules you followed
 
 Return ONLY a JSON object with this structure (no markdown, no code blocks):
 {{
@@ -538,11 +709,11 @@ async def run_consistency_test_async(loan_id, num_runs=3):
     print("\n" + "="*80)
     print(f"INCOME ANALYSIS CONSISTENCY TEST (ASYNC)")
     print(f"Loan ID: {loan_id}")
-    print(f"Number of Runs: {num_runs}")
+    print(f"\nNumber of Runs: {num_runs}")
     print("="*80)
     
-    # Load income documents once
-    income_docs = load_income_documents(loan_id)
+    # Load income documents once using intelligent filtering
+    income_docs = await filter_income_documents_by_guidelines(loan_id)
     
     if not income_docs:
         print("\nNo paystub or W2 documents found!")

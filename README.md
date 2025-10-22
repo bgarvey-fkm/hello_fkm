@@ -1,47 +1,51 @@
-# Loan Document Analysis & Underwriting System
+# Income Expert - AI Income Verification System
 
-A sophisticated Python-based system for processing mortgage loan documents using Azure OpenAI with vision capabilities. Features automated document extraction, parallel processing, multi-agent income and debt verification, and comprehensive DTI reconciliation with quality control.
+**Branch: income-expert**
+
+A specialized Python system for testing and developing AI-based income verification for mortgage underwriting. This project analyzes consistency and accuracy of LLM-based income calculations across multiple loan files to build a robust income verification expert system.
+
+## 🎯 Project Goal
+
+Develop a reliable AI system that can accurately determine qualified income from mortgage loan documentation by:
+1. Processing multiple loan files to understand income calculation variance
+2. Identifying different income scenarios and edge cases
+3. Building pattern recognition for consistent income determination
+4. Comparing AI calculations against human underwriter results
+
+## 📊 Current Status
+
+**Testing Phase**: Running consistency tests on income calculations
+- ✅ Tested loan 1000179167: 50-run test showed 18.19% variance
+- ✅ Identified 4 distinct LLM calculation methodologies
+- 🔄 Next: Expand to 10 loans to identify more income scenarios
 
 ## Features
 
-- **🚀 Parallel Document Processing**: Async Azure OpenAI calls for maximum speed (30+ docs in seconds)
-- **👁️ Vision AI Analysis**: Extract data from both PDFs and images using GPT-4 vision
-- **� Form 1003 Anchoring**: Use Form 1003 as the starting point - all validation flows from borrower assertions
-- **✅ Document Verification**: Automatically check if file has sufficient docs to verify all assertions
-- **📊 Loan ID Organization**: Scalable folder structure supporting multiple loans
-- **🔍 Gap Analysis**: Identify missing documents, stale docs, and discrepancies
-- **📄 Professional Reports**: JSON and Markdown reports with detailed findings
-- **⏱️ Timeline Analysis**: Distinguish process timeline from historical data timeline
+- **� Multi-Loan Pipeline**: Process 10+ loans from Harvest API
+- **🧪 Consistency Testing**: Run parallel async tests (configurable iterations)
+- **� Variance Analysis**: Track how LLM income calculations vary across runs
+- **� HTML Reports**: Detailed methodology breakdowns with frequency analysis
+- **🎯 Document Type Support**: Paystubs, W-2s, 1099-R (pension), income worksheets
+- **⚡ Async Processing**: Parallel execution for speed
 
 ## Project Structure
 
 ```
 hello_fkm/
 ├── pipeline/                         # 🔄 Core Processing Pipeline
-│   ├── process_loan_docs.py          # Step 1: Extract text from PDFs and base64 from PNGs
-│   ├── create_structured_json.py     # Step 2: Async parallel analysis with Azure OpenAI
-│   ├── form_1003_analysis_agent.py   # Step 3: Extract Form 1003 assertions (2-turn)
-│   ├── document_verification_agent.py # Step 4: Verify docs match 1003 assertions
-│   └── README.md                     # Pipeline documentation
-├── agents/                           # 🤖 Optional Analysis Agents (WIP)
-├── utils/                            # 🛠️ Utility Scripts
-├── loan_docs/                        # 📁 Loan documents organized by loan ID (gitignored)
+│   ├── process_from_harvest_api.py   # Download loans from Harvest API
+│   └── create_structured_json.py     # Create semantic JSON from documents
+├── agents/                           # 🤖 Income Analysis Agents
+│   └── income_analysis_agent.py      # Main consistency testing agent
+├── loan_docs/                        # 📁 Loan documents by loan ID (gitignored)
 │   └── {loan_id}/
-│       ├── source_pdfs/              # Original PDF documents
-│       ├── images/                   # PNG images from PDFs
-│       ├── text/                     # Extracted text from PDFs
-│       ├── base64/                   # Base64 encoded images for API
-│       └── json/                     # Structured JSON from Azure OpenAI
-├── reports/                          # 📊 Generated analysis reports (gitignored)
-│   ├── form_1003_analysis_*.json     # Form 1003 extraction results
-│   ├── verification_analysis_*.json  # Document verification results
-│   ├── verification_analysis_*.md    # Human-readable reports
-│   └── PIPELINE_COMPARISON.md        # Multi-loan comparison
-├── requirements.txt                  # Python dependencies
-├── .env.example                      # Example environment variables
-├── PIPELINE.md                       # Complete processing pipeline documentation
-├── PROJECT_STRUCTURE.md              # Detailed structure guide
-└── README.md                         # This file
+│       ├── raw_json/                 # Initial document extraction
+│       └── semantic_json/            # Structured semantic content
+├── reports/                          # 📊 Analysis reports (gitignored)
+│   ├── income_analysis_{loan_id}_run{N}.json
+│   └── income_analysis_consistency_report_{loan_id}.html
+├── loan_files_inputs/                # 📥 Harvest API input configs (gitignored)
+└── requirements.txt                  # Python dependencies
 ```
 
 ## Setup
@@ -51,6 +55,7 @@ hello_fkm/
 ```bash
 git clone https://github.com/bgarvey-fkm/hello_fkm.git
 cd hello_fkm
+git checkout income-expert
 ```
 
 ### 2. Create Virtual Environment
@@ -85,118 +90,90 @@ AZURE_OPENAI_DEPLOYMENT=gpt-4o-mini
 AZURE_OPENAI_API_VERSION=2024-12-01-preview
 ```
 
-### 5. Create Loan Folder Structure
-
-```bash
-# For each loan, create the folder structure
-mkdir -p loan_docs/{loan_id}/source_pdfs
-mkdir -p loan_docs/{loan_id}/images
-mkdir -p reports
-```
-
 ## Usage
 
-### Complete Pipeline (Recommended)
+### Income Consistency Testing Workflow
 
-See [pipeline/README.md](pipeline/README.md) for detailed step-by-step documentation.
-
-**Quick Start:**
-
+**Step 1: Download Loan Documents from Harvest API**
 ```bash
-# Step 1: Place documents in loan folder
-# - PDFs → loan_docs/{loan_id}/source_pdfs/
-# - PNGs → loan_docs/{loan_id}/images/
+# Create input JSON with loan IDs to process
+# Place in loan_files_inputs/loans_to_process.json
 
-# Step 2: Extract text from PDFs and convert PNGs to base64
-python pipeline/process_loan_docs.py
-
-# Step 3: Process all documents in parallel with Azure OpenAI
-python pipeline/create_underwriting_summary.py
-
-# Step 4: Extract Form 1003 assertions (what borrowers declared)
-python pipeline/form_1003_analysis_agent.py
-
-# Step 5: Verify documentation matches 1003 assertions
-python pipeline/document_verification_agent.py
+python pipeline/process_from_harvest_api.py loan_files_inputs/loans_to_process.json
 ```
 
-### Output Reports
+**Step 2: Create Semantic JSON from Documents**
+```bash
+# Process all downloaded loans
+python pipeline/create_structured_json.py {loan_id}
+```
 
-All reports are generated in the `reports/` folder with loan ID prefixes:
+**Step 3: Run Income Analysis Consistency Test**
+```bash
+# Run N parallel analyses on a single loan
+python agents/income_analysis_agent.py {loan_id} {num_runs}
 
-1. **`form_1003_analysis_{loan_id}_{timestamp}.json`** - Form 1003 extraction
-   - Application date (Day 0 of underwriting)
-   - Borrower assertions (income, debts, assets, property)
-   - Employment details
-   - Loan details
-   - Declarations
+# Example: 50 parallel runs on loan 1000179167
+python agents/income_analysis_agent.py 1000179167 50
+```
 
-2. **`verification_analysis_{loan_id}_{timestamp}.json`** - Verification results
-   - What assertions are verified ✅
-   - What documents are missing ❌
-   - Discrepancies found ⚠️
-   - Document freshness issues
-   - Overall file completeness
+**Output:** 
+- JSON results for each run: `reports/income_analysis_{loan_id}_run{N}.json`
+- HTML consistency report: `reports/income_analysis_consistency_report_{loan_id}.html`
+- Summary JSON: `reports/income_analysis_consistency_{loan_id}.json`
 
-3. **`verification_analysis_{loan_id}_{timestamp}.md`** - Human-readable report
-   - Executive summary
-   - Employment & income verification
-   - Liabilities verification
-   - Property verification
-   - Missing documents list
-   - Recommendations
+### Batch Processing Multiple Loans
 
-## Document Types Supported
+```bash
+# Process 10 loans and run 20 consistency tests on each
+# (Script to be created)
+python run_batch_income_analysis.py --loans 10 --runs 20
+```
 
-The system processes and analyzes:
+## Income Analysis Features
 
-- **Income Documents:** Paystubs, W-2 Forms, Tax Returns, 1099 Forms
-- **Credit Documents:** Credit Reports, Mortgage Statements, Payoff Notices
-- **Property Documents:** Appraisals, Property Tax Bills, Flood Zone Determinations
-- **Application Documents:** Form 1003, Spring EQ Underwriting Worksheets
+### Document Types Analyzed
+- **Paystubs**: Year-to-date income, pay frequency, gross pay
+- **W-2 Forms**: Annual income (Box 1: taxable wages, Box 5: Medicare wages)
+- **1099-R Forms**: Pension/retirement income distributions
+- **Income Worksheets**: Underwriter-calculated qualified income (for comparison)
 
-## Underwriting Concepts
+### Methodology Tracking
 
-### Conservative vs Aggressive Underwriting
+The system identifies different calculation approaches the LLM uses:
+1. **Method 1** (Most Common): W2 Box 5 (Medicare wages) ÷ 12
+2. **Method 2**: W2 Box 1 (Taxable wages) ÷ 12  
+3. **Method 3**: Includes additional income components
+4. **Method 4**: Paystub semi-monthly calculation
 
-**Conservative (Lower Risk - Positive):**
-- Using **lower income** than documented → Reduces risk ✅
-- Using **higher debts** than documented → Reduces risk ✅
-- Qualifying at **higher payment** than final loan → Stress tested ✅
+Reports show frequency distribution and variance analysis.
 
-**Aggressive (Higher Risk - Concern):**
-- Using **higher income** than documented → Overstating ability 🚩
-- Using **lower debts** than shown → Understating obligations 🚩
-- Qualifying at **lower payment** than final loan → Payment shock risk 🚩
+## Key Findings (Loan 1000179167)
 
-### Income Qualification Rules
+**50-Run Consistency Test:**
+- Average Income: $11,998.82/month
+- Variance: 18.19%
+- Most Frequent Result: $12,059.23 (56% of runs)
+- Consistency Rating: **LOW** - Significant variation
 
-- **Base Salary:** Current pay rate from most recent paystub
-- **Variable Income:** Requires 2-year history, uses 2-year average if stable/increasing
-- **Declining Income:** Not included or reduced amount used
-- **Self-Employment:** 2-year tax returns, add back depreciation
+**Impact of Adding 1099-R:**
+- Variance improved from 28.04% → 18.19%
+- More complete income picture reduced calculation uncertainty
 
-### Debt Consolidation Logic
+## Next Steps
 
-The system understands refinance scenarios:
-- Identifies debts being paid off with loan proceeds
-- Excludes paid-off debts from Proposed DTI calculation
-- Calculates both Current DTI (before) and Proposed DTI (after payoffs)
-- Assesses DTI improvement from debt consolidation
+1. ✅ Clean up project (remove debt/DTI/timeline agents)
+2. 🔄 Process 10 new loans from Harvest API
+3. 🧪 Run consistency tests on all 10 loans
+4. 📊 Analyze patterns across different income scenarios
+5. 🎯 Build expert system rules based on findings
 
-## Key Technologies
+## Technical Details
 
-- **Azure OpenAI**: GPT-4 with vision capabilities
-- **pdfplumber**: PDF text extraction
-- **asyncio**: Parallel document processing
-- **Base64 encoding**: Image transmission to vision model
+- **Azure OpenAI**: GPT-4o-mini for income analysis
+- **Async Processing**: asyncio for parallel execution
+- **Document Formats**: PDF text extraction → Semantic JSON
 - **Python 3.8+**: Modern async/await patterns
-
-## Performance
-
-- **Parallel Processing**: All documents processed simultaneously using async/await
-- **Speed**: 30+ documents processed in seconds (limited only by API rate limits)
-- **Efficiency**: Single API call per document, no sequential bottlenecks
 
 ## Security Notes
 
@@ -204,12 +181,14 @@ The system understands refinance scenarios:
 - `.env` - Azure OpenAI credentials
 - `loan_docs/` - All loan documents and processed data
 - `reports/` - All generated analysis reports
+- `loan_files_inputs/` - Harvest API configurations with loan IDs
+- `archive/` - Archived documentation
 
 ✅ **Safe to Share (in GitHub):**
 - Python scripts (`.py` files)
 - `.env.example` - Template with no actual credentials
 - `.gitignore` - Protection rules
-- `README.md`, `PIPELINE.md` - Documentation
+- `README.md`, documentation files
 - `requirements.txt` - Python dependencies
 
 **Never commit sensitive data, loan information, or API keys to version control!**
@@ -217,17 +196,20 @@ The system understands refinance scenarios:
 ## Requirements
 
 - Python 3.8+
-- Azure OpenAI API access with vision-capable deployment (gpt-4o, gpt-4o-mini, etc.)
-- pdfplumber for PDF processing
-- Network drive or local filesystem access
+- Azure OpenAI API access (gpt-4o-mini or similar)
+- Network access to Harvest API (for document download)
 
 ## Contributing
 
-Contributions welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+This is a research/development branch. For questions or collaboration:
+1. Review the income analysis agent code
+2. Check HTML reports for methodology insights
+3. Reach out with findings or suggestions
+
+## Branch Information
+
+- **Main Branch**: Full underwriting system with debt/DTI/compliance agents
+- **Income-Expert Branch** (this): Focused income verification testing and development
 
 ## License
 
@@ -235,5 +217,5 @@ Contributions welcome! Please:
 
 ## Acknowledgments
 
-- Azure OpenAI for vision and chat capabilities
-- pdfplumber for reliable PDF text extraction
+- Azure OpenAI for GPT-4o-mini capabilities
+- Spring EQ underwriting guidelines for validation

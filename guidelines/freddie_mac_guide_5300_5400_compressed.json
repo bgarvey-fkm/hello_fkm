@@ -1,0 +1,824 @@
+{
+  "source": "FreddieMacGuide_5300_5400 (1).pdf",
+  "title": "Freddie Mac Single-Family Seller/Servicer Guide - Sections 5300-5400",
+  "sections": "Income and Employment Documentation",
+  "page_count": 297,
+  "original_content_length": 491423,
+  "compression_stats": {
+    "total_rules_extracted": 67,
+    "compression_ratio": "14.2%"
+  },
+  "rules": [
+    {
+      "section": "5301.1",
+      "topic": "General requirements for all stable monthly income",
+      "rule": "Stable monthly income must be verified, reasonable, documented, and expected to continue for at least three years; Seller must include written analysis and retain all documentation.",
+      "details": [
+        "Stable monthly income = Borrower's verified gross monthly income from acceptable, verifiable sources reasonably expected to continue for at least the next three years.",
+        "Seller must determine source and amount are stable and consistent.",
+        "Seller must include a written analysis in the Mortgage file describing calculation method and rationale for stability/continuance.",
+        "All documentation establishing income must be retained in the Mortgage file.",
+        "Income paid in cryptocurrency may not be used for qualification.",
+        "If documentation contradicts income continuance, Seller must not consider that income."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5301.1(c)",
+      "topic": "Income history requirement (general)",
+      "rule": "Generally require a two-year history of consistent income receipt; Seller may request more documentation for fluctuation and may accept shorter history with justification.",
+      "details": [
+        "Most instances: two-year history required for income to be considered stable.",
+        "If earnings have fluctuation, Seller must evaluate degree of fluctuation and may require additional years.",
+        "Borrower may have varying sources but must have consistent income level overall.",
+        "Seller must document justification if less than two years is used."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5301.1(d)",
+      "topic": "Income continuance categories and documentation",
+      "rule": "Classify income by continuance: typically without documentable continuance (likely to continue), types with documentable continuance, and types that may/may not have documentable continuance; follow specific section requirements for each income type.",
+      "details": [
+        "Table A: income types typically without documentable continuance (e.g., employed income, base/bonus/OT/commission, rental, self-employment) — generally not required to document continuance unless Seller has contrary info.",
+        "Table B: income with documentable continuance (e.g., mortgage differential, trust income fixed, alimony) — require documentation of payment duration/terms.",
+        "Table C: income that may/may not have documentable continuance depending on source (e.g., retirement, SSI, long-term disability) — evaluate source and governing eligibility rules.",
+        "Seller must not consider income if knowledge or documentation contradicts reasonable expectation of continuance for at least three years."
+      ],
+      "examples": [
+        "Overtime that is known to be discontinued (e.g., project complete) cannot be considered."
+      ]
+    },
+    {
+      "section": "5301.1(e)",
+      "topic": "Alimony deduction requirement",
+      "rule": "If Borrower is obligated to pay alimony with more than 10 months remaining, the alimony must be deducted from stable monthly income used for qualification.",
+      "details": [
+        "Both conditions must apply to deduct: Borrower obligated to pay; more than 10 months of payments remaining.",
+        "Refer to Section 5401.2(b)(3) for additional info on treatment in DTI."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5302.2(a)",
+      "topic": "YTD paystub requirements and paystub-based income calculation support",
+      "rule": "YTD paystubs must enable Seller to determine and support the qualifying stable monthly income; paystub must be recent (≤30 days before Application Received Date) and contain specified data.",
+      "details": [
+        "Paystub must be dated no more than 30 days before Application Received Date and comply with Section 5102.4 age requirements.",
+        "Paystub must clearly identify employer name, Borrower as employee, date issued, time period covered, current pay period dates and earnings, and complete YTD earnings.",
+        "If YTD paystub lacks info (e.g., no YTD earnings), Seller must obtain additional documentation (e.g., written VOE, payroll deposits on bank statements).",
+        "When paystub used with automated assessments, additional API/verification rules may apply."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5302.2(b)",
+      "topic": "W-2 form and acceptable alternatives",
+      "rule": "W-2 must be complete IRS Form W-2 for preceding tax year; acceptable alternatives include year-end YTD paystub, military Leave and Earnings Statement, or W-2 transcript if they reflect full prior-year income.",
+      "details": [
+        "W-2 must be complete IRS Form W-2 issued by employer for preceding tax year(s).",
+        "Year-end YTD paystub or military Leave and Earnings Statement may substitute if they reflect complete previous calendar year income.",
+        "W-2 transcript may be used in lieu of W-2 form if it reflects complete prior-year income.",
+        "Refer to Section 5302.4 for tax return and transcript rules when tax returns required."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5302.2(c)",
+      "topic": "Written verification of employment (VOE) requirements",
+      "rule": "Written VOE must include signature, printed name, title, contact info of authorized employer representative, verification date, Borrower and employer names; should state employment begin date, current position, gross earnings, YTD earnings and breakdowns by earnings type as applicable.",
+      "details": [
+        "VOE must include verifier's printed name, title, contact info and verification date.",
+        "Must state Borrower's name, employer name and address.",
+        "Should include date employment began, current position, gross base non-fluctuating earnings per pay period, fluctuating hourly earnings and rate, YTD earnings with 'paid through' date, and earnings for most recent one- or two-year calendar periods (depending on requirements).",
+        "Earnings must be categorized (base, bonus, overtime, tips, commissions).",
+        "For military, include base monthly pay and entitlement income details; for prior employment include begin and end dates, position and gross earnings."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5302.2(d)",
+      "topic": "10-day pre-closing verification (10-day PCV) requirements",
+      "rule": "Verification of current employment must be obtained within specified window before Note Date (no earlier than 10 business days before Note Date and no later than day before Delivery Date) via acceptable methods: verbal VOE (Form 90), e-mail VOE, written VOE, YTD paystub (paid through ≤15 business days before Note Date), military LES (≤120 days), third-party provider or automated assessment.",
+      "details": [
+        "10-day PCV window: no earlier than 10 Business Days before the Note Date and no later than day before Delivery Date (unless noted otherwise).",
+        "Acceptable methods: Verbal VOE documented on Form 90 or similar, with contact details and source of phone number; E-mail VOE from employer work email independently obtained; Written VOE; YTD paystub with paid-through date ≤15 business days before Note Date; Military LES ≤120 days before Note Date; Third-party electronic verification; Automated assessment with Loan Product Advisor (if applicable).",
+        "Employment commencing after Note Date: Seller must confirm terms of offer letter or contract have not changed and include confirmation on the VOE."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5302.3",
+      "topic": "Third-party verification service provider requirements",
+      "rule": "Employment, income and 10-day PCVs from third-party verification service providers are acceptable if received directly, contain sufficient info to determine stable income, are timely (database info ≤35 days old), and Seller maintains responsibility for accuracy.",
+      "details": [
+        "Verifications must be received by originator directly from provider; missing info must be supplemented by Seller.",
+        "Seller must verify third-party providers can comply with quality control and reverification requests.",
+        "If verification uses electronic database, data must be ≤35 days old.",
+        "If automated income/assessment used, additional representation and warranty relief conditions apply (see 5303.4/5303.5/5302.6)."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5302.4",
+      "topic": "Tax return documentation and age requirements",
+      "rule": "Sellers must obtain Borrower's most recently filed signed federal income tax returns (complete including schedules) when required; acceptable alternatives for signature include IRS e-file evidence, tax transcripts or signed Form 4506-C; age of tax returns rules apply based on Application Received Date and Note Date.",
+      "details": [
+        "Tax returns must be signed copy(s) of federal returns most recently filed; complete returns include W-2s, K-1s, 1099s.",
+        "Acceptable alternatives to signed return: evidence tax returns filed electronically (Form 8879), tax transcripts that validate unsigned returns, or completed IRS Form 4506-C signed by Borrower.",
+        "Age of most recent federal tax return requirements vary based on dates: for Note Dates on/after Nov 1, 2024 the most recent tax return must be no older than 2023 (with transition rules and IRS transcript/extension documentation if 2024 returns not yet filed).",
+        "IRS tax transcripts may be used in lieu of other documents but may lack details; Seller may need additional documentation.",
+        "Unreimbursed employee expenses reported on tax returns are not required to be deducted from Borrower's income."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5302.5",
+      "topic": "IRS Form 4506-C requirements",
+      "rule": "All Borrowers whose income or assets are used to qualify must sign IRS Form 4506-C (or acceptable alternate) authorizing release of tax information; form must be signed no later than Note Date and retained in Mortgage file; special rules for Puerto Rico/Guam/USVI income apply.",
+      "details": [
+        "Form 4506-C must be signed by all Borrowers whose income/assets used in qualifying and retained in Mortgage file.",
+        "If submitting to IRS, IRS must receive Form 4506-C before expiration date; Seller must retain tax documentation received from IRS.",
+        "For income from Puerto Rico, use Commonwealth Form 2907; for Guam/USVI, use Form 4506-C or equivalent for local tax authority.",
+        "Automated income assessment Mortgages may have alternative relief/requirements (see 5302.6 and 5303.4/5303.5)."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5302.6",
+      "topic": "Automated employment assessment with Loan Product Advisor® (overview)",
+      "rule": "Sellers may submit Borrower's account or employed income data to Loan Product Advisor for automated employment assessment to determine representation and warranty relief eligibility; must submit required data, investigate inconsistencies, and retain reports per eligibility results.",
+      "details": [
+        "Two methods: using account data (payroll deposits) or employed income data (employer electronic databases/paystubs/W-2s).",
+        "When using account data, depository history must show minimum three consecutive payroll deposits from same payor(s).",
+        "Certain employment/income characteristics (family member employer, foreign income, 1099 income, business ownership <25%) are ineligible for assessment using employed income data.",
+        "Seller must have no knowledge contradicting income continuance for >=3 years; temporary leaves require confirmation Borrower returned to work.",
+        "Data must be current and resubmitted if updated; representation/warranty relief eligibility shown on Last Feedback Certificate determines documentation requirements retained in Mortgage file."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5303.1(a)(i)",
+      "topic": "Stability and continuance for employed income",
+      "rule": "All employed income used for qualifying must be stable, supported by documentation and expected to continue for at least three years; Seller must analyze employment history, income characteristics and any gaps.",
+      "details": [
+        "Seller must analyze documentation and employment characteristics (source, earnings type, stability, gaps).",
+        "Two-year history generally supports stability but if Borrower changed types of employment, consistent income amount can qualify.",
+        "Frequent job changes require analysis of whether changes affected ability to repay."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5303.1(b)",
+      "topic": "Employment history requirements (primary and secondary)",
+      "rule": "Primary employment generally requires two-year history; secondary employment also generally two years but 12-month history may be acceptable with justification; active-duty military exempt from two-year history requirement.",
+      "details": [
+        "Primary employment: usually at least two-year history documented on Form 65 and verified per Topic 5300; active-duty military need not have two-year history.",
+        "Secondary employment: usually two-year history; less than two years but >=12 months may be acceptable with Seller justification considering overall risk layering.",
+        "Seller should document rationale when less than two years used (e.g., returning to workforce with prior stable history, recent graduates with training)."
+      ],
+      "examples": [
+        "Teacher teaching summer school: may include summer income even if two-year history not fully developed with additional documentation."
+      ]
+    },
+    {
+      "section": "5303.1(c)(i)",
+      "topic": "Base non-fluctuating employment earnings: definition, documentation and calculation",
+      "rule": "Base non-fluctuating earnings (salaried or stable hourly base) are considered stable when supported by YTD paystubs and W-2s (or written VOE) and calculated by converting pay period gross to monthly using standard multipliers.",
+      "details": [
+        "Base non-fluctuating includes exempt (salaried), military base (basic) pay, and non-exempt hourly when pay rate and hours are consistent and supported by YTD earnings.",
+        "Minor hour variations (≤1 hour/week) acceptable and still treated as non-fluctuating when history supports level.",
+        "Documentation for primary employment: YTD paystub(s), W-2(s) for most recent calendar year and 10-day PCV OR written VOE documenting YTD and most recent year and 10-day PCV; secondary employment needs W-2s for most recent two calendar years.",
+        "Calculation methods: Weekly ×52/12, Bi-weekly ×26/12, Semi-monthly ×24/12, Monthly = monthly gross, Annual paid <12 months divide annual by 12 (e.g., teachers paid over 10 months: multiply monthly base by 10 and divide by 12)."
+      ],
+      "examples": [
+        "Weekly gross $800 → $800×52/12 = monthly income used in qualifying."
+      ]
+    },
+    {
+      "section": "5303.1(c)(ii)",
+      "topic": "Military earnings and entitlements",
+      "rule": "Military base pay is base non-fluctuating income; documentation via Military Leave and Earnings Statement or written VOE; entitlements may be included when fixed and documented; reserve/National Guard require one-year history and 12-month averaging.",
+      "details": [
+        "Active-duty members: history not required for stability; YTD Military LES acceptable documentation.",
+        "Entitlements (rations, clothing, quarters) require YTD LES or written VOE and are considered likely to continue for three years.",
+        "Military reserve/National Guard require one-year history, documentation (YTD LES and W-2 or written VOE), and 12-month average calculation."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5303.1(c)(iii)(A)",
+      "topic": "Automobile allowance (additional fixed earnings)",
+      "rule": "Automobile allowance is additional fixed employment income if paid as a documented fixed amount and must have two-year history; add full allowance amount to qualifying income.",
+      "details": [
+        "History: two consecutive years of receipt required.",
+        "Documentation: YTD paystubs and W-2s for most recent two years and 10-day PCV OR written VOE documenting YTD and prior two years and 10-day PCV.",
+        "Calculation: add full allowance to qualifying income; Seller may not reduce monthly auto financing expense by allowance amount."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5303.1(c)(iii)(B)",
+      "topic": "Mortgage differential (additional fixed earnings)",
+      "rule": "Employer mortgage differential payments may be added to qualifying income if documentation shows program terms and payments continue at least three years; payments may not be used to offset monthly housing payment used for qualification.",
+      "details": [
+        "History: no prior history required but continuance must be documented for at least three years.",
+        "Documentation: employer agreement detailing scheduled amount and duration; employer must not be an interested party to transaction.",
+        "Calculation: payments added to qualifying income in addition to housing payment; cannot offset qualifying housing payment amount."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5303.1(d)(i)",
+      "topic": "Base fluctuating hourly employment earnings (definition, history, calculation and trend analysis)",
+      "rule": "Fluctuating hourly base earnings require at least 12-month history, documentation (YTD paystubs and W-2s), trend analysis to determine consistent/increasing/declining trend, and calculation by averaging most recent year(s) and YTD or applying current rate to average hours when supported.",
+      "details": [
+        "Definition: base fluctuating hourly earnings are not pre-determined and may vary per pay period.",
+        "History: at least 12 months from current fluctuating hourly employment or combine current and prior fluctuating employment or prior salaried in similar industry to reach 12 months.",
+        "Documentation: YTD paystubs and W-2(s), and 10-day PCV or written VOE equivalents per primary/secondary rules.",
+        "Trend analysis: compare YTD to prior year(s); degree of fluctuation thresholds: ≤10% considered consistent; >10%–≤30% may be acceptable with documentation (e.g., pay raise evidence or documented breakdown); >30% requires additional analysis and documentation.",
+        "Calculation options when consistent/increasing: average most recent year(s) and YTD over applicable months OR apply current pay rate to average hours when hours consistent/increasing and documented.",
+        "Declining trend: use YTD income only and do not include prior higher levels unless one-time occurrence documented and Borrower is back to previous earnings."
+      ],
+      "examples": [
+        "If YTD and prior year show consistent amounts, average over appropriate number of months (YTD + prior year) to determine monthly qualifying income."
+      ]
+    },
+    {
+      "section": "5303.1(d)(i) Pay raises",
+      "topic": "Treatment of pay raises for fluctuating earnings",
+      "rule": "Pay raises may justify different averaging methods; verification (paystubs showing old/new rate, VOE) may support using increased pay in qualifying income when raise is documented.",
+      "details": [
+        "Documentation to verify pay raise may include paystubs showing old and new rates, year-end paystubs, or written VOE.",
+        "Seller may apply current pay rate to prior year's average hours if consistent and raise is verified and reasonable.",
+        "Raise documentation useful when degree of fluctuation exceeds 10%."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5303.1(d)(ii)(A)",
+      "topic": "Bonus, commission, overtime and tips (employer-reported) — history, documentation and calculation",
+      "rule": "Additional fluctuating earnings (bonus, commission, overtime, tips reported by employer) generally require two-year consecutive history, documented YTD paystubs and W-2s, 10-day PCV, and calculation by averaging most recent years and YTD over required months; exceptions exist for less than two years with justification.",
+      "details": [
+        "History: two consecutive years generally required; exception: ≥12 months with justification and written analysis.",
+        "Documentation: YTD paystub(s) documenting YTD earnings, W-2s for most recent two calendar years, and 10-day PCV OR written VOE documenting YTD and prior two years and 10-day PCV.",
+        "Calculation: average most recent year(s) and YTD income over applicable months; must consider pay frequency (don’t average prior-year and YTD months incorrectly for annual bonuses — use full-year averages).",
+        "Documented income breakdown between base and fluctuating components is useful to support higher qualifying amounts or explain fluctuation >10%.",
+        "Declining trends: use YTD and investigate reason; if decline >10% further analysis and documentation required."
+      ],
+      "examples": [
+        "Annual bonus received in February both prior and current year: average amounts over 2-year period — do not average by months (e.g., 15-month average is inaccurate)."
+      ]
+    },
+    {
+      "section": "5303.1(d)(ii)(B)",
+      "topic": "Tip income (Form 4137) requirements",
+      "rule": "Cash and charge tips reported on IRS Form 4137 require two-year consecutive history (exception ≥12 months with justification), complete federal tax returns for two years, 10-day PCV, and calculation per bonus/commission/overtime rules.",
+      "details": [
+        "Documentation: IRS Form 4137 for most recent two years, complete federal individual tax returns for most recent two-year period, and 10-day PCV.",
+        "Calculation: follow methods for averaging fluctuating additional earnings; consider trend analysis and continuing receipt expectations."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5303.1(d)(ii)(C)",
+      "topic": "Unemployment compensation associated with seasonal employment",
+      "rule": "Unemployment compensation tied to seasonal employment requires two-year history (exception ≥12 months with justification), proof of receipt (e.g., 1099-G), and calculation consistent with bonus/commission/overtime methods.",
+      "details": [
+        "Documentation: proof of receipt for most recent two-year period (IRS Form 1099-G or equivalent).",
+        "Continuance: must be likely to continue for at least three years (i.e., consistent seasonal pattern).",
+        "Calculation: apply fluctuating earnings averaging rules."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5303.1(d)(ii)(D)",
+      "topic": "Restricted Stock (RS) and Restricted Stock Units (RSU) — performance vs time-based vesting",
+      "rule": "RS/RSU used for qualifying must have been vested and distributed; performance-based RS/RSU require two-year history and are averaged over 24 months; time-based recurring awards use one-year history averaged over 12 months; extensive documentation and stock pricing (200-day simple moving average) required.",
+      "details": [
+        "Performance-based RS/RSU: history of receipt two years (min 12 months exception), must have vested and been distributed to Borrower; documentation: YTD paystubs showing payouts, W-2s for most recent two years, evidence stock publicly traded, vesting provisions, evidence of receipt and 200-day simple moving average stock price; calculation: (vested shares × 200-day SMA price) / 24 or cash equivalents / 24.",
+        "Time-based RS/RSU: history one year; recurring awards must be likely to continue for three years; documentation similar to performance-based but averaging over 12 months; nonrecurring awards must have at least three years vesting/distribution remaining.",
+        "Exception: if less than full 24 months of receipts from current employer, Seller may use actual months with written analysis and compensating factors, minimum 12 months with current employer required."
+      ],
+      "examples": [
+        "200 vested shares over past two years; 200-day SMA = $10 → (200 × $10)/24 = $83.33 monthly income."
+      ]
+    },
+    {
+      "section": "5303.1(e)",
+      "topic": "Employment/income characteristics (family member employer, 1099, union, temporary staffing, foreign income)",
+      "rule": "Special rules apply based on employment characteristics: employment by family member or interested party requires extra third-party validation; 1099 income may be treated as self-employment unless Schedule C demonstrates non-self-employed characteristics; union/temporary staffing and foreign income have specific documentation and history requirements.",
+      "details": [
+        "Employed by family member/interest party: treat as non-arm's-length; require complete signed federal returns or IRS wage & income transcripts validating prior year earnings from current employment; Seller may use prior year validated income if current not supported.",
+        "Union members: multiple YTD paystubs/W-2s acceptable; may obtain 10-day PCV from union if appropriate.",
+        "Temporary help/contract staffing: require W-2s from staffing firm for most recent two years and demonstrate continuity.",
+        "Income reported on 1099 for services: provide all 1099s for most recent two years, YTD proof of payments, pages 1-2 of individual tax returns and applicable schedules; if Schedule C shows gross receipts ≈ 1099s, total expenses <5% after non-cash adjustments and cost of goods sold = $0 and other criteria, may be treated as non-self-employed for qualifying; otherwise treat as self-employed and follow Chapter 5304.",
+        "Employed income from foreign sources: may be considered if reported on U.S. federal tax return for most recent year and meets chapter requirements."
+      ],
+      "examples": [
+        "Borrower receives multiple W-2s from union jobs across employers; Seller may accept combined W-2s and verify."
+      ]
+    },
+    {
+      "section": "5303.2",
+      "topic": "Income commencing after the Note Date (new employment or future raise)",
+      "rule": "Income that starts after the Note Date may be used if all requirements of Option One or Option Two are met: must be non-fluctuating salaried primary employment, employer not family/interested party, start date limits apply, and additional funds/reserves must be verified to cover the gap.",
+      "details": [
+        "Option One: new primary employment or future salary increase must start no later than 90 days after Note Date; employer not family/interested party; income non-fluctuating salaried; verify additional funds equal to (monthly housing + other liabilities) × months between Note Date and start + 1 (partial months count as 1).",
+        "Option Two: employment may start before or after Delivery Date but must be primary, non-fluctuating, employer not family/interested party; start must be before Delivery Date; documentation includes offer letter/contract accepted by Borrower, paystub/VOE or third-party verification to support income used; Seller must verify additional funds per worksheet and may reduce required additional funds by verified gross income expected between Note Date and start date.",
+        "Documentation: fully executed non-contingent offer letter/contract, 10-day PCV verifying terms unchanged, and evidence of additional funds per calculation."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5303.3",
+      "topic": "Income while on temporary leave",
+      "rule": "For Borrowers on temporary leave (maternity, short-term disability, FMLA), Seller must determine Borrower's capacity to repay during and after leave; if returning before/on first payment due date, pre-leave income may be used; if returning after first payment due date, use income during leave plus available liquid assets as supplement with restrictions.",
+      "details": [
+        "Temporary leave does not include employer-initiated furloughs/layoffs.",
+        "If returning prior to/on first Mortgage payment due date → may use pre-leave gross monthly income for qualifying.",
+        "If returning after first payment due date → may use reduced leave income combined with available liquid assets (as income supplement) up to amount of reduction; assets used as supplement must meet asset verification rules and cannot include funds required for transaction (down payment, closing costs, reserves).",
+        "Total qualifying income must not exceed pre-leave gross monthly income.",
+        "Required documentation: verification of pre-leave income/employment (Topic 5300), signed Borrower statement of intent to return, employer-generated documentation confirming eligibility to return, documentation of leave income amount and duration, evidence of liquid assets and written rationale of qualifying calculation."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5303.4",
+      "topic": "Automated income assessment using employed income data (AIM tax/payroll integration)",
+      "rule": "Sellers may use certain Systems to submit employed income data (paystubs, W-2s, verification reports) for automated assessment; eligibility for representation and warranty relief depends on compliance, data accuracy, and Last Feedback Certificate results; documentation to retain varies by result.",
+      "details": [
+        "For employed income data submissions, eligible income types exclude earnings with characteristics like family-member employer, foreign income, 1099s, business ownership <25%, and fluctuating earnings like base fluctuating hourly, bonuses, commissions, overtime.",
+        "Verification reports must be generated by automated access to employer electronic databases (not verbal/email verifications performed by provider).",
+        "Seller must submit most current employed income data and resolve inconsistencies between verification report, application, and Mortgage file; resubmit if updated.",
+        "Representation and warranty relief outcomes: Eligible (relief for accuracy of income calculation for eligible types and data integrity of verification report), Partial (relief for specified sources), Not eligible/Unavailable (no relief).",
+        "Documentation requirements depend on result: maintain verification report, paystubs, W-2s and Freddie Mac Income Calculator Certificate as applicable; if partial/mixture of eligible and non-eligible sources, seller must verify non-eligible income normally or omit and resubmit."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5303.5",
+      "topic": "Automated income assessment with Loan Product Advisor® using account data",
+      "rule": "Sellers may submit Borrower's account data (deposit history) to Loan Product Advisor for automated income assessment; eligible income types are primarily base non-fluctuating earnings and certain military earnings (with restrictions); representation and warranty relief and documentation requirements depend on Feedback Certificate.",
+      "details": [
+        "Eligible income types: base non-fluctuating employment earnings (except certain military pay types have specific rules), but fluctuating earnings (base fluctuating hourly, bonus, commission, overtime) and some employment characteristics (1099, business ownership <25%) are ineligible.",
+        "Seller must confirm each account on verification report is owned by a Borrower, accounts are U.S. dollars in U.S./State-regulated financial institutions, and payor(s) are Borrower's current employer(s).",
+        "Age of verification report and paystub(s) must comply with Section 5102.4.",
+        "Representation and warranty relief: Eligible/Partial grants relief for accuracy of income calculation related to eligible income types on verification report and accuracy/integrity of verification report data; Not eligible/Unavailable → no relief.",
+        "Documentation to retain: verification report, paystubs (if applicable), and Last Feedback Certificate; Seller must resolve contradictory information and resubmit updated data."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5304.1(a)",
+      "topic": "Self-employed Borrower definition and ownership verification",
+      "rule": "A Borrower is self-employed if they have ≥25% ownership in a partnership, S-corporation or corporation; sole proprietors are self-employed (100%); Seller must verify ownership percentage via business tax returns (K-1s, Form 1125-E) or accountant letter.",
+      "details": [
+        "Partnerships/S-corporations/corporations: ownership interest ≥25% defines self-employment; verify using business tax returns (Schedule K-1) or Form 1125-E; if not available, obtain accountant letter.",
+        "Sole proprietorships: Borrower owns 100% and reports income on Schedule C of individual return.",
+        "If Borrower has ownership in multiple businesses and all ownerships <25%, treat per employed-income guidance (Section 5303.1(e)).",
+        "If business structure changed in past five years, see 5304.1(i) for business structure change treatment."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5304.1(c)",
+      "topic": "Self-employment history requirements",
+      "rule": "Generally require two-year history of current self-employment; if less than two years Seller must document Borrower's experience, combined two-year history from prior occupation or justify using lower of new business income or prior occupation income and include written analysis.",
+      "details": [
+        "Default: two-year history of current self-employment documented on Form 65 and verified.",
+        "When <2 years: Seller must evaluate Borrower's experience, document combined two-year history from current self-employment + prior job in same/similar occupation or use lesser of new business stable monthly income or previous occupation income to determine qualifying income.",
+        "Seller must include written analysis and consider overall layering of risk; review YTD financial statements or most recent three months of business bank statements to support stability."
+      ],
+      "examples": [
+        "Borrower self-employed 10 months, prior 18 months salaried in same industry → Seller may combine to meet two-year history and justify stability."
+      ]
+    },
+    {
+      "section": "5304.1(d)",
+      "topic": "Business review and analysis for self-employed income",
+      "rule": "Seller must analyze business tax returns and may require financial statements to demonstrate liquidity and ability of business to produce stable income; review gross receipts, cost of goods sold, gross profits and expense reasonableness.",
+      "details": [
+        "Analysis must support business liquidity and financial capacity to provide Borrower stable monthly income.",
+        "Review should include business tax returns and consider gross receipts/sales, cost of goods sold, gross profits, and reasonable expenses for industry.",
+        "Seller may request business financial statements, asset statements, historical cash distributions (partnerships/S-corps), and liquidity ratios when necessary."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5304.1(e)",
+      "topic": "Access to and use of business income",
+      "rule": "Stable monthly qualifying income for sole proprietors must be based on Schedule C; for partnerships/S-corps may be based on proportionate share (ordinary income, guaranteed payments) flowing through K-1; access verification required if income not reported on personal returns and corporate documents restrict access.",
+      "details": [
+        "Sole proprietorships: use Schedule C income for qualifying.",
+        "Partnerships/S-corps: stable monthly income may be Borrower's proportionate share reported on Form 1065/1120S → K-1 → individual return; cash distributions themselves cannot be used as qualifying income but may demonstrate liquidity if consistent with ordinary income.",
+        "For S-corporations/corporations, W-2 income from the business may be used; confirm via corporate returns and Form 1125-E if applicable.",
+        "If business income not on personal returns, Seller must verify Borrower's legal right to funds is not encumbered (corporate resolution, partnership agreement) before using as qualifying income."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5304.1(f)",
+      "topic": "Self-employed income calculation and fluctuation analysis",
+      "rule": "Calculate self-employed income using complete individual and business federal tax returns; use Form 91 (Income Calculations) or similar; adjust for non-cash deductions, non-recurring losses, and evaluate significant income changes requiring additional years or documentation.",
+      "details": [
+        "Seller must base calculation on complete federal individual returns (Form 1040) including W-2s/K-1s and complete business returns (1120/1120S/1065) when applicable.",
+        "Form 91 or similar must document calculations and adjustments.",
+        "Adjustments may include adding back non-cash deductions (depreciation, amortization), excluding one-time losses, and considering mortgages/notes payable due in <1 year (may require liquidity analysis and possible reduction).",
+        "If income has significantly increased/decreased over two years, Seller must document justification and may obtain additional tax years or business documentation."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5304.1(g)",
+      "topic": "Additional supporting documentation for self-employed analysis (when recent tax returns not available)",
+      "rule": "When most recent business/individual tax returns are not yet available, Seller must document continued income stability using alternative evidence: financial statements, current business bank statements (≥3 months), signed Form 941, W-2s/1099s, or tax filing extension evidence and complete analysis.",
+      "details": [
+        "Acceptable alternatives: current financial statements (profit & loss, balance sheet), at least 3 months business bank statements, signed Form 941 supporting wages, review of tax filing extension documentation (Forms 4868/7004) and evidence of tax liability consistency, review of W-2s/1099s/K-1s if available.",
+        "Seller must provide written analysis to support continued stability; if not determinable, most recent tax returns may be required.",
+        "Refer to 5302.4(b) for age of tax return requirements and when IRS confirmation is needed."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5304.1(n)",
+      "topic": "Self-employment documentation requirements",
+      "rule": "Seller must obtain Form 91 (or similar), verification of current existence of business, federal tax returns per business tenure (one or two years depending on business age), and other supporting documents; retain in Mortgage file.",
+      "details": [
+        "Required: Form 91 or equivalent Income Calculation Report/Freddie Mac Income Calculator Certificate, verification of current existence of business, and federal individual and business tax returns (Form 1040 and applicable business returns) reflecting at least 12 months of self-employed income.",
+        "Documentation requirements vary by business structure and existence length: if business ≥5 years, one year returns may suffice for Streamlined Accept/Standard; if business <5 years, two years of returns required.",
+        "Verification of business existence must be from third-party sources (regulatory agency, internet, licensing bureau) or acceptable alternatives (tax preparer letter, business bank statement); verification must be dated no more than 120 days prior to Note Date."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5304.2",
+      "topic": "Automated income assessment using tax data for self-employed income",
+      "rule": "Sellers may submit tax returns or tax transcripts to a service provider and Loan Product Advisor/Freddie Mac Income Calculator for automated income assessment and potential representation and warranty relief; eligibility rules, data submission, and documentation retention apply.",
+      "details": [
+        "Two automated paths: upload tax returns to service provider producing Income Calculation Report OR obtain IRS tax transcripts via service provider; Freddie Mac Income Calculator may be used to create a Freddie Mac Income Calculator Certificate.",
+        "Eligible self-employed income for automated assessment: sole proprietorships (Schedule C), S-corporations (1120S with K-1 and W-2), and partnerships (1065 with K-1) depending on method; tax transcript-based assessments limited to Schedule C sole proprietorships.",
+        "Seller must ensure tax returns/transcripts are most recent filed and correspond between individual and business return years.",
+        "Data representation and income representation and warranty relief eligibility determined on Last Feedback Certificate; Seller must investigate and resolve inconsistencies between uploaded returns and tax transcripts or other file data.",
+        "Documentation to retain includes Income Calculation Report/Freddie Mac Income Calculator Certificate, uploaded tax returns/transcripts, Form 4506-C, and all supporting documents submitted to service provider per eligibility result."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5305.1(b)",
+      "topic": "Alimony, child support and separate maintenance income requirements",
+      "rule": "Payments must be consistently received for the most recent six months and documented as legally binding obligations; monthly payment amount is the fixed documented payment and must be deducted from income if borrower obligated to pay (see other section).",
+      "details": [
+        "History: full-amount payments consistently received for most recent six months; do not consider if payor obligated for <6 months, payments not full amount, or inconsistent receipt.",
+        "Continuance: document payor obligated to make payments for at least next three years.",
+        "Documentation: signed court order, final divorce decree, legally binding separation agreement, legally binding child support agreement, or equivalent; proof of receipt (deposits, government agency statements) for most recent six months.",
+        "Monthly income amount: documented fixed monthly payment amount."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5305.1(c)",
+      "topic": "Capital gains income",
+      "rule": "Capital gains may be used if realized gains documented on two most recent tax returns and assets remain sufficient after Note Date to support continuance for three years; use 24-month average.",
+      "details": [
+        "Assets used to support qualifying amount must not be cryptocurrency.",
+        "Minimum history: most recent two years of realized capital gains reported on complete federal returns.",
+        "Continuance: must document continuance at level used for qualifying for at least next three years (e.g., sufficient assets remain).",
+        "Calculation: 24-month average of realized gains."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5305.1(d)",
+      "topic": "Dividend and interest income",
+      "rule": "Dividend and interest income require documentation of most recent two years (tax returns or year-end statements) and evidence of sufficient assets remaining after Note Date to support three-year continuance; use 24-month average.",
+      "details": [
+        "Assets supporting income not in cryptocurrency.",
+        "Acceptable documentation: two years of federal tax returns or year-end asset account statements for two years evidencing dividend/interest.",
+        "Must document sufficient assets remain post-closing to support three-year continuance.",
+        "Calculation: use 24-month average."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5305.1(f)",
+      "topic": "Foster-care income",
+      "rule": "Foster-care income requires most recent two years' receipt documentation and is generally considered likely to continue for three years unless Seller has contrary knowledge; use 24-month average.",
+      "details": [
+        "History: most recent two years of receipt.",
+        "Continuance: Seller not required to obtain continuance documentation as long as no knowledge that income will cease; must be likely to continue at least three years.",
+        "Documentation: evidence of receipt for most recent two years (payments records).",
+        "Calculation: 24-month average."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5305.1(f) Housing Choice Voucher",
+      "topic": "Housing Choice Voucher (HCV) Homeownership Program income",
+      "rule": "HCV homeownership payments require documentation from housing agency verifying source, payment amount, frequency and term length; must document term limit remaining at least three years; use fixed monthly payment amount.",
+      "details": [
+        "History: history not required to be considered stable.",
+        "Continuance: document voucher term limit remaining at least three years.",
+        "Documentation: verification from public housing agency with terms, payment amount and duration.",
+        "Calculation: use documented fixed monthly payment; cannot offset housing payment used for qualification."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5305.1(g)",
+      "topic": "Housing or parsonage allowance",
+      "rule": "Housing/parsonage allowance requires 12 months' receipt history, documentation of amount and terms, and be likely to continue for at least three years; use documented fixed monthly payment amount.",
+      "details": [
+        "History: payments must have been received for most recent 12 months.",
+        "Continuance: likely to continue three years unless Seller has contrary information; Seller not required to document continuance absent contrary info.",
+        "Documentation: written VOE, employer letter or paystubs showing allowance and terms and evidence of most recent 12 months' receipt.",
+        "Calculation: use documented fixed monthly payment; may not be used to offset monthly housing payment."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5305.1(h)",
+      "topic": "Long-term disability income (existing and newly established)",
+      "rule": "Long-term disability income may be considered stable without additional documentation unless policy expires within three years; existing sources require documentation of type, source, payment frequency, pre-determined amount and current receipt; newly established sources require documentation of finalized terms dated ≤120 days before Note Date and verification of current receipt not required.",
+      "details": [
+        "Existing sources: documentation can include benefit verification letter, award letter, pay statement, IRS 1099, W-2, bank statements; Social Security disability requires SSA benefit verification or 1099-SSA or pages 1-2 of tax return and evidence of current receipt.",
+        "Newly established: must start on or before first mortgage payment due date (except some conversion from short-term to long-term allowed) and Seller must document finalized terms including start date, frequency, amount and duration; documentation must be dated ≤120 days before Note Date.",
+        "Continuance: considered to have reasonable expectation unless pre-determined expiration date <3 years; pending/current re-evaluation of medical eligibility is not indication of discontinuance.",
+        "Monthly income amount: pre-determined payment amount used for qualifying."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5305.1(i)",
+      "topic": "Mortgage Credit Certificate (MCC) income",
+      "rule": "MCC may be used as income with no history required; Seller must confirm continuance for at least three years and calculate monthly income as (Mortgage amount × note rate × MCC rate %) / 12, capped by IRS maximum interest credit.",
+      "details": [
+        "History: not required. Continuance: must be likely to continue for at least three years; Seller not required to obtain documentation unless contrary info.",
+        "Documentation: MCC retained in file.",
+        "Calculation: (Mortgage amount × note rate × MCC rate %) ÷ 12; amount cannot exceed IRS allowed maximum interest credit."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5305.1(j)",
+      "topic": "Notes receivable",
+      "rule": "Notes receivable used as income require 12 months of regular payments, note evidencing payment terms with remaining term ≥3 years and proof of receipt for most recent 12 months; use full scheduled payment amount.",
+      "details": [
+        "History: payments received monthly for most recent 12 months.",
+        "Continuance: note must have remaining term of at least three years.",
+        "Documentation: copy of note with payment schedule and proof of receipt for most recent 12 months.",
+        "Calculation: use full scheduled payment amount shown on the note."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5305.1(k)",
+      "topic": "Public assistance income (e.g., TANF)",
+      "rule": "Existing or newly established public assistance income may be used if documented with benefit verification showing source, type, frequency, amount and duration of eligibility for at least three years; verification of current receipt required for existing benefits.",
+      "details": [
+        "Existing: history not required but must document duration of benefit eligibility for at least three years; acceptable docs include benefit verification letters or agency documentation and bank statements showing receipt.",
+        "Newly established: income must start on or before first mortgage payment due date; documentation of finalized terms dated ≤120 days before Note Date and verification of current receipt not required.",
+        "Age of documentation: requirements in Section 5102.4 do not apply to verification of type/source/frequency/amount/duration but do apply to verification of current receipt."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5305.1(l)",
+      "topic": "Retirement account distributions as income (401(k), IRA distributions)",
+      "rule": "Distributions from retirement accounts recognized by IRS and not subject to penalty may be qualifying income; history required varies 0–24 months depending on frequency and rules; Seller must document sufficient eligible retirement assets to support distributions for at least three years; use documented distribution amount and Seller written analysis.",
+      "details": [
+        "Eligibility: distributions from IRS-recognized retirement accounts that are not penalty-subject may be used; assets supporting continuance cannot be cryptocurrency.",
+        "History: may range from zero to 24 months depending on frequency and whether distributions are governed by rules (e.g., RMDs) that support continuance with less history.",
+        "Continuance: Seller must document that Borrower has sufficient retirement assets to support qualifying income for three years; if account depletes within three years, aggregate additional retirement accounts may be considered but not if those accounts were used for closing/reserves or current income.",
+        "Documentation: most recent retirement account statements, documentation of scheduled distributions, IRS 1099s, bank statements showing receipt, and Seller's written analysis.",
+        "Calculation: amount of stable monthly distributions established and documented per above."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5305.1(m)",
+      "topic": "Retirement income (Social Security, pension, annuity)",
+      "rule": "Retirement income (not account distributions) may be considered stable without minimum history; continuance depends on source and may require documentation (government program vs annuity with defined term); documentation should verify type, source, frequency and current receipt where applicable.",
+      "details": [
+        "Continuance: Social Security generally requires no additional continuance documentation; annuities from insurance companies may have defined terms requiring documentation of continuance for three years.",
+        "Documentation: benefit verification letter, award letter, pay statement, IRS Form 1099, bank statements; Social Security benefits can be documented via SSA verification letter, 1099-SSA, or tax return pages; age of documentation rules vary for type/source/receipt.",
+        "Monthly income amount: documented fixed monthly payment amount used for qualifying."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5305.1(n)",
+      "topic": "Royalty payments",
+      "rule": "Royalty income requires at least 12 months history if <2 years ownership (or two years if ≥2 years) with documentation (tax returns, royalty/lease contracts) showing continuance for three years when applicable; calculation uses 12-month or 24-month average depending on history.",
+      "details": [
+        "If <2-year history: payments received regularly for most recent 12 months; must document eligibility for continuance 3 years with royalty contracts or leases; use 12-month average.",
+        "If ≥2-year history: use most recent two year tax returns and 24-month average; Seller need not obtain continuance documentation if no contrary knowledge.",
+        "Documentation: complete tax returns (one- or two-year as applicable), royalty contract/lease showing duration and terms."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5305.1(o)-(q)",
+      "topic": "Social Security SSI, Survivor/Dependent and other government benefits",
+      "rule": "Government benefit incomes (SSI, Social Security disability, survivors, VA compensation) are generally considered reasonably continuous; documentation may include benefit verification or award letters, 1099s or tax returns; newly established awards require finalized terms dated ≤120 days before Note Date and may not require current receipt verification.",
+      "details": [
+        "Existing benefits: no minimum history required; Seller must document type, source, payment frequency, pre-determined payment amount and current receipt through SSA letter, 1099-SSA, award letters, bank statements etc.; age of documentation rules apply for current receipt.",
+        "Newly established benefits: must start on or before first mortgage payment due date; documentation of finalized terms dated ≤120 days before Note Date; verification of current receipt not required.",
+        "Continuance: benefits may or may not have documentable continuance; Seller must assess based on source program rules and eligibility criteria."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5305.1(q)",
+      "topic": "Trust income (fixed vs fluctuating)",
+      "rule": "Trust income can be qualifying if generated by financial assets; fluctuating trust payments require two-year history and 24-month average with evidence trust agreement and assets remain post-closing; fixed trust payments require one-year history and trust agreement showing fixed amounts and duration ≥3 years plus one-year receipt evidence and assets remaining.",
+      "details": [
+        "Fluctuating trust income: eligible when based on financial asset; require fully executed trust agreement, two years of individual tax returns verifying receipt, and evidence sufficient assets remain after Note Date; calculation 24-month average.",
+        "Fixed trust income: require trust agreement specifying fixed payments at set intervals and duration ≥3 years, bank statements verifying one year of receipt, and evidence sufficient assets remain; calculate monthly based on fixed amount in trust.",
+        "Assets not cryptocurrency."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5305.1(r)",
+      "topic": "Tax-exempt income and gross-up",
+      "rule": "Seller may 'gross up' verified tax-exempt income by either 25% or by using federal/state withholding tax rates to adjust income used for qualifying; must document tax-exempt status with tax return or other documentation except for certain exceptions (child support, HCV, 15% of Social Security).",
+      "details": [
+        "Documentation: complete federal return covering most recent year or other evidence income (or portion) is tax-exempt.",
+        "Exceptions where evidence not required: child support, HCV homeownership, and up to 15% of Social Security income.",
+        "Gross-up options: increase income by 25% or apply tax rate from federal and state withholding tables to derive grossed-up income."
+      ],
+      "examples": [
+        "If Borrower receives $1,000/month Social Security, Seller may gross up $150 (15%) without additional documentation; grossing up entire $1,000 requires documentation."
+      ]
+    },
+    {
+      "section": "5305.1(s)",
+      "topic": "Income from foreign non-employment sources",
+      "rule": "Other income from foreign sources may be considered if reported on Borrower's most recent U.S. federal income tax return and meets applicable income type documentation and continuance requirements from this chapter.",
+      "details": [
+        "Requirement: income must be reported on most recent U.S. federal individual income tax return.",
+        "Apply the specific income type rules (e.g., dividend, trust) for history, continuance and documentation as defined in chapter.",
+        "Documentation: tax return plus applicable supporting documentation for the income type."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5305.2",
+      "topic": "Automated income assessment for other income using account data",
+      "rule": "Loan Product Advisor can assess certain other income types (alimony/child support, retirement income, Social Security, VA disability) using Borrower's account data; Seller must submit account data, confirm payor identity, and follow documentation and representation and warranty relief outcomes per Feedback Certificate.",
+      "details": [
+        "Eligible other income types: alimony/child support/separate maintenance; retirement income (social security, pensions); Social Security disability; SSI; Social Security survivors benefits; VA disability compensation.",
+        "Seller must confirm report accounts owned by Borrower, assets in U.S. dollars, and payor identity (e.g., pension fund or SSA).",
+        "Age of verification report must comply with Section 5102.4.",
+        "Representation and warranty relief: Eligible/Partial relieve Seller from certain representations and warranties regarding income calculation and verification report data; Not eligible/Unavailable → no relief.",
+        "Documentation: retain verification report; when alimony/child support used retain legally binding documents verifying payor obligation and evidence of age of children for child support as applicable."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5306.1(b)",
+      "topic": "Rental income general calculation principle (75% rule)",
+      "rule": "For rental income from subject or non-subject investment properties when using lease or market rent, calculate net rental income as 75% of gross monthly rent (25% adjustment to compensate for vacancies, operating/maintenance and unexpected expenses) unless Schedule E is used.",
+      "details": [
+        "Use 75% of gross monthly lease rent if lease available, or 75% of gross monthly market rent from appraisal forms (Form 72, 1000, Traditional/Hybrid Appraisal Report) when lease not available.",
+        "25% deduction accounts for vacancies and operating/maintenance expenses.",
+        "When Schedule E is available (property owned prior year), net rental income is calculated from Schedule E by adding back allowable expenses (insurance, mortgage interest, taxes, HOA dues, depreciation, one-time losses) and averaging over applicable months (12 or days-in-service basis)."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5306.1(b) & (c)",
+      "topic": "Use of Schedule E vs lease for rental income calculations",
+      "rule": "When property reported on Schedule E in most recent filed federal tax return, Seller must generally calculate net rental income using Schedule E; lease may be used instead only in limited scenarios (tax return doesn't include subject property e.g., on extension, or property out of service during tax year due to renovations).",
+      "details": [
+        "Schedule E method: calculate net rental income by deducting expenses from rents received per Schedule E, add back allowable expenses as applicable, divide by 12 or days-in-service per rules.",
+        "Lease method permitted when: most recent tax return does not include property on Schedule E (e.g., tax return in extension) OR property was out of service significant portion of year and Mortgage file documents repairs/renovation causing reduced days-in-service.",
+        "When using lease, require current fully executed lease and proof of initial rental payments (two months of payments or security deposit + first month) or appraisal market rent."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5306.1(e)-(g)",
+      "topic": "ADU and live-in aide rental income limits & requirements",
+      "rule": "Rental income from ADUs or live-in aides on a 1-unit Primary Residence may be used with strict documentation and caps: ADU net rental income used to qualify must not exceed 30% of total stable monthly income; ADU market rent must be supported by ADU rental analysis (minimum 3 comparables, at least one rented ADU), and landlord education/experience rules apply.",
+      "details": [
+        "ADU eligibility: ADU rental income may be used for subject 1-unit Primary Residence and Investment Properties; require ADU rental analysis in appraisal and comparables.",
+        "Documentation: current fully executed lease (when available) + ADU rental analysis with minimum three comparables (≥1 rented ADU) provided in appraisal or attached rent schedule; proof of rent receipt if lease executed.",
+        "Limit: net rental income from ADU cannot exceed 30% of total stable monthly income used to qualify.",
+        "Landlord education: for purchase transactions at least one qualifying Borrower must complete landlord education prior to Note Date unless Borrower has ≥1 year investment property management or ADU rental management experience.",
+        "Special delivery: ULDD Data Point Investor Feature Identifier 'J66' must be delivered when ADU rental income used."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5306.1(b)(Limitations)",
+      "topic": "Limitations on use of rental income (management experience)",
+      "rule": "Full amount of net rental income may be used only if at least one Borrower has minimum one-year investment property management experience; otherwise net rental income limited to amount that offsets PITI (and applicable other property charges) on that investment property.",
+      "details": [
+        "If no Borrower has ≥1 year of investment property management experience, net rental income can only be used to offset principal, interest, taxes, insurance and applicable HOA/MI/leasehold payments and secondary financing on the investment property.",
+        "For properties purchased/placed in service within current calendar year, additional documentation is required (appraisal, lease, proof of receipt)."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5307.1(b)",
+      "topic": "Asset calculation method for establishing DTI from assets",
+      "rule": "To derive qualifying asset amount used in DTI: determine total eligible documented assets, subtract funds required for transaction (down payment/closing costs), gift/borrowed funds, and encumbered pledged assets to get 'net eligible assets'; divide net eligible assets by 240 to get monthly qualifying asset amount.",
+      "details": [
+        "Step 1: Total eligible documented asset amount.",
+        "Step 2: Subtract funds required to complete transaction (down payment, closing costs), any gift or borrowed funds, and any portion pledged as collateral or encumbered to get 'net eligible assets.'",
+        "Step 3: Divide net eligible assets by 240. Result is the monthly qualifying asset amount included in DTI.",
+        "Cryptocurrency not allowed as assets for this calculation."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5307.1(c)(i)-(iii)",
+      "topic": "Asset eligibility: retirement, lump-sum distributions, depository/securities",
+      "rule": "Qualified assets for asset-based qualification include retirement accounts (must be accessible without penalty, vested), lump-sum distributions derived from retirement accounts deposited into non-retirement accounts (with employer docs/1099-R), and depository/securities accounts (verification required, sourcing deposits >10% must be documented); cryptocurrency excluded.",
+      "details": [
+        "Retirement assets: Borrower must be sole owner, funds accessible as of Note Date without penalty, rights fully vested; retain most recent account statement and evidence eligibility.",
+        "Lump-sum distributions not deposited into retirement account: must originate from retirement account, be immediately accessible, not subject to penalty, documented via employer distribution letter/1099-R and deposits shown in account statements.",
+        "Depository/securities: Borrower must solely own or joint owners must be Borrowers; at least one Borrower account owner must be ≥62 years old for some asset-based arrangements; provide 1-2 months of account statements depending on Streamlined/Standard Documentation; source-of-deposits rule: any deposit >10% of total eligible assets requires sourcing to verify not gifts/borrowed funds.",
+        "Assets from sale of business: provide closing docs, three months account statements and evidence proceeds derived from sale and that sale didn't retain debt or seller financing."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5401.1",
+      "topic": "Monthly housing expense components for Primary Residences, second homes, investment properties",
+      "rule": "Monthly housing expense includes principal & interest, hazard and flood insurance, real estate taxes (estimate if not available), mortgage insurance, leasehold payments, special assessments (>10 months remaining), HOA/maintenance dues (excluding unit utility charges), and payments on secondary financing/HELOCs (HELOC payment = documented monthly payment or 1.5% of outstanding balance if no payment documented).",
+      "details": [
+        "For Primary Residences: include P&I, hazard/flood insurance, real estate taxes (estimate for new construction or transfer-of-ownership tax recalcs), mortgage insurance premiums, leasehold payments, special assessments >10 months, HOA dues and maintenance fees (excluding unit utilities), payments on secondary financing including HELOCs (HELOC payments: use documented monthly payment; if none, use 1.5% of outstanding balance).",
+        "For second homes and investment properties: monthly housing expense is sum of monthly charges described above for each Borrower's Primary Residence (and rental obligations if Borrower rents their domicile).",
+        "If Borrower rents principal domicile, include rental payment per documentation (see rental payment documentation requirements)."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5401.1(d)",
+      "topic": "Rental payment documentation when Borrower rents principal domicile",
+      "rule": "To verify rental payment amount include one of: direct verification of rent from management company, direct verification from landlord supported by two months canceled checks, fully executed lease supported by two months payments, or six months of canceled checks/bank statements showing consistent payments.",
+      "details": [
+        "Acceptable proofs: management company verification, landlord verification + two months canceled checks, current fully executed lease + two months canceled checks, or six months of checks/bank statements evidencing consistent payments.",
+        "Use verified rental payment in monthly housing expense calculation."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5401.2",
+      "topic": "Monthly debt payment-to-income (DTI) ratio: included liabilities",
+      "rule": "DTI includes monthly housing expense plus borrower liabilities: installment debts with >10 months remaining, student loans (special rules), alimony/child support (count as obligations or deduct from income by rule), revolving accounts (5% of balance if no payment reported), lease payments, property payments for other properties, HELOC payments, IRS installment agreements and others per specific rules.",
+      "details": [
+        "Include all debts on Form 65 and credit report incurred through Note Date.",
+        "Installment debts: include those with >10 months remaining; exclude installment debts with ≤10 months remaining.",
+        "Student loans: always include an amount >0; if current payment reported use that; if credit report payment = 0 use 0.5% of outstanding balance unless other documentation supports different payment; income-driven plans/recertifications treated specially — if recertification may increase payment, use current or 0.5% of balance or documented future payment (see 5401.2(b)(1)).",
+        "Alimony/child support: documented obligations included in liabilities if >10 months remaining; otherwise may be omitted; alimony paid by Borrower must be deducted from income if >10 months remaining.",
+        "Revolving: if no monthly payment reported and no docs, use 5% of outstanding balance; 30-day accounts: include full outstanding balance unless Borrower has verified funds to pay off balance.",
+        "Lease payments: include regardless of months remaining (except qualifying solar PPA/leases may be excluded if meeting criteria).",
+        "HELOCs: include monthly payment if outstanding balance exists; if no payment documented use 1.5% of outstanding balance.",
+        "IRS installments: if approved by IRS include documented monthly payment; if pending, include greater of requested payment or taxes/72."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5401.2(c)",
+      "topic": "Liabilities that may be excluded from DTI (contingent, assigned, sales pending, employer-paid)",
+      "rule": "Certain liabilities can be excluded when documented: contingent debts paid by another party for ≥12 months and not an interested party; assumed mortgages if Borrower no longer owns property and assignee paid timely for 12 months; current primary residence pending sale with executed contract (with financing contingency cleared) may be excluded; assigned debt (court-ordered payments) may be excluded; self-employed Borrower's debts paid by business for ≥12 months may be excluded if tax returns show business pays them.",
+      "details": [
+        "Contingent liabilities: require documentation that another party has made timely payments for most recent 12 months and that party is not interested to the transaction.",
+        "Assumed mortgage: exclude if Borrower no longer owns property (transfer docs) and assignee has made timely payments for most recent 12 months; otherwise include.",
+        "Current residence pending sale: exclude mortgage payment if executed sales contract is in file and financing contingency cleared or buyer has lender commitment; relocation program exceptions apply per 4408.1.",
+        "Assigned debt: exclude if payment responsibility assigned by court order (divorce decree) and docs in file.",
+        "Self-employed business-paid debts: exclude when business has paid the debt timely for ≥12 months and tax returns show business expense treatment consistent with payments."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5401.2(c)(vi)",
+      "topic": "Excluding payments for solar leases/PPAs",
+      "rule": "Payments for solar panels under lease, PPA or similar agreements may be excluded from DTI if the agreement delivers a specific energy amount for agreed payment and includes a production guarantee compensating the Borrower prorata when output is short; PPAs excluded if payments tied only to generated energy.",
+      "details": [
+        "Lease must specify energy delivery amount and payment terms; include production guarantee.",
+        "PPA payments may be excluded if payment is only for generated energy.",
+        "Seller must maintain copy of lease/PPA in Mortgage file."
+      ],
+      "examples": []
+    },
+    {
+      "section": "5401.2(d)",
+      "topic": "Evaluating DTI — Manual underwriting thresholds",
+      "rule": "For manually underwritten Mortgages DTI guideline is generally ≤36%; exceptions up to 45% may be justified with offsets (substantial liquid assets, ≥25% down payment, strong credit score and compensating factors, energy efficiency) but Mortgages with DTI >45% are ineligible; Sellers must document justification for exceeding guideline.",
+      "details": [
+        "Loan Product Advisor Mortgages: rely on LPA calculation (Accept/other) for acceptable ratios.",
+        "Manually Underwritten Mortgages: guideline housing-to-income ≤28% and DTI ≤36%; DTI >36% but ≤45% may be considered only with documented compensating factors (substantial verified liquid assets, ≥25% down payment, excellent credit history/score, evidence ability to carry higher expenses, or energy-efficient property where lower utilities justify higher housing ratios).",
+        "Mortgages with DTI >45% are ineligible for sale to Freddie Mac.",
+        "Sellers must maintain written justification in Mortgage file when guidelines exceeded."
+      ],
+      "examples": [
+        "GreenCHOICE Mortgage on energy-efficient property may allow higher ratio if HERS or DOE Home Energy Score documentation is provided."
+      ]
+    }
+  ]
+}

@@ -32,6 +32,12 @@ Example:
 import os
 import sys
 import json
+
+# Fix console encoding for Windows
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding='utf-8')
+    sys.stderr.reconfigure(encoding='utf-8')
+
 import asyncio
 from pathlib import Path
 from openai import AsyncAzureOpenAI

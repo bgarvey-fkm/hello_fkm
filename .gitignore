@@ -22,6 +22,9 @@ loan_files_inputs/
 test_harvest_download.pdf
 *.html
 
+# Archive
+archive/
+
 # Sensitive data directories - OLD STRUCTURE (can be deleted after migration)
 image_files/
 loan_summary/
