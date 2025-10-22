@@ -50,13 +50,17 @@ def load_freddie_mac_guidelines():
         return ""
 
 
-async def filter_income_documents_by_guidelines(loan_id):
+async def filter_income_documents_by_guidelines(loan_id, refilter=False):
     """
     Load ALL semantic JSON files and use Freddie Mac guidelines to determine
     which documents are relevant for income verification.
     
+    Uses cached results if documents already have 'income_verification_relevant' flag.
+    Set refilter=True to force re-classification.
+    
     Args:
         loan_id: The loan identifier
+        refilter: If True, ignore cached flags and re-run LLM filtering
         
     Returns:
         List of document objects relevant for income verification
@@ -64,14 +68,73 @@ async def filter_income_documents_by_guidelines(loan_id):
     semantic_dir = Path(f"loan_docs/{loan_id}/semantic_json")
     
     if not semantic_dir.exists():
-        print(f"Error: Directory {semantic_dir} does not exist")
-        return []
+        raise FileNotFoundError(f"Semantic JSON directory does not exist: {semantic_dir}")
+    
+    # Load all documents first
+    all_docs = []
+    cached_results_available = True
+    
+    for json_file in semantic_dir.glob("*.json"):
+        try:
+            with open(json_file, 'r', encoding='utf-8') as f:
+                doc = json.load(f)
+            
+            doc_obj = {
+                'file_path': str(json_file),
+                'file_id': doc.get('metadata', {}).get('FileId'),
+                'file_name': doc.get('metadata', {}).get('FileName'),
+                'doc_type': doc.get('semantic_content', {}).get('document_type', 'unknown'),
+                'metadata': doc.get('metadata', {}),
+                'semantic_content': doc.get('semantic_content', {})
+            }
+            all_docs.append(doc_obj)
+            
+            # Check if this document has the cached flag
+            if 'income_verification_relevant' not in doc:
+                cached_results_available = False
+                
+        except Exception as e:
+            continue
+    
+    # FAST PATH: Use cached results if available and refilter not requested
+    if cached_results_available and not refilter:
+        print(f"\n>> Using cached income verification flags (found {len(all_docs)} total documents)")
+        income_docs = []
+        
+        for json_file in semantic_dir.glob("*.json"):
+            try:
+                with open(json_file, 'r', encoding='utf-8') as f:
+                    doc = json.load(f)
+                
+                # Check if marked as income verification relevant
+                if doc.get('income_verification_relevant', {}).get('is_relevant', False):
+                    doc_obj = {
+                        'file_id': doc.get('metadata', {}).get('FileId'),
+                        'file_name': doc.get('metadata', {}).get('FileName'),
+                        'document_type': doc.get('semantic_content', {}).get('document_type', 'unknown'),
+                        'upload_date': doc.get('metadata', {}).get('FileUploadDate'),
+                        'semantic_content': doc.get('semantic_content', {}),
+                        'inclusion_reason': doc['income_verification_relevant'].get('reason', 'Previously classified')
+                    }
+                    income_docs.append(doc_obj)
+                    print(f">> ✓ Cached: {doc_obj['file_name'][:60]}")
+                    
+            except Exception as e:
+                continue
+        
+        print(f"\n>> Loaded {len(income_docs)} income verification documents from cache")
+        return income_docs
+    
+    # SLOW PATH: Run LLM filtering and cache results
+    if refilter:
+        print(f"\n>> Re-filtering requested - running LLM classification...")
+    else:
+        print(f"\n>> No cached results found - running initial LLM classification...")
     
     # Load Freddie Mac guidelines
     guidelines = load_freddie_mac_guidelines()
     if not guidelines:
-        print("Warning: No Freddie Mac guidelines found, falling back to basic filter")
-        return load_income_documents_basic(loan_id)
+        raise FileNotFoundError("Freddie Mac guidelines not found - cannot perform intelligent filtering")
     
     # Initialize Azure OpenAI client
     client = AsyncAzureOpenAI(
@@ -79,24 +142,6 @@ async def filter_income_documents_by_guidelines(loan_id):
         api_version=os.getenv("AZURE_OPENAI_API_VERSION", "2024-02-15-preview"),
         azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT")
     )
-    
-    print("\n>> Analyzing all documents to determine income verification relevance...")
-    
-    all_docs = []
-    for json_file in semantic_dir.glob("*.json"):
-        try:
-            with open(json_file, 'r', encoding='utf-8') as f:
-                doc = json.load(f)
-            all_docs.append({
-                'file_path': str(json_file),
-                'file_id': doc.get('metadata', {}).get('FileId'),
-                'file_name': doc.get('metadata', {}).get('FileName'),
-                'doc_type': doc.get('semantic_content', {}).get('document_type', 'unknown'),
-                'metadata': doc.get('metadata', {}),
-                'semantic_content': doc.get('semantic_content', {})
-            })
-        except Exception as e:
-            continue
     
     print(f">> Found {len(all_docs)} total documents")
     print(f">> Filtering based on Freddie Mac income verification guidelines...")
@@ -150,14 +195,59 @@ ONLY include documents that are acceptable income verification sources per Fredd
         
         filter_result = json.loads(response.choices[0].message.content)
         
-        # Extract the file IDs that should be included
+        # Extract the file IDs that should be included and excluded
         included_file_ids = set(doc['file_id'] for doc in filter_result.get('income_verification_documents', []))
+        excluded_file_ids = set(doc['file_id'] for doc in filter_result.get('excluded_documents', []))
         
-        # Filter the original documents
+        # Save the flags back to the semantic JSON files (cache for future runs)
+        print(f"\n>> Caching classification results to semantic JSON files...")
+        for doc in all_docs:
+            try:
+                json_path = Path(doc['file_path'])
+                with open(json_path, 'r', encoding='utf-8') as f:
+                    doc_data = json.load(f)
+                
+                # Add income verification flag
+                if doc['file_id'] in included_file_ids:
+                    reason = next((d['reason'] for d in filter_result['income_verification_documents'] 
+                                 if d['file_id'] == doc['file_id']), 'Relevant for income verification')
+                    doc_data['income_verification_relevant'] = {
+                        'is_relevant': True,
+                        'reason': reason,
+                        'classified_date': str(Path(__file__).stat().st_mtime)
+                    }
+                elif doc['file_id'] in excluded_file_ids:
+                    reason = next((d['reason'] for d in filter_result['excluded_documents'] 
+                                 if d['file_id'] == doc['file_id']), 'Not relevant for income verification')
+                    doc_data['income_verification_relevant'] = {
+                        'is_relevant': False,
+                        'reason': reason,
+                        'classified_date': str(Path(__file__).stat().st_mtime)
+                    }
+                else:
+                    # Document wasn't in either list (shouldn't happen, but handle it)
+                    doc_data['income_verification_relevant'] = {
+                        'is_relevant': False,
+                        'reason': 'Not classified by LLM',
+                        'classified_date': str(Path(__file__).stat().st_mtime)
+                    }
+                
+                # Write back to file
+                with open(json_path, 'w', encoding='utf-8') as f:
+                    json.dump(doc_data, f, indent=2, ensure_ascii=False)
+                    
+            except Exception as e:
+                print(f">> Warning: Could not update cache for {doc['file_name']}: {e}")
+                continue
+        
+        print(f">> ✓ Cached {len(included_file_ids)} relevant + {len(excluded_file_ids)} excluded classifications")
+        
+        # Build the return list of income documents
         income_docs = []
         for doc in all_docs:
             if doc['file_id'] in included_file_ids:
-                reason = next((d['reason'] for d in filter_result['income_verification_documents'] if d['file_id'] == doc['file_id']), 'Relevant')
+                reason = next((d['reason'] for d in filter_result['income_verification_documents'] 
+                             if d['file_id'] == doc['file_id']), 'Relevant')
                 income_docs.append({
                     'file_id': doc['file_id'],
                     'file_name': doc['file_name'],
@@ -174,54 +264,8 @@ ONLY include documents that are acceptable income verification sources per Fredd
         return income_docs
         
     except Exception as e:
-        print(f"Error during document filtering: {e}")
-        print("Falling back to basic filter")
         await client.close()
-        return load_income_documents_basic(loan_id)
-
-
-def load_income_documents_basic(loan_id):
-    """
-    Basic document filter - fallback when LLM filtering fails.
-    Load documents based on simple document_type matching.
-    
-    Args:
-        loan_id: The loan identifier
-        
-    Returns:
-        List of document objects containing paystubs and W2s
-    """
-    semantic_dir = Path(f"loan_docs/{loan_id}/semantic_json")
-    
-    if not semantic_dir.exists():
-        print(f"Error: Directory {semantic_dir} does not exist")
-        return []
-    
-    income_docs = []
-    
-    for json_file in semantic_dir.glob("*.json"):
-        try:
-            with open(json_file, 'r', encoding='utf-8') as f:
-                doc = json.load(f)
-                
-            # Check if document_type is paystub, w2, or 1099-r
-            doc_type = doc.get('semantic_content', {}).get('document_type', '').lower()
-            
-            if doc_type in ['paystub', 'w2', 'form_1099-r', 'tax_return', 'employment_verification']:
-                income_docs.append({
-                    'file_id': doc.get('metadata', {}).get('FileId'),
-                    'file_name': doc.get('metadata', {}).get('FileName'),
-                    'document_type': doc_type,
-                    'upload_date': doc.get('metadata', {}).get('FileUploadDate'),
-                    'semantic_content': doc.get('semantic_content', {})
-                })
-                print(f">> Loaded {doc_type}: {doc.get('metadata', {}).get('FileName')}")
-                
-        except Exception as e:
-            print(f"Error loading {json_file}: {e}")
-            continue
-    
-    return income_docs
+        raise RuntimeError(f"Document filtering failed: {e}")
 
 
 async def analyze_income(income_docs, loan_id, run_number=1):
@@ -687,33 +731,39 @@ def create_html_report(loan_id):
     print(f"  Consistency: {consistency_rating}")
 
 
-def run_consistency_test(loan_id, num_runs=3):
+def run_consistency_test(loan_id, num_runs=3, refilter=False):
     """
     Run the income analysis multiple times to test consistency.
     
     Args:
         loan_id: The loan identifier
         num_runs: Number of times to run the analysis
+        refilter: If True, force re-filtering of documents (ignore cache)
     """
-    asyncio.run(run_consistency_test_async(loan_id, num_runs))
+    asyncio.run(run_consistency_test_async(loan_id, num_runs, refilter))
 
 
-async def run_consistency_test_async(loan_id, num_runs=3):
+async def run_consistency_test_async(loan_id, num_runs=3, refilter=False):
     """
     Run the income analysis multiple times asynchronously to test consistency.
     
     Args:
         loan_id: The loan identifier
         num_runs: Number of times to run the analysis
+        refilter: If True, force re-filtering of documents (ignore cache)
     """
     print("\n" + "="*80)
     print(f"INCOME ANALYSIS CONSISTENCY TEST (ASYNC)")
     print(f"Loan ID: {loan_id}")
     print(f"\nNumber of Runs: {num_runs}")
+    if refilter:
+        print("Re-filtering: YES (ignoring cached classifications)")
+    else:
+        print("Re-filtering: NO (using cached classifications if available)")
     print("="*80)
     
     # Load income documents once using intelligent filtering
-    income_docs = await filter_income_documents_by_guidelines(loan_id)
+    income_docs = await filter_income_documents_by_guidelines(loan_id, refilter=refilter)
     
     if not income_docs:
         print("\nNo paystub or W2 documents found!")
@@ -803,11 +853,25 @@ async def run_consistency_test_async(loan_id, num_runs=3):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python income_analysis_agent.py <loan_id> [num_runs]")
+        print("Usage: python income_analysis_agent.py <loan_id> [num_runs] [--refilter]")
         print("Example: python income_analysis_agent.py 1000179167 3")
+        print("         python income_analysis_agent.py 1000179167 5 --refilter")
+        print("\nOptions:")
+        print("  --refilter    Force re-classification of documents (ignore cache)")
         sys.exit(1)
     
     loan_id = sys.argv[1]
-    num_runs = int(sys.argv[2]) if len(sys.argv) > 2 else 3
+    num_runs = 3
+    refilter = False
     
-    run_consistency_test(loan_id, num_runs)
+    # Parse arguments
+    for i in range(2, len(sys.argv)):
+        if sys.argv[i] == '--refilter':
+            refilter = True
+        else:
+            try:
+                num_runs = int(sys.argv[i])
+            except ValueError:
+                print(f"Warning: Invalid number of runs '{sys.argv[i]}', using default (3)")
+    
+    run_consistency_test(loan_id, num_runs, refilter)
