@@ -158,30 +158,50 @@ async def filter_income_documents_by_guidelines(loan_id, refilter=False):
         })
     
     # Ask LLM to filter based on guidelines
-    filter_prompt = f"""Based on the Freddie Mac income verification guidelines below, review the following list of documents and identify which ones are RELEVANT for verifying a borrower's income.
+    filter_prompt = f"""Based on the Freddie Mac income verification guidelines below, review the following list of documents and identify which ones are PRIMARY SOURCE INCOME DOCUMENTS.
 
 {guidelines}
 
 DOCUMENTS TO REVIEW:
 {json.dumps(doc_summaries, indent=2)}
 
+CRITICAL FILTERING CRITERIA:
+
+READ THE SEMANTIC CONTENT of each document and determine:
+
+1. IS THIS A PRIMARY SOURCE DOCUMENT?
+   - Primary source = Original document showing income paid/received (paystub, W-2, 1099, tax return, pension statement, SSA benefit letter, bank statement showing deposits)
+   - NOT primary source = Someone's analysis, worksheet, notes, or summary ABOUT income
+
+2. WHO CREATED THIS DOCUMENT?
+   - INCLUDE: Documents created by employer, IRS, SSA, pension administrator, bank (these are verifiable third-party sources)
+   - EXCLUDE: Documents created by loan officer, underwriter, processor (these are internal work product)
+
+3. WHAT IS THE DOCUMENT'S PURPOSE?
+   - INCLUDE: Documents that directly show income amounts, payment history, or earnings
+   - EXCLUDE: Documents that analyze, summarize, verify employment status, or explain corporate structure
+
+4. WHEN WAS IT CREATED?
+   - INCLUDE: Documents the borrower would submit at application (their pay records, tax docs)
+   - EXCLUDE: Documents created during underwriting (VOE responses, underwriter worksheets, conditional approval items)
+
+Based on the semantic content you see, classify each document.
+
 Return a JSON object with this structure:
 {{
   "income_verification_documents": [
     {{
       "file_id": <file_id>,
-      "reason": "<why this document is relevant per Freddie Mac guidelines>"
+      "reason": "<why this is a PRIMARY SOURCE document per Freddie Mac guidelines>"
     }}
   ],
   "excluded_documents": [
     {{
       "file_id": <file_id>,
-      "reason": "<why this document is NOT relevant for income verification>"
+      "reason": "<why this is NOT a primary source document>"
     }}
   ]
-}}
-
-ONLY include documents that are acceptable income verification sources per Freddie Mac guidelines (paystubs, W-2s, tax returns, employment verification, 1099s, pension statements, etc.)."""
+}}"""
 
     try:
         response = await client.chat.completions.create(
@@ -375,10 +395,10 @@ Return ONLY a JSON object with this structure (no markdown, no code blocks):
 
 def save_analysis(result, loan_id, run_number=1):
     """Save the income analysis result to a JSON file."""
-    output_dir = Path("reports")
-    output_dir.mkdir(exist_ok=True)
+    output_dir = Path(f"loan_docs/{loan_id}/income_analysis")
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    output_file = output_dir / f"income_analysis_{loan_id}_run{run_number}.json"
+    output_file = output_dir / f"income_analysis_run{run_number}.json"
     
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(result, f, indent=2)
@@ -387,9 +407,14 @@ def save_analysis(result, loan_id, run_number=1):
     return output_file
 
 
-def create_html_report(loan_id):
-    """Create HTML report from the consistency test results."""
-    summary_file = Path(f"reports/income_analysis_consistency_{loan_id}.json")
+def create_html_report(loan_id, run_suffix="all"):
+    """Create HTML report from the consistency test results.
+    
+    Args:
+        loan_id: The loan identifier
+        run_suffix: Suffix for the filename (e.g., "runs1-5", "all")
+    """
+    summary_file = Path(f"loan_docs/{loan_id}/income_analysis/consistency_summary_{run_suffix}.json")
     
     if not summary_file.exists():
         print(f"Error: {summary_file} not found")
@@ -482,7 +507,7 @@ def create_html_report(loan_id):
 </head>
 <body>
     <h1>Income Analysis Consistency Test Report</h1>
-    <h2>Loan ID: {summary['loan_id']} | {summary['num_runs']} Test Runs (Async)</h2>
+    <h2>Loan ID: {summary['loan_id']} | {summary.get('num_runs', summary.get('total_runs', 0))} Test Runs (Async)</h2>
     
     <div class='overview'>
         <h3>Test Overview</h3>
@@ -545,16 +570,17 @@ def create_html_report(loan_id):
 """
     
     # Add section describing each distinct methodology
+    num_runs = summary.get('num_runs', summary.get('total_runs', 0))
     html += f"""    <div class='overview'>
         <h3>Distinct Calculation Methodologies</h3>
-        <p>The model produced <strong>{len(sorted_income_groups)} different income calculations</strong> across {summary['num_runs']} runs. Below are the methodologies ordered by frequency:</p>
+        <p>The model produced <strong>{len(sorted_income_groups)} different income calculations</strong> across {num_runs} runs. Below are the methodologies ordered by frequency:</p>
     </div>
 """
     
     # Add detailed analysis for each distinct methodology (ordered by frequency)
     for method_num, (income, runs) in enumerate(sorted_income_groups, 1):
         frequency = len(runs)
-        frequency_pct = (frequency / summary['num_runs']) * 100
+        frequency_pct = (frequency / num_runs) * 100
         run_numbers = [r['run_number'] for r in runs]
         run_numbers_str = ", ".join([f"#{n}" for n in run_numbers])
         
@@ -575,7 +601,7 @@ def create_html_report(loan_id):
             frequency_label = f"METHOD {method_num}"
         
         html += f"""    <div class='run-section'>
-        <div class='run-header {header_class}'>Method {method_num}: ${income:,.2f} - {frequency_label} ({frequency}/{summary['num_runs']} runs = {frequency_pct:.1f}%)</div>
+        <div class='run-header {header_class}'>Method {method_num}: ${income:,.2f} - {frequency_label} ({frequency}/{num_runs} runs = {frequency_pct:.1f}%)</div>
         <p><strong>Occurred in runs:</strong> {run_numbers_str}</p>
         
         <div class='income-breakdown'>
@@ -713,18 +739,18 @@ def create_html_report(loan_id):
         <h3>Consistency Analysis</h3>
         <p><strong>Variance:</strong> ${stats['variance']:,.2f} ({stats['variance_percentage']:.2f}%)</p>
         <p><strong>Consistency Rating:</strong> <span class='confidence-{variance_class}'>{consistency_rating}</span></p>
-        <p><strong>Interpretation:</strong> The AI model produced {summary['num_runs']} different monthly income calculations ranging from ${stats['min_income']:,.2f} to ${stats['max_income']:,.2f}. This variance of {stats['variance_percentage']:.2f}% indicates {interpretation}.</p>
+        <p><strong>Interpretation:</strong> The AI model produced {num_runs} different monthly income calculations ranging from ${stats['min_income']:,.2f} to ${stats['max_income']:,.2f}. This variance of {stats['variance_percentage']:.2f}% indicates {interpretation}.</p>
     </div>
 </body>
 </html>
 """
     
     # Save HTML file
-    output_file = Path(f"reports/income_analysis_consistency_report_{loan_id}.html")
+    output_file = Path(f"loan_docs/{loan_id}/income_analysis/consistency_report_{run_suffix}.html")
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(html)
     
-    print(f"\n>> HTML report created: {output_file}")
+    print(f">> HTML report created: {output_file}")
     print(f"\nSummary:")
     print(f"  Average Income: ${stats['average_income']:,.2f}")
     print(f"  Variance: {stats['variance_percentage']:.2f}%")
@@ -762,6 +788,30 @@ async def run_consistency_test_async(loan_id, num_runs=3, refilter=False):
         print("Re-filtering: NO (using cached classifications if available)")
     print("="*80)
     
+    # Check for existing run files and determine starting run number
+    output_dir = Path(f"loan_docs/{loan_id}/income_analysis")
+    existing_runs = 0
+    if output_dir.exists():
+        existing_files = list(output_dir.glob("income_analysis_run*.json"))
+        print(f"DEBUG: Found {len(existing_files)} existing files in {output_dir}")
+        if existing_files:
+            # Extract run numbers from filenames
+            run_numbers = []
+            for f in existing_files:
+                try:
+                    # Extract number from "income_analysis_run{N}.json"
+                    num = int(f.stem.replace("income_analysis_run", ""))
+                    run_numbers.append(num)
+                    print(f"DEBUG: Extracted run number {num} from {f.name}")
+                except ValueError as e:
+                    print(f"DEBUG: Could not extract number from {f.name}: {e}")
+                    continue
+            if run_numbers:
+                existing_runs = max(run_numbers)
+                print(f"Found {len(run_numbers)} existing run(s) - starting from run {existing_runs + 1}")
+    else:
+        print(f"DEBUG: Output directory does not exist: {output_dir}")
+    
     # Load income documents once using intelligent filtering
     income_docs = await filter_income_documents_by_guidelines(loan_id, refilter=refilter)
     
@@ -775,19 +825,21 @@ async def run_consistency_test_async(loan_id, num_runs=3, refilter=False):
     
     print(f"\n>> Starting {num_runs} parallel analyses...")
     
-    # Run analysis multiple times in parallel
+    # Run analysis multiple times in parallel with auto-incremented run numbers
     tasks = []
     for i in range(1, num_runs + 1):
-        tasks.append(analyze_income(income_docs, loan_id, run_number=i))
+        actual_run_number = existing_runs + i
+        tasks.append(analyze_income(income_docs, loan_id, run_number=actual_run_number))
     
     results = await asyncio.gather(*tasks)
     
     # Save individual results
     for i, result in enumerate(results, 1):
-        result['run_number'] = i
+        actual_run_number = existing_runs + i
+        result['run_number'] = actual_run_number
         result['loan_id'] = loan_id
         result['documents_analyzed'] = len(income_docs)
-        save_analysis(result, loan_id, run_number=i)
+        save_analysis(result, loan_id, run_number=actual_run_number)
     
     # Summary of consistency
     print("\n" + "="*80)
@@ -797,10 +849,11 @@ async def run_consistency_test_async(loan_id, num_runs=3, refilter=False):
     incomes = [r.get('monthly_gross_income', 0) for r in results if 'error' not in r]
     
     if incomes:
-        print(f"\nMonthly Gross Income Results:")
+        print(f"\nMonthly Gross Income Results (Runs {existing_runs + 1}-{existing_runs + num_runs}):")
         for i, income in enumerate(incomes, 1):
+            actual_run_number = existing_runs + i
             confidence = results[i-1].get('confidence_level', 'unknown')
-            print(f"  Run {i}: ${income:,.2f} ({confidence} confidence)")
+            print(f"  Run {actual_run_number}: ${income:,.2f} ({confidence} confidence)")
         
         avg_income = sum(incomes) / len(incomes)
         min_income = min(incomes)
@@ -822,10 +875,11 @@ async def run_consistency_test_async(loan_id, num_runs=3, refilter=False):
         print(f"\n  Highest Income: Run {max_idx + 1} - ${max_income:,.2f}")
         print(f"  Lowest Income: Run {min_idx + 1} - ${min_income:,.2f}")
     
-    # Save summary
+    # Save summary for this batch
     summary = {
         'loan_id': loan_id,
         'num_runs': num_runs,
+        'run_range': f"{existing_runs + 1}-{existing_runs + num_runs}",
         'documents_analyzed': len(income_docs),
         'income_documents': [{'type': d['document_type'], 'file_name': d['file_name']} for d in income_docs],
         'results': results,
@@ -840,15 +894,71 @@ async def run_consistency_test_async(loan_id, num_runs=3, refilter=False):
         } if incomes else None
     }
     
-    summary_file = Path("reports") / f"income_analysis_consistency_{loan_id}.json"
-    with open(summary_file, 'w', encoding='utf-8') as f:
+    summary_dir = Path(f"loan_docs/{loan_id}/income_analysis")
+    summary_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Save batch-specific summary
+    batch_summary_file = summary_dir / f"consistency_summary_runs{existing_runs + 1}-{existing_runs + num_runs}.json"
+    with open(batch_summary_file, 'w', encoding='utf-8') as f:
         json.dump(summary, f, indent=2)
     
-    print(f"\n>> Summary saved to: {summary_file}")
-    print(f"\n>> Creating HTML report...")
+    print(f"\n>> Batch summary saved to: {batch_summary_file}")
     
-    # Create HTML report automatically
-    create_html_report(loan_id)
+    # Create batch-specific HTML report
+    print(f"\n>> Creating batch HTML report...")
+    create_html_report(loan_id, f"runs{existing_runs + 1}-{existing_runs + num_runs}")
+    
+    # Now create comprehensive "ALL" summary using all run files
+    print(f"\n>> Creating comprehensive summary from all runs...")
+    all_run_files = sorted(summary_dir.glob("income_analysis_run*.json"), 
+                           key=lambda x: int(x.stem.replace("income_analysis_run", "")))
+    
+    if all_run_files:
+        all_results = []
+        for run_file in all_run_files:
+            with open(run_file, 'r', encoding='utf-8') as f:
+                all_results.append(json.load(f))
+        
+        # Calculate statistics across all runs
+        all_incomes = [r.get('monthly_gross_income', 0) for r in all_results if 'error' not in r]
+        
+        if all_incomes:
+            all_avg_income = sum(all_incomes) / len(all_incomes)
+            all_min_income = min(all_incomes)
+            all_max_income = max(all_incomes)
+            all_variance = all_max_income - all_min_income
+            all_variance_pct = (all_variance / all_avg_income * 100) if all_avg_income > 0 else 0
+            
+            all_min_idx = all_incomes.index(all_min_income)
+            all_max_idx = all_incomes.index(all_max_income)
+            
+            all_summary = {
+                'loan_id': loan_id,
+                'total_runs': len(all_results),
+                'run_range': f"1-{len(all_results)}",
+                'documents_analyzed': len(income_docs),
+                'income_documents': [{'type': d['document_type'], 'file_name': d['file_name']} for d in income_docs],
+                'results': all_results,
+                'statistics': {
+                    'average_income': all_avg_income,
+                    'min_income': all_min_income,
+                    'max_income': all_max_income,
+                    'variance': all_variance,
+                    'variance_percentage': all_variance_pct,
+                    'min_run_number': all_min_idx + 1,
+                    'max_run_number': all_max_idx + 1
+                }
+            }
+            
+            # Save comprehensive "all runs" summary
+            all_summary_file = summary_dir / "consistency_summary_all.json"
+            with open(all_summary_file, 'w', encoding='utf-8') as f:
+                json.dump(all_summary, f, indent=2)
+            
+            print(f">> Comprehensive summary (all {len(all_results)} runs) saved to: {all_summary_file}")
+            
+            # Create comprehensive HTML report
+            create_html_report(loan_id, "all")
 
 
 if __name__ == "__main__":

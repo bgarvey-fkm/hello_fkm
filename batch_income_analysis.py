@@ -100,7 +100,7 @@ def main():
         return
     
     # Load the deal data to get loan IDs
-    deal_file = Path(f"deal_{args.deal_id}_data.json")
+    deal_file = Path(f"portfolio_data/deal_{args.deal_id}_data.json")
     if not deal_file.exists():
         print(f"\n❌ Deal data file not found: {deal_file}")
         return

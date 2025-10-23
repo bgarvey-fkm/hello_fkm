@@ -100,7 +100,7 @@ async def run_pipeline_step(command: list, description: str):
     return True
 
 
-async def process_single_loan(loan, deal_id: int):
+async def process_single_loan(loan, deal_id: int, skip_existing: bool = True):
     """Process a single loan through the complete pipeline."""
     
     loan_number = loan['LoanNumber']
@@ -114,6 +114,16 @@ async def process_single_loan(loan, deal_id: int):
     print(f"   Security ID: {security_id}")
     print(f"   LoanIdentifierId (FileId): {loan_identifier_id}")
     print(f"{'='*80}")
+    
+    # Check if loan already processed
+    semantic_dir = Path(f"loan_docs/{loan_number}/semantic_json")
+    if skip_existing and semantic_dir.exists():
+        file_count = len(list(semantic_dir.glob("*.json")))
+        if file_count > 0:
+            print(f"  ✓ SKIPPING: Loan {loan_number} already processed ({file_count} semantic files exist)")
+            return True
+        else:
+            print(f"  >> semantic_json folder exists but is empty, processing...")
     
     # Step 1: Fetch file tree metadata from API
     print(f"\n  >> Step 1: Fetching document tree from Harvest API...")
@@ -159,8 +169,13 @@ async def main():
     parser.add_argument('--deal-id', type=int, required=True, help='Deal ID to process')
     parser.add_argument('--num-loans', type=int, help='Number of loans to process (default: all)')
     parser.add_argument('--loan-ids', type=str, help='Comma-separated list of specific loan numbers to process')
+    parser.add_argument('--skip-existing', action='store_true', default=True, help='Skip loans that already have semantic_json (default: True)')
+    parser.add_argument('--reprocess', action='store_true', help='Force reprocess all loans (ignore existing semantic_json)')
     
     args = parser.parse_args()
+    
+    # Determine skip_existing based on flags
+    skip_existing = args.skip_existing and not args.reprocess
     
     # Parse loan IDs if provided
     loan_ids_list = None
@@ -177,6 +192,7 @@ async def main():
         print(f"Target Count: {args.num_loans} loans")
     else:
         print(f"Target Count: ALL loans in deal")
+    print(f"Skip Existing: {skip_existing}")
     print(f"{'='*80}")
     
     # Step 1: Fetch deal data
@@ -197,7 +213,7 @@ async def main():
     results = []
     for i, loan in enumerate(selected_loans, 1):
         print(f"\n\n>> [{i}/{len(selected_loans)}] Processing {loan['LoanNumber']}...")
-        success = await process_single_loan(loan, args.deal_id)
+        success = await process_single_loan(loan, args.deal_id, skip_existing)
         results.append({
             'loan_number': loan['LoanNumber'],
             'borrower': loan['Borrower_Name'],

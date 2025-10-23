@@ -350,20 +350,223 @@ def print_income_summary(analysis: dict):
 
 
 def save_analysis(loan_id: str, analysis: dict):
-    """Save the analysis to JSON file."""
+    """Save the analysis to JSON file in the income_analysis folder."""
     
-    output_dir = Path(f"reports")
-    output_dir.mkdir(exist_ok=True)
+    output_dir = Path(f"loan_docs/{loan_id}/income_analysis")
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_file = output_dir / f"form_1003_income_tracker_{loan_id}_{timestamp}.json"
+    output_file = output_dir / f"form_1003_income_timeline.json"
     
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(analysis, f, indent=2)
     
     print(f"\n{'='*80}")
-    print(f"💾 Analysis saved to: {output_file}")
+    print(f"💾 JSON saved to: {output_file}")
     print(f"{'='*80}\n")
+    
+    return output_file
+
+
+def create_html_report(loan_id: str, analysis: dict):
+    """Create an HTML report of the Form 1003 income timeline."""
+    
+    if not analysis:
+        print("❌ No analysis data to create HTML report")
+        return None
+    
+    income_versions = analysis.get('income_by_version', [])
+    summary = analysis.get('summary', {})
+    changes = analysis.get('income_changes', [])
+    
+    html = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <title>Form 1003 Income Timeline - Loan {loan_id}</title>
+    <style>
+        body {{ font-family: 'Segoe UI', Arial, sans-serif; margin: 20px; background-color: #f5f5f5; }}
+        h1 {{ color: #2c3e50; margin-bottom: 5px; }}
+        h2 {{ color: #34495e; margin-top: 0; font-size: 18px; font-weight: normal; }}
+        .overview {{ background-color: white; padding: 20px; margin-bottom: 20px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }}
+        .stats-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }}
+        .stat-box {{ background-color: #ecf0f1; padding: 15px; border-radius: 5px; text-align: center; }}
+        .stat-value {{ font-size: 24px; font-weight: bold; color: #3498db; }}
+        .stat-label {{ font-size: 12px; color: #7f8c8d; margin-top: 5px; }}
+        .version-section {{ background-color: white; padding: 20px; margin-bottom: 20px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }}
+        .version-header {{ background-color: #3498db; color: white; padding: 10px 15px; margin: -20px -20px 15px -20px; border-radius: 5px 5px 0 0; font-size: 18px; font-weight: bold; }}
+        .version-header.first {{ background-color: #27ae60; }}
+        .version-header.last {{ background-color: #e67e22; }}
+        .income-breakdown {{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }}
+        .income-item {{ background-color: #ecf0f1; padding: 10px; border-radius: 3px; }}
+        .income-item label {{ font-size: 12px; color: #7f8c8d; }}
+        .income-item value {{ font-size: 16px; font-weight: bold; color: #2c3e50; display: block; }}
+        .total-income {{ background-color: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 15px 0; }}
+        .total-income value {{ font-size: 24px; font-weight: bold; color: #155724; }}
+        .change-indicator {{ padding: 3px 8px; border-radius: 3px; font-size: 12px; font-weight: bold; }}
+        .change-up {{ background-color: #d4edda; color: #155724; }}
+        .change-down {{ background-color: #f8d7da; color: #721c24; }}
+        .change-none {{ background-color: #d1ecf1; color: #0c5460; }}
+        .timeline {{ background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 15px 0; }}
+        .timeline h4 {{ margin-top: 0; color: #856404; }}
+        .file-info {{ background-color: #f8f9fa; padding: 10px; border-radius: 3px; margin: 10px 0; font-size: 14px; color: #6c757d; }}
+    </style>
+</head>
+<body>
+    <h1>Form 1003 Income Timeline Report</h1>
+    <h2>Loan ID: {analysis.get('loan_id')} | {analysis.get('total_versions_found', 0)} Form 1003 Versions</h2>
+    
+    <div class='overview'>
+        <h3>Summary</h3>
+        <div class='stats-grid'>
+            <div class='stat-box'>
+                <div class='stat-value'>${summary.get('initial_combined_income', 0):,.2f}</div>
+                <div class='stat-label'>Initial Income (Version 1)</div>
+            </div>
+            <div class='stat-box'>
+                <div class='stat-value'>${summary.get('final_combined_income', 0):,.2f}</div>
+                <div class='stat-label'>Final Income (Latest Version)</div>
+            </div>
+            <div class='stat-box'>
+                <div class='stat-value'>${abs(summary.get('net_change', 0)):,.2f}</div>
+                <div class='stat-label'>Net Change</div>
+            </div>
+            <div class='stat-box'>
+                <div class='stat-value'>{analysis.get('total_versions_found', 0)}</div>
+                <div class='stat-label'>Total Revisions</div>
+            </div>
+        </div>
+    </div>
+"""
+    
+    # Add each version
+    for idx, version in enumerate(income_versions):
+        version_num = version.get('version_number', idx + 1)
+        header_class = ""
+        if version_num == 1:
+            header_class = "first"
+        elif version_num == len(income_versions):
+            header_class = "last"
+        
+        primary = version.get('primary_borrower', {})
+        co_borrower = version.get('co_borrower', {})
+        combined_income = version.get('combined_monthly_income', 0)
+        
+        html += f"""
+    <div class='version-section'>
+        <div class='version-header {header_class}'>Version {version_num} - {version.get('upload_date', 'Unknown Date')}</div>
+        
+        <div class='file-info'>
+            📄 File: {version.get('file_name', 'Unknown')}
+        </div>
+        
+        <h4>👤 Primary Borrower: {primary.get('name', 'N/A')}</h4>
+        <div class='income-breakdown'>
+            <div class='income-item'>
+                <label>Base Salary</label>
+                <value>${primary.get('employment_income_base', 0):,.2f}</value>
+            </div>
+            <div class='income-item'>
+                <label>Overtime</label>
+                <value>${primary.get('employment_income_overtime', 0):,.2f}</value>
+            </div>
+            <div class='income-item'>
+                <label>Bonus</label>
+                <value>${primary.get('employment_income_bonus', 0):,.2f}</value>
+            </div>
+            <div class='income-item'>
+                <label>Commission</label>
+                <value>${primary.get('employment_income_commission', 0):,.2f}</value>
+            </div>
+            <div class='income-item'>
+                <label>Self-Employment</label>
+                <value>${primary.get('self_employment_income', 0):,.2f}</value>
+            </div>
+            <div class='income-item'>
+                <label>Other Income</label>
+                <value>${primary.get('other_income', 0):,.2f}</value>
+            </div>
+        </div>
+        
+        <div class='total-income'>
+            <label>Primary Borrower Total Monthly Income</label>
+            <value>${primary.get('total_monthly_income', 0):,.2f}</value>
+        </div>
+"""
+        
+        # Add co-borrower if present
+        if co_borrower and co_borrower.get('name'):
+            html += f"""
+        <h4>👥 Co-Borrower: {co_borrower.get('name')}</h4>
+        <div class='total-income'>
+            <label>Co-Borrower Total Monthly Income</label>
+            <value>${co_borrower.get('total_monthly_income', 0):,.2f}</value>
+        </div>
+"""
+        
+        html += f"""
+        <div class='total-income' style='background-color: #cfe2ff; border-left-color: #0d6efd;'>
+            <label>🏠 Combined Household Monthly Income</label>
+            <value style='color: #084298;'>${combined_income:,.2f}</value>
+        </div>
+    </div>
+"""
+    
+    # Add changes timeline if there are multiple versions
+    if len(income_versions) > 1 and changes:
+        html += """
+    <div class='overview'>
+        <h3>Income Changes Timeline</h3>
+        <div class='timeline'>
+"""
+        for change in changes:
+            from_ver = change.get('from_version')
+            to_ver = change.get('to_version')
+            desc = change.get('description', 'No description')
+            combined_change = change.get('combined_change', 0)
+            
+            if combined_change > 0:
+                change_class = 'change-up'
+                change_symbol = '↑'
+            elif combined_change < 0:
+                change_class = 'change-down'
+                change_symbol = '↓'
+            else:
+                change_class = 'change-none'
+                change_symbol = '='
+            
+            html += f"""
+            <p>
+                <strong>Version {from_ver} → Version {to_ver}:</strong> 
+                <span class='change-indicator {change_class}'>{change_symbol} ${abs(combined_change):,.2f}</span>
+                <br/>
+                {desc}
+            </p>
+"""
+        
+        html += """
+        </div>
+    </div>
+"""
+    
+    html += f"""
+    <div class='overview'>
+        <p style='color: #6c757d; font-size: 14px;'>
+            <strong>Report Generated:</strong> {analysis.get('analysis_date', datetime.now().isoformat())}<br/>
+            <strong>Source:</strong> Form 1003 Income Timeline Tracker
+        </p>
+    </div>
+</body>
+</html>
+"""
+    
+    # Save HTML file
+    output_dir = Path(f"loan_docs/{loan_id}/income_analysis")
+    output_file = output_dir / "form_1003_income_timeline.html"
+    
+    with open(output_file, 'w', encoding='utf-8') as f:
+        f.write(html)
+    
+    print(f"💾 HTML report saved to: {output_file}\n")
     
     return output_file
 
@@ -409,6 +612,9 @@ def main():
     
     # Step 5: Save results
     save_analysis(loan_id, analysis)
+    
+    # Step 6: Create HTML report
+    create_html_report(loan_id, analysis)
     
     print("\n✅ ANALYSIS COMPLETE!\n")
 
