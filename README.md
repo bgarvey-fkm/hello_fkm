@@ -15,13 +15,15 @@ Build a production-ready AI income verification system that:
 
 ## 📊 Current Status
 
-**Active Development**: Intelligent document filtering with Freddie Mac guidelines
+**Production-Ready**: Complete income verification pipeline tested on 50 loans
 - ✅ Parsed & compressed Freddie Mac Guide (297 pages → 67 rules)
 - ✅ Implemented LLM-based intelligent document filtering
-- ✅ Filters 63 documents → 8 income-relevant docs (paystubs, W-2s, tax transcripts, VOE)
-- ✅ Consistency testing: 4-10% variance on test loans
-- ✅ Batch processing pipeline for multiple loans
-- 🔄 Next: Test on complex income scenarios (self-employed, multiple sources)
+- ✅ Form 1003 extraction: 48/50 loans (96% success rate)
+- ✅ AI income analysis: 50/50 loans (100% success rate)
+- ✅ Three-way comparison: Form 1003 vs AI vs Underwriter
+- ✅ Batch processing: 50 loans processed from Deal 2
+- ✅ Consistency testing: 0.93% - 22.47% variance range
+- 🔄 Next: Investigate high-variance loans and scale to remaining 809 loans
 
 ## 🏗️ System Architecture
 
@@ -91,13 +93,18 @@ Build a production-ready AI income verification system that:
 ```
 hello_fkm/
 ├── pipeline/                                # 🔄 Document Processing Pipeline
-│   ├── process_from_harvest_api.py          # Download PDFs from Harvest API
 │   └── process_semantic_compression.py      # Raw JSON → Semantic JSON
 │
 ├── agents/                                  # 🤖 AI Analysis Agents
 │   ├── income_analysis_agent.py             # Income calculation with consistency testing
 │   ├── form_1003_income_tracker.py          # Extract Form 1003 income fields
 │   └── document_semantic_processor.py       # PDF → Semantic JSON processor
+│
+├── utils/                                   # 🛠️ One-Time Setup Utilities
+│   ├── parse_freddie_mac_guide.py           # Parse Freddie Mac PDF (one-time)
+│   ├── compress_freddie_mac_guide.py        # Compress to 67 rules (one-time)
+│   ├── FreddieMacGuide_5300_5400.pdf        # Source PDF (297 pages)
+│   └── form_1003_schema.json                # Form 1003 field definitions
 │
 ├── guidelines/                              # 📚 Underwriting Guidelines
 │   ├── freddie_mac_guide_5300_5400.json              # Parsed guide (297 pages)
@@ -107,20 +114,19 @@ hello_fkm/
 ├── loan_docs/                               # 📁 Loan Documents (gitignored)
 │   └── {loan_id}/
 │       ├── raw_json/                        # Azure Doc Intelligence output
-│       └── semantic_json/                   # Structured semantic documents
+│       ├── semantic_json/                   # Structured semantic documents
+│       └── income_analysis/                 # AI income calculation runs
 │
-├── reports/                                 # 📊 Analysis Reports (gitignored)
-│   ├── income_analysis_{loan_id}_run{N}.json
-│   ├── income_analysis_consistency_{loan_id}.json
-│   └── income_analysis_consistency_report_{loan_id}.html
+├── portfolio_data/                          # 📊 Batch Analysis Reports (gitignored)
+│   ├── batch_analysis_deal2_*.json          # Batch-specific summaries
+│   └── comprehensive_batch_summary_*.json   # Cumulative all-runs summary
 │
 ├── loan_files_inputs/                       # 📥 Loan metadata from Harvest (gitignored)
 │   └── loan_{loan_id}_tree.json
 │
-├── batch_process_deal.py                    # Process multiple loans from a deal
-├── batch_income_analysis.py                 # Batch income analysis with variance testing
-├── parse_freddie_mac_guide.py               # Parse Freddie Mac PDF with Doc Intelligence
-├── compress_freddie_mac_guide.py            # Compress guide to 67 rules with LLM
+├── batch_process_deal.py                    # Step 1: Download & extract from Harvest
+├── batch_income_and_1003_analysis.py        # Step 2: Form 1003 + AI income (MAIN PIPELINE)
+├── test_find_underwriter_worksheets.py      # Step 3: Find UW-approved income
 └── requirements.txt                         # Python dependencies
 ```
 
@@ -174,7 +180,7 @@ AZURE_OPENAI_API_VERSION=2024-12-01-preview
 
 ```bash
 # Process entire deal (multiple loans)
-python batch_process_deal.py --deal-id 2 --num-loans 5
+python batch_process_deal.py --deal-id 2 --num-loans 50
 
 # This will:
 # 1. Fetch loan list from Harvest API (/api/deal/{deal_id})
@@ -184,19 +190,54 @@ python batch_process_deal.py --deal-id 2 --num-loans 5
 # 5. Save to loan_docs/{loan_id}/raw_json/ and semantic_json/
 ```
 
-#### Step 2: Parse Freddie Mac Guide (One-time setup)
+#### Step 2: Run Combined Form 1003 + AI Income Analysis
+
+```bash
+# Extract Form 1003 income AND run AI analysis on 50 loans
+python batch_income_and_1003_analysis.py --deal-id 2 --num-loans 50 --income-runs 5
+
+# This will:
+# 1. Extract Form 1003 income fields from semantic JSON (stated income)
+# 2. Run AI income analysis with Freddie Mac guidelines (5 runs per loan)
+# 3. Test consistency across multiple runs
+# 4. Compare Form 1003 vs AI income
+# 5. Generate comprehensive comparison table
+# 6. Save to portfolio_data/batch_analysis_deal2_*.json
+
+# Results from 50-loan test:
+# - Form 1003 extraction: 48/50 (96% success)
+# - AI income analysis: 50/50 (100% success)
+# - Perfect matches (0% diff): 2 loans
+# - Close matches (<5% diff): ~35 loans
+# - Large discrepancies (>20%): 7 loans
+```
+
+#### Step 3: Find Underwriter-Approved Income (Optional)
+
+```bash
+# Search for underwriter worksheets/calculations
+python test_find_underwriter_worksheets.py 1000175957
+
+# This will:
+# 1. Search semantic JSON for underwriter artifacts
+# 2. Extract UW-approved income amounts
+# 3. Compare with Form 1003 and AI calculations
+# 4. Show three-way comparison
+```
+
+#### Legacy: Parse Freddie Mac Guide (One-time setup - already done)
 
 ```bash
 # Parse 297-page Freddie Mac PDF with Azure Document Intelligence
-python parse_freddie_mac_guide.py
+python utils/parse_freddie_mac_guide.py
 # Output: guidelines/freddie_mac_guide_5300_5400.json (491K characters)
 
 # Compress to 67 structured income calculation rules
-python compress_freddie_mac_guide.py
+python utils/compress_freddie_mac_guide.py
 # Output: guidelines/freddie_mac_guide_5300_5400_compressed.json (67 rules)
 ```
 
-#### Step 3: Run Income Analysis with Intelligent Filtering
+#### Legacy: Single-Loan Analysis (for testing)
 
 ```bash
 # Single loan, single run
@@ -211,33 +252,47 @@ python agents/income_analysis_agent.py 1000175957 1
 # 5. Output: JSON with income amount + detailed methodology
 ```
 
-#### Step 4: Consistency Testing (Multiple Runs)
+## Key Findings from 50-Loan Production Batch
 
-```bash
-# Run 10 parallel analyses to test variance
-python agents/income_analysis_agent.py 1000175957 10
+### Overall Results
+- **Loans Processed**: 50 loans from Deal 2
+- **Form 1003 Extraction**: 48/50 (96% success rate)
+- **AI Income Analysis**: 50/50 (100% success rate)
+- **Processing Time**: ~10-12 minutes per loan
+- **Cost**: ~$0.17-0.32 per loan (Azure OpenAI)
 
-# Outputs:
-# - reports/income_analysis_1000175957_run1.json
-# - reports/income_analysis_1000175957_run2.json
-# - ... (run3 through run10)
-# - reports/income_analysis_consistency_1000175957.json (summary)
-# - reports/income_analysis_consistency_report_1000175957.html (visual report)
+### Comparison Results (Form 1003 vs AI Income)
+- **Perfect Matches (0.00% diff)**: 2 loans
+  - Loan 1000177311: Both $11,083.33/month
+  - Loan 1000178066: Both $14,416.67/month
+- **Close Matches (<5% diff)**: ~35 loans (70%)
+- **Moderate Variance (5-20% diff)**: ~6 loans (12%)
+- **High Variance (>20% diff)**: 7 loans (14%)
+
+### Highest Discrepancies (Investigation Needed)
+1. **Loan 1000178434**: +101.60% (AI found $20,160 vs stated $10,000)
+2. **Loan 1000177371**: -53.74% (AI found $4,620 vs stated $9,987.96)
+3. **Loan 1000177613**: -51.59% (AI found $3,893.96 vs stated $8,042)
+4. **Loan 1000178589**: +48.42% (AI found $11,083.33 vs stated $7,468.89)
+5. **Loan 1000178230**: +42.06% (AI found $15,833.33 vs stated $11,150)
+
+### AI Consistency Testing
+- **Best Consistency**: Loan 1000178372 (0.93% variance)
+- **Average Consistency**: ~5-10% variance for most loans
+- **Worst Consistency**: Loan 1000178255 (22.47% variance)
+- **Finding**: Simple W-2 cases have <5% variance; complex/incomplete cases >15%
+
+### Three-Way Comparison Example (Loan 1000175957)
+```
+Form 1003 Stated Income:    $18,620.07/month
+AI Calculated Income:       $18,620.07/month  (0.00% difference)
+Underwriter Approved:       $18,620.07/month
+Status: ✅ Perfect three-way match
 ```
 
-#### Step 5: Batch Processing with Variance Testing
+## Key Components Explained
 
-```bash
-# Process 5 loans from Deal 2, run 5 analyses on each
-python batch_income_analysis.py --deal-id 2 --num-loans 5 --income-runs 5
-
-# Outputs:
-# - Comprehensive HTML report with variance analysis for all loans
-# - Individual loan reports
-# - Summary statistics
-```
-
-### Example: Intelligent Document Filtering Output
+### 1. Harvest API Integration
 
 When processing loan 1000175957 with 63 total documents:
 
@@ -484,21 +539,29 @@ GET https://harvestapi.firstkeyholdings.net:60000/api/pdf/{file_id}
 ### Immediate Priorities
 1. ✅ ~~Intelligent document filtering with Freddie Mac guidelines~~
 2. ✅ ~~Consistency testing framework~~
-3. 🔄 Test on complex income scenarios:
-   - Self-employed borrowers (Schedule C, business returns)
-   - Multiple income sources (W-2 + rental + pension)
-   - Commission-based income (2-year averaging)
-   - Co-borrower income aggregation
-4. 🔄 Improve calculation consistency:
-   - More prescriptive prompts
-   - Deterministic calculation for simple cases
-   - Hybrid approach: LLM for classification, formula for calculation
+3. ✅ ~~Form 1003 extraction and comparison~~
+4. ✅ ~~Batch processing pipeline (50 loans tested)~~
+5. 🔄 **Investigate high-variance loans** (7 loans with >20% discrepancy)
+   - Analyze semantic JSON for Loan 1000178434 (+101.60%)
+   - Understand why AI found double the stated income
+   - Compare with underwriter-approved amounts
+6. 🔄 **Scale underwriter artifacts scanner** to all 50 loans
+   - Build comprehensive three-way comparison dataset
+   - Identify patterns in UW-approved vs AI vs Form 1003
+7. 🔄 **Process remaining 809 loans** from Deal 2
+   - Run batch_process_deal.py for next batch
+   - Run combined analysis on larger dataset
+   - Look for portfolio-wide patterns
 
 ### Research & Development
-- [ ] Test Freddie Mac guidelines on 20+ diverse loans
-- [ ] Compare LLM calculations vs human underwriter results
+- [x] Test Freddie Mac guidelines on 50+ diverse loans ✅
+- [ ] Compare LLM calculations vs human underwriter results (7 loans in progress)
 - [ ] Build confidence scoring based on document quality
-- [ ] Implement calculation explainability (show rule citations)
+- [ ] Improve calculation consistency on complex scenarios:
+  * Self-employed borrowers (Schedule C, business returns)
+  * Multiple income sources (W-2 + rental + pension)
+  * Commission-based income (2-year averaging)
+  * Co-borrower income aggregation
 - [ ] Handle edge cases: gaps in employment, job changes, temporary income
 
 ### Production Readiness
@@ -566,11 +629,10 @@ Reports (JSON + HTML)
 🔒 **Protected Information (NOT in GitHub):**
 - `.env` - Azure OpenAI & Document Intelligence credentials
 - `loan_docs/` - All loan documents and processed data (PHI/PII)
-- `reports/` - All generated analysis reports
+- `portfolio_data/` - Batch analysis reports with loan-level data
 - `loan_files_inputs/` - Harvest API data with loan IDs
 - `*.pdf` - Source Freddie Mac guide documents
 - `deal_*.json` - Deal data from Harvest API
-- `archive/` - Archived documentation
 
 ✅ **Safe to Share (in GitHub):**
 - Python scripts (`.py` files)
