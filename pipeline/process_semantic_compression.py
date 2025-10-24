@@ -60,7 +60,7 @@ client = AsyncAzureOpenAI(
 
 def load_form_1003_schema():
     """Load Form 1003 schema for structured extraction."""
-    schema_path = Path("form_1003/form_1003_schema.json")
+    schema_path = Path("utils/form_1003_schema.json")
     try:
         with open(schema_path, 'r') as f:
             return json.load(f)
