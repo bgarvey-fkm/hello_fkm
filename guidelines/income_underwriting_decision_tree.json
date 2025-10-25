@@ -1,0 +1,1188 @@
+{
+  "metadata": {
+    "title": "Freddie Mac Income Underwriting Decision Tree",
+    "version": "1.0",
+    "user": "Brendan",
+    "description": "Decision tree for determining income calculation method and requirements",
+    "usage": "Start at root node and traverse based on conditions until reaching a leaf node with calculation instructions"
+  },
+
+  "decision_tree": {
+    "node_id": "ROOT",
+    "question": "What is the primary income type?",
+    "type": "decision",
+    
+    "options": [
+      {
+        "choice": "employed_income",
+        "label": "Employed Income (W-2, paystubs)",
+        "next_node": "EMPLOYED_ROOT"
+      },
+      {
+        "choice": "self_employment",
+        "label": "Self-Employment Income (25%+ ownership or Schedule C)",
+        "next_node": "SELF_EMPLOYED_ROOT"
+      },
+      {
+        "choice": "rental_income",
+        "label": "Rental Income (investment property)",
+        "next_node": "RENTAL_ROOT"
+      },
+      {
+        "choice": "other_income",
+        "label": "Other Income (pension, disability, alimony, etc.)",
+        "next_node": "OTHER_INCOME_ROOT"
+      }
+    ]
+  },
+
+  "nodes": {
+    "EMPLOYED_ROOT": {
+      "node_id": "EMPLOYED_ROOT",
+      "question": "Is this primary or secondary employment?",
+      "type": "decision",
+      "context": "Primary = main source of income; Secondary = additional jobs beyond primary",
+      
+      "options": [
+        {
+          "choice": "primary",
+          "label": "Primary Employment",
+          "next_node": "EMPLOYED_HISTORY"
+        },
+        {
+          "choice": "secondary",
+          "label": "Secondary Employment",
+          "next_node": "EMPLOYED_SECONDARY_HISTORY"
+        }
+      ]
+    },
+
+    "EMPLOYED_HISTORY": {
+      "node_id": "EMPLOYED_HISTORY",
+      "question": "How long has the borrower been employed?",
+      "type": "decision",
+      
+      "options": [
+        {
+          "choice": "2_years_plus",
+          "label": "2+ years (meets standard requirement)",
+          "next_node": "EARNINGS_TYPE"
+        },
+        {
+          "choice": "less_than_2_years",
+          "label": "Less than 2 years",
+          "next_node": "EMPLOYED_SHORT_HISTORY_CHECK"
+        }
+      ]
+    },
+
+    "EMPLOYED_SHORT_HISTORY_CHECK": {
+      "node_id": "EMPLOYED_SHORT_HISTORY_CHECK",
+      "question": "Can less than 2-year history be justified?",
+      "type": "decision",
+      "context": "Examples: returning to workforce with prior stable history, new to workforce after school/training",
+      
+      "options": [
+        {
+          "choice": "justified",
+          "label": "Yes - documented justification exists",
+          "requirements": [
+            "Provide written justification",
+            "Consider overall risk layering",
+            "Document demonstrated repayment ability"
+          ],
+          "next_node": "EARNINGS_TYPE"
+        },
+        {
+          "choice": "not_justified",
+          "label": "No - cannot justify",
+          "outcome": "REJECT",
+          "reason": "Insufficient employment history without acceptable justification"
+        }
+      ]
+    },
+
+    "EMPLOYED_SECONDARY_HISTORY": {
+      "node_id": "EMPLOYED_SECONDARY_HISTORY",
+      "question": "How long has the secondary employment existed?",
+      "type": "decision",
+      
+      "options": [
+        {
+          "choice": "2_years_plus",
+          "label": "2+ years",
+          "next_node": "EARNINGS_TYPE"
+        },
+        {
+          "choice": "12_to_24_months",
+          "label": "12-24 months",
+          "next_node": "SECONDARY_SHORT_HISTORY_CHECK"
+        },
+        {
+          "choice": "less_than_12_months",
+          "label": "Less than 12 months",
+          "outcome": "REJECT",
+          "reason": "Secondary employment requires minimum 12 months history"
+        }
+      ]
+    },
+
+    "SECONDARY_SHORT_HISTORY_CHECK": {
+      "node_id": "SECONDARY_SHORT_HISTORY_CHECK",
+      "question": "Can 12-24 month history be justified?",
+      "type": "decision",
+      "context": "Examples: previous full-time job replaced by multiple part-time jobs, seasonal teaching positions",
+      
+      "options": [
+        {
+          "choice": "justified",
+          "label": "Yes - documented justification exists",
+          "requirements": [
+            "Provide written justification",
+            "Earnings must be consistent",
+            "Demonstrated repayment ability"
+          ],
+          "next_node": "EARNINGS_TYPE"
+        },
+        {
+          "choice": "not_justified",
+          "label": "No - cannot justify",
+          "outcome": "REJECT",
+          "reason": "Secondary employment requires 2 years or justified 12+ months"
+        }
+      ]
+    },
+
+    "EARNINGS_TYPE": {
+      "node_id": "EARNINGS_TYPE",
+      "question": "What type of earnings does the borrower receive?",
+      "type": "decision",
+      
+      "options": [
+        {
+          "choice": "base_non_fluctuating",
+          "label": "Base Non-Fluctuating (consistent salary or hourly)",
+          "next_node": "BASE_NON_FLUCTUATING_CALC"
+        },
+        {
+          "choice": "base_fluctuating_hourly",
+          "label": "Base Fluctuating Hourly (hours vary each pay period)",
+          "next_node": "BASE_FLUCTUATING_HISTORY"
+        },
+        {
+          "choice": "variable_income",
+          "label": "Variable Income (bonus, commission, overtime, tips)",
+          "next_node": "VARIABLE_INCOME_HISTORY"
+        },
+        {
+          "choice": "military",
+          "label": "Military Earnings",
+          "next_node": "MILITARY_TYPE"
+        },
+        {
+          "choice": "restricted_stock",
+          "label": "Restricted Stock (RS/RSU)",
+          "next_node": "RESTRICTED_STOCK_TYPE"
+        }
+      ]
+    },
+
+    "BASE_NON_FLUCTUATING_CALC": {
+      "node_id": "BASE_NON_FLUCTUATING_CALC",
+      "question": "What is the pay frequency?",
+      "type": "calculation",
+      
+      "options": [
+        {
+          "choice": "weekly",
+          "label": "Weekly",
+          "calculation": {
+            "formula": "weekly_gross_pay × 52 ÷ 12",
+            "description": "Multiply weekly pay by 52 weeks, divide by 12 months"
+          },
+          "documentation_required": [
+            "YTD paystub(s)",
+            "W-2 for most recent year (primary) or 2 years (secondary)",
+            "10-day PCV"
+          ],
+          "outcome": "CALCULATE"
+        },
+        {
+          "choice": "bi_weekly",
+          "label": "Bi-Weekly (every 2 weeks)",
+          "calculation": {
+            "formula": "biweekly_gross_pay × 26 ÷ 12",
+            "description": "Multiply bi-weekly pay by 26 periods, divide by 12 months"
+          },
+          "documentation_required": [
+            "YTD paystub(s)",
+            "W-2 for most recent year (primary) or 2 years (secondary)",
+            "10-day PCV"
+          ],
+          "outcome": "CALCULATE"
+        },
+        {
+          "choice": "semi_monthly",
+          "label": "Semi-Monthly (twice per month)",
+          "calculation": {
+            "formula": "semimonthly_gross_pay × 24 ÷ 12",
+            "description": "Multiply semi-monthly pay by 24 periods, divide by 12 months"
+          },
+          "documentation_required": [
+            "YTD paystub(s)",
+            "W-2 for most recent year (primary) or 2 years (secondary)",
+            "10-day PCV"
+          ],
+          "outcome": "CALCULATE"
+        },
+        {
+          "choice": "monthly",
+          "label": "Monthly",
+          "calculation": {
+            "formula": "monthly_gross_pay",
+            "description": "Use monthly gross pay directly"
+          },
+          "documentation_required": [
+            "YTD paystub(s)",
+            "W-2 for most recent year (primary) or 2 years (secondary)",
+            "10-day PCV"
+          ],
+          "outcome": "CALCULATE"
+        },
+        {
+          "choice": "annual_less_than_12",
+          "label": "Annual salary paid over less than 12 months (e.g., teachers)",
+          "calculation": {
+            "formula": "annual_gross_pay ÷ 12",
+            "description": "Divide annual salary by 12 regardless of payment schedule",
+            "example": "If $50,000 annual paid over 10 months: $50,000 ÷ 12 = $4,166.67/month"
+          },
+          "documentation_required": [
+            "YTD paystub(s)",
+            "W-2 for most recent year (primary) or 2 years (secondary)",
+            "10-day PCV",
+            "Documentation of annual salary and payment schedule"
+          ],
+          "outcome": "CALCULATE"
+        }
+      ]
+    },
+
+    "BASE_FLUCTUATING_HISTORY": {
+      "node_id": "BASE_FLUCTUATING_HISTORY",
+      "question": "Does borrower have at least 12 months of fluctuating hourly history?",
+      "type": "decision",
+      "context": "Can be from current employment, prior fluctuating employment, or combination with prior salaried in similar industry",
+      
+      "options": [
+        {
+          "choice": "yes_12_months",
+          "label": "Yes - 12+ months history",
+          "next_node": "BASE_FLUCTUATING_TREND"
+        },
+        {
+          "choice": "less_than_12",
+          "label": "No - less than 12 months",
+          "outcome": "REJECT",
+          "reason": "Base fluctuating hourly requires minimum 12 months history"
+        }
+      ]
+    },
+
+    "BASE_FLUCTUATING_TREND": {
+      "node_id": "BASE_FLUCTUATING_TREND",
+      "question": "What is the income trend (YTD vs prior year)?",
+      "type": "decision",
+      
+      "options": [
+        {
+          "choice": "consistent_or_increasing",
+          "label": "Consistent or Increasing",
+          "next_node": "BASE_FLUCTUATING_DEGREE"
+        },
+        {
+          "choice": "declining",
+          "label": "Declining",
+          "next_node": "BASE_FLUCTUATING_DECLINING"
+        }
+      ]
+    },
+
+    "BASE_FLUCTUATING_DEGREE": {
+      "node_id": "BASE_FLUCTUATING_DEGREE",
+      "question": "What is the degree of fluctuation (increase)?",
+      "type": "decision",
+      "context": "Compare YTD to prior year(s) to determine percentage change",
+      
+      "options": [
+        {
+          "choice": "10_percent_or_less",
+          "label": "≤10% fluctuation (consistent)",
+          "calculation": {
+            "method": "average",
+            "formula": "Average most recent year(s) and YTD income over applicable months",
+            "documentation": "Standard documentation - no additional analysis required"
+          },
+          "documentation_required": [
+            "YTD paystub(s)",
+            "W-2 for most recent year (primary) or 2 years (secondary)",
+            "10-day PCV"
+          ],
+          "outcome": "CALCULATE"
+        },
+        {
+          "choice": "10_to_30_percent",
+          "label": ">10% to ≤30% fluctuation",
+          "next_node": "FLUCTUATION_10_TO_30_CHECK"
+        },
+        {
+          "choice": "over_30_percent",
+          "label": ">30% fluctuation",
+          "calculation": {
+            "method": "average_with_analysis",
+            "formula": "Average most recent year(s) and YTD income",
+            "requirements": [
+              "Additional analysis required",
+              "Additional documentation likely necessary",
+              "Must support income stability",
+              "Written analysis required"
+            ]
+          },
+          "documentation_required": [
+            "YTD paystub(s)",
+            "W-2 for most recent year (primary) or 2 years (secondary)",
+            "10-day PCV",
+            "Additional documentation supporting stability"
+          ],
+          "outcome": "CALCULATE_WITH_ANALYSIS"
+        }
+      ]
+    },
+
+    "FLUCTUATION_10_TO_30_CHECK": {
+      "node_id": "FLUCTUATION_10_TO_30_CHECK",
+      "question": "Is increase supported by verified pay raise or documented income breakdown?",
+      "type": "decision",
+      
+      "options": [
+        {
+          "choice": "yes_supported",
+          "label": "Yes - pay raise verified or income breakdown documented",
+          "calculation": {
+            "method": "average_or_rate_adjustment",
+            "option_1": "Average most recent year(s) and YTD income",
+            "option_2": "Apply current pay rate to average hours (if pay raise)",
+            "documentation": "VOE or paystubs showing pay raise, or income breakdown"
+          },
+          "documentation_required": [
+            "YTD paystub(s)",
+            "W-2 for most recent year (primary) or 2 years (secondary)",
+            "10-day PCV",
+            "Pay raise verification or income breakdown"
+          ],
+          "outcome": "CALCULATE"
+        },
+        {
+          "choice": "not_supported",
+          "label": "No - not supported",
+          "calculation": {
+            "method": "average_with_analysis",
+            "formula": "Average most recent year(s) and YTD income",
+            "requirements": [
+              "Additional analysis required",
+              "Additional documentation may be necessary",
+              "Must support income stability"
+            ]
+          },
+          "documentation_required": [
+            "YTD paystub(s)",
+            "W-2 for most recent year (primary) or 2 years (secondary)",
+            "10-day PCV",
+            "Additional supporting documentation"
+          ],
+          "outcome": "CALCULATE_WITH_ANALYSIS"
+        }
+      ]
+    },
+
+    "BASE_FLUCTUATING_DECLINING": {
+      "node_id": "BASE_FLUCTUATING_DECLINING",
+      "question": "What is the degree of decline?",
+      "type": "decision",
+      
+      "options": [
+        {
+          "choice": "10_percent_or_less",
+          "label": "≤10% decline",
+          "calculation": {
+            "method": "ytd_only",
+            "formula": "Use YTD income only (do not include prior higher level)",
+            "requirements": [
+              "Further analysis required",
+              "Document reason for decline",
+              "Support that current income has stabilized"
+            ]
+          },
+          "documentation_required": [
+            "YTD paystub(s)",
+            "W-2 for most recent year (primary) or 2 years (secondary)",
+            "10-day PCV",
+            "Documentation explaining decline"
+          ],
+          "outcome": "CALCULATE_WITH_ANALYSIS"
+        },
+        {
+          "choice": "over_10_percent",
+          "label": ">10% decline",
+          "calculation": {
+            "method": "ytd_only",
+            "formula": "Use YTD income only (do not include prior higher level)",
+            "requirements": [
+              "Further analysis REQUIRED",
+              "Additional documentation may be necessary",
+              "Document reason for decline",
+              "Support that current income has stabilized"
+            ]
+          },
+          "documentation_required": [
+            "YTD paystub(s)",
+            "W-2 for most recent year (primary) or 2 years (secondary)",
+            "10-day PCV",
+            "Detailed documentation explaining decline and supporting stability"
+          ],
+          "outcome": "CALCULATE_WITH_ANALYSIS"
+        }
+      ]
+    },
+
+    "VARIABLE_INCOME_HISTORY": {
+      "node_id": "VARIABLE_INCOME_HISTORY",
+      "question": "How long has borrower received this variable income?",
+      "type": "decision",
+      "context": "Includes bonus, commission, overtime, tips",
+      
+      "options": [
+        {
+          "choice": "2_years_plus",
+          "label": "2+ years consecutive",
+          "next_node": "VARIABLE_INCOME_TREND"
+        },
+        {
+          "choice": "12_to_24_months",
+          "label": "12-24 months (less than 2 years)",
+          "next_node": "VARIABLE_SHORT_HISTORY_CHECK"
+        },
+        {
+          "choice": "less_than_12_months",
+          "label": "Less than 12 months",
+          "outcome": "REJECT",
+          "reason": "Variable income requires minimum 12 months history (exception may apply)"
+        }
+      ]
+    },
+
+    "VARIABLE_SHORT_HISTORY_CHECK": {
+      "node_id": "VARIABLE_SHORT_HISTORY_CHECK",
+      "question": "Can less than 2-year history be justified?",
+      "type": "decision",
+      "context": "Consider income/employment characteristics, risk layering, demonstrated repayment ability",
+      
+      "options": [
+        {
+          "choice": "justified",
+          "label": "Yes - written analysis supports justification",
+          "requirements": [
+            "Written analysis required",
+            "Consider employment characteristics",
+            "Evaluate overall risk layering",
+            "Document repayment ability"
+          ],
+          "next_node": "VARIABLE_INCOME_TREND"
+        },
+        {
+          "choice": "not_justified",
+          "label": "No - cannot justify",
+          "outcome": "REJECT",
+          "reason": "Variable income requires 2 years or justified 12+ months history"
+        }
+      ]
+    },
+
+    "VARIABLE_INCOME_TREND": {
+      "node_id": "VARIABLE_INCOME_TREND",
+      "question": "What is the income trend?",
+      "type": "decision",
+      
+      "options": [
+        {
+          "choice": "consistent_or_increasing",
+          "label": "Consistent or Increasing",
+          "calculation": {
+            "method": "average",
+            "formula": "Average most recent years and YTD income over applicable months",
+            "note": "If annual bonus: average over full years, not number of months on documentation"
+          },
+          "apply_trend_analysis": "Same degree of fluctuation rules as base fluctuating hourly",
+          "documentation_required": [
+            "YTD paystub(s)",
+            "W-2 forms for most recent 2 years",
+            "10-day PCV"
+          ],
+          "outcome": "CALCULATE"
+        },
+        {
+          "choice": "declining",
+          "label": "Declining",
+          "calculation": {
+            "method": "ytd_only",
+            "formula": "Use YTD income (do not include prior higher level)",
+            "exception": "May use prior level if documented one-time occurrence with return to prior level",
+            "requirements": [
+              "If decline >10%, further analysis required",
+              "Document reason for decline",
+              "Support current income has stabilized"
+            ]
+          },
+          "documentation_required": [
+            "YTD paystub(s)",
+            "W-2 forms for most recent 2 years",
+            "10-day PCV",
+            "Documentation of decline and stability"
+          ],
+          "outcome": "CALCULATE_WITH_ANALYSIS"
+        }
+      ]
+    },
+
+    "MILITARY_TYPE": {
+      "node_id": "MILITARY_TYPE",
+      "question": "What type of military earnings?",
+      "type": "decision",
+      
+      "options": [
+        {
+          "choice": "base_pay",
+          "label": "Military Base Pay (active duty)",
+          "calculation": {
+            "method": "same_as_base_non_fluctuating",
+            "formula": "Based on pay frequency",
+            "history_required": "None for active duty"
+          },
+          "documentation_required": [
+            "YTD Military Leave and Earnings Statement",
+            "Or: Written VOE + 10-day PCV"
+          ],
+          "outcome": "CALCULATE"
+        },
+        {
+          "choice": "entitlements",
+          "label": "Military Entitlements (flight, hazard, quarters, rations, clothing)",
+          "calculation": {
+            "method": "fixed_monthly_amount",
+            "formula": "Current fixed monthly amount",
+            "history_required": "None"
+          },
+          "documentation_required": [
+            "YTD Military Leave and Earnings Statement",
+            "Or: Written VOE documenting current monthly fixed amount(s) + 10-day PCV"
+          ],
+          "outcome": "CALCULATE"
+        },
+        {
+          "choice": "reserve_guard",
+          "label": "Reserve or National Guard",
+          "calculation": {
+            "method": "12_month_average",
+            "formula": "Average earnings over 12 months",
+            "history_required": "1 year"
+          },
+          "documentation_required": [
+            "YTD Military Leave and Earnings Statement",
+            "W-2 for most recent year",
+            "Or: Written VOE + 10-day PCV"
+          ],
+          "outcome": "CALCULATE"
+        }
+      ]
+    },
+
+    "RESTRICTED_STOCK_TYPE": {
+      "node_id": "RESTRICTED_STOCK_TYPE",
+      "question": "What type of vesting provisions?",
+      "type": "decision",
+      
+      "options": [
+        {
+          "choice": "performance_based",
+          "label": "Performance-Based Vesting",
+          "next_node": "RS_PERFORMANCE_HISTORY"
+        },
+        {
+          "choice": "time_based",
+          "label": "Time-Based Vesting (non-recurring)",
+          "calculation": {
+            "method": "documented_continuance",
+            "history_required": "1 year",
+            "note": "See guide for complete requirements"
+          },
+          "outcome": "SEE_GUIDE"
+        },
+        {
+          "choice": "recurring_time_based",
+          "label": "Recurring Time-Based Vesting",
+          "calculation": {
+            "method": "likely_to_continue",
+            "history_required": "Per general employment history",
+            "note": "Treated as regular employment earnings"
+          },
+          "outcome": "SEE_GUIDE"
+        }
+      ]
+    },
+
+    "RS_PERFORMANCE_HISTORY": {
+      "node_id": "RS_PERFORMANCE_HISTORY",
+      "question": "How long has borrower received RS/RSU payouts from current employer?",
+      "type": "decision",
+      
+      "options": [
+        {
+          "choice": "24_months_plus",
+          "label": "24+ months (full 2 years)",
+          "calculation": {
+            "method": "24_month_calculation",
+            "shares": "(200-day moving average price × vested shares in past 2 years) ÷ 24",
+            "cash": "Total pre-tax cash equivalent in past 2 years ÷ 24"
+          },
+          "documentation_required": [
+            "YTD paystub(s) with RS/RSU payouts",
+            "W-2 forms for 2 years",
+            "10-day PCV",
+            "Evidence stock publicly traded",
+            "Vesting documentation",
+            "Vesting schedule",
+            "Evidence of previous payouts",
+            "200-day moving average stock price"
+          ],
+          "outcome": "CALCULATE"
+        },
+        {
+          "choice": "12_to_24_months",
+          "label": "12-24 months with current employer",
+          "calculation": {
+            "method": "actual_months_with_justification",
+            "requirements": [
+              "Written analysis required",
+              "Documented compensating factors (e.g., 5-year history with prior employer)",
+              "Minimum 12 months with current employer",
+              "Cannot calculate on less than 12 months"
+            ]
+          },
+          "documentation_required": [
+            "Same as 24+ months",
+            "Plus: Written analysis and compensating factors documentation"
+          ],
+          "outcome": "CALCULATE_WITH_ANALYSIS"
+        },
+        {
+          "choice": "less_than_12_months",
+          "label": "Less than 12 months",
+          "outcome": "REJECT",
+          "reason": "Performance-based RS/RSU requires minimum 12 months vested distribution history"
+        }
+      ]
+    },
+
+    "SELF_EMPLOYED_ROOT": {
+      "node_id": "SELF_EMPLOYED_ROOT",
+      "question": "What is the borrower's ownership percentage?",
+      "type": "decision",
+      "context": "Self-employed = 25%+ ownership in Partnership/S-corp/Corp, or 100% for sole proprietorship",
+      
+      "options": [
+        {
+          "choice": "25_percent_plus",
+          "label": "25% or more ownership (or sole proprietor)",
+          "next_node": "SELF_EMPLOYED_HISTORY"
+        },
+        {
+          "choice": "less_than_25",
+          "label": "Less than 25% ownership",
+          "outcome": "USE_EMPLOYED_RULES",
+          "note": "Treat as employed income per Section 5303.1(e) or use self-employment rules"
+        }
+      ]
+    },
+
+    "SELF_EMPLOYED_HISTORY": {
+      "node_id": "SELF_EMPLOYED_HISTORY",
+      "question": "How long has borrower been self-employed in current business?",
+      "type": "decision",
+      
+      "options": [
+        {
+          "choice": "2_years_plus",
+          "label": "2+ years",
+          "next_node": "SELF_EMPLOYED_CALC"
+        },
+        {
+          "choice": "1_to_2_years",
+          "label": "1-2 years",
+          "next_node": "SELF_EMPLOYED_SHORT_HISTORY"
+        },
+        {
+          "choice": "less_than_1_year",
+          "label": "Less than 1 year",
+          "outcome": "REJECT",
+          "reason": "Tax returns must reflect at least 1 year of self-employment income"
+        }
+      ]
+    },
+
+    "SELF_EMPLOYED_SHORT_HISTORY": {
+      "node_id": "SELF_EMPLOYED_SHORT_HISTORY",
+      "question": "Does borrower have combined 2-year history in same/similar occupation?",
+      "type": "decision",
+      "context": "Current self-employment + prior job in same/similar occupation/industry",
+      
+      "options": [
+        {
+          "choice": "yes_combined",
+          "label": "Yes - combined 2-year history exists",
+          "calculation": {
+            "method": "lesser_of",
+            "formula": "Use LESSER of: stable monthly income from new business OR stable monthly income from previous occupation",
+            "requirements": [
+              "Evaluate borrower's experience in business",
+              "Document combined history",
+              "Written analysis justifying stability",
+              "Consider overall risk layering",
+              "May review YTD financial statement or 3 months business bank statements"
+            ]
+          },
+          "next_node": "SELF_EMPLOYED_CALC"
+        },
+        {
+          "choice": "no_combined",
+          "label": "No - cannot establish combined 2-year history",
+          "outcome": "REJECT",
+          "reason": "Self-employment requires 2 years or combined history in same/similar occupation"
+        }
+      ]
+    },
+
+    "SELF_EMPLOYED_CALC": {
+      "node_id": "SELF_EMPLOYED_CALC",
+      "question": "What business structure?",
+      "type": "calculation",
+      
+      "options": [
+        {
+          "choice": "sole_proprietorship",
+          "label": "Sole Proprietorship",
+          "calculation": {
+            "method": "schedule_c_analysis",
+            "basis": "Schedule C income from Form 1040",
+            "form": "Form 91 Income Calculations",
+            "add_backs": [
+              "Depreciation, depletion, amortization",
+              "Non-recurring losses",
+              "Loss carry-overs",
+              "Mortgages/notes payable <1 year (with analysis)"
+            ],
+            "fluctuation_analysis": "If significant increase/decrease, provide justification"
+          },
+          "documentation_required": [
+            "Complete Form 1040 for most recent 2 years",
+            "Schedule C for most recent 2 years",
+            "W-2s, 1099s, K-1s as applicable",
+            "Verification of current business existence",
+            "IRS Form 4506-C"
+          ],
+          "outcome": "CALCULATE"
+        },
+        {
+          "choice": "partnership_s_corp",
+          "label": "Partnership or S-Corporation",
+          "calculation": {
+            "method": "k1_analysis",
+            "basis": "Proportionate share from Schedule K-1",
+            "income_types": [
+              "Ordinary income",
+              "Guaranteed payments",
+              "Net rental real estate income"
+            ],
+            "form": "Form 91 Income Calculations",
+            "add_backs": [
+              "Depreciation, depletion, amortization",
+              "Non-recurring losses",
+              "Loss carry-overs",
+              "Mortgages/notes payable <1 year (with analysis)"
+            ],
+            "cash_distributions": "May establish liquidity but NOT qualifying income",
+            "fluctuation_analysis": "If significant increase/decrease, provide justification"
+          },
+          "documentation_required": [
+            "Complete Form 1040 for most recent 2 years",
+            "Schedule K-1 for most recent 2 years",
+            "Business tax returns (Form 1065 or 1120-S) for most recent 2 years",
+            "W-2s, 1099s as applicable",
+            "Verification of current business existence",
+            "IRS Form 4506-C"
+          ],
+          "outcome": "CALCULATE"
+        },
+        {
+          "choice": "corporation",
+          "label": "Corporation",
+          "calculation": {
+            "method": "w2_and_corp_analysis",
+            "basis": "W-2 income from business",
+            "review": [
+              "Corporate tax returns (Form 1120)",
+              "Form 1125-E if applicable"
+            ],
+            "form": "Form 91 Income Calculations",
+            "fluctuation_analysis": "If significant increase/decrease, provide justification"
+          },
+          "documentation_required": [
+            "Complete Form 1040 for most recent 2 years",
+            "W-2 from business for most recent 2 years",
+            "Corporate tax returns (Form 1120) for most recent 2 years",
+            "Form 1125-E if applicable",
+            "Verification of current business existence",
+            "IRS Form 4506-C"
+          ],
+          "outcome": "CALCULATE"
+        }
+      ]
+    },
+
+    "RENTAL_ROOT": {
+      "node_id": "RENTAL_ROOT",
+      "question": "What type of rental property?",
+      "type": "decision",
+      
+      "options": [
+        {
+          "choice": "subject_investment",
+          "label": "Subject Property - Investment Property",
+          "next_node": "RENTAL_SUBJECT_TRANSACTION"
+        },
+        {
+          "choice": "non_subject_investment",
+          "label": "Non-Subject Investment Property",
+          "next_node": "RENTAL_NON_SUBJECT_TIMING"
+        },
+        {
+          "choice": "primary_2_to_4_unit",
+          "label": "2-4 Unit Primary Residence",
+          "outcome": "SEE_GUIDE",
+          "note": "See Section 5306.1(e) for specific requirements"
+        },
+        {
+          "choice": "primary_adu",
+          "label": "1-Unit Primary Residence with ADU",
+          "outcome": "SEE_GUIDE",
+          "note": "See Section 5306.1(g) for specific requirements"
+        }
+      ]
+    },
+
+    "RENTAL_SUBJECT_TRANSACTION": {
+      "node_id": "RENTAL_SUBJECT_TRANSACTION",
+      "question": "Is this a purchase or refinance?",
+      "type": "decision",
+      
+      "options": [
+        {
+          "choice": "purchase",
+          "label": "Purchase Transaction",
+          "calculation": {
+            "method": "75_percent_gross",
+            "formula": "75% of (gross monthly rent from lease OR gross market rent from appraisal)",
+            "note": "25% adjustment for vacancies, operating costs, unexpected expenses"
+          },
+          "documentation_required": [
+            "Existing lease (when available, current, fully executed in seller's name)",
+            "Form 72 or Form 1000 appraisal",
+            "Comparable rent analysis"
+          ],
+          "limitations": [
+            "Each borrower must own Primary Residence or have rental payment",
+            "With 1+ year management experience: use full net rental income",
+            "Without management experience: limited to offsetting PITI, MI, HOA, secondary financing"
+          ],
+          "outcome": "CALCULATE"
+        },
+        {
+          "choice": "refinance",
+          "label": "Refinance",
+          "next_node": "RENTAL_SUBJECT_REFI_TIMING"
+        }
+      ]
+    },
+
+    "RENTAL_SUBJECT_REFI_TIMING": {
+      "node_id": "RENTAL_SUBJECT_REFI_TIMING",
+      "question": "When was property purchased or placed in service as rental?",
+      "type": "decision",
+      
+      "options": [
+        {
+          "choice": "current_calendar_year",
+          "label": "Current Calendar Year",
+          "calculation": {
+            "method": "75_percent_lease",
+            "formula": "75% of gross monthly rent from lease",
+            "note": "25% adjustment for vacancies, costs, expenses"
+          },
+          "documentation_required": [
+            "Purchase/conversion date documented",
+            "Form 72 or Form 1000",
+            "Current fully executed lease",
+            "First rent payment due ≤ first mortgage payment due",
+            "Proof of income: Form 72/1000 OR 2 months rent received OR security deposit + first month"
+          ],
+          "outcome": "CALCULATE"
+        },
+        {
+          "choice": "prior_calendar_year",
+          "label": "Prior Calendar Year",
+          "next_node": "RENTAL_SUBJECT_REFI_PRIOR_CALC"
+        }
+      ]
+    },
+
+    "RENTAL_SUBJECT_REFI_PRIOR_CALC": {
+      "node_id": "RENTAL_SUBJECT_REFI_PRIOR_CALC",
+      "question": "Which calculation method will be used?",
+      "type": "decision",
+      
+      "options": [
+        {
+          "choice": "schedule_e",
+          "label": "Schedule E from Tax Returns",
+          "calculation": {
+            "method": "schedule_e_analysis",
+            "step_1": {
+              "description": "Calculate net rental income",
+              "formula": "Rents received - Expenses + Add-backs",
+              "add_backs": [
+                "Insurance",
+                "Mortgage interest",
+                "Real estate taxes",
+                "HOA dues",
+                "Depreciation/depletion",
+                "One-time losses (documented)",
+                "Non-cash deductions (amortization)"
+              ],
+              "form": "Form 92 Net Rental Income Calculations"
+            },
+            "step_2": {
+              "description": "Determine averaging months",
+              "owned_entire_year": "Divide by 12",
+              "purchased_during_year": "Based on purchase/conversion date",
+              "exception": "May use days in service if out of service for documented repairs/renovation"
+            },
+            "step_3": {
+              "description": "Calculate monthly income",
+              "formula": "Total net rental income (Step 1) ÷ Applicable months (Step 2)"
+            }
+          },
+          "documentation_required": [
+            "Complete Form 1040 including Schedule E for most recent year",
+            "Form 72 or Form 1000",
+            "Purchase/conversion date if applicable",
+            "Comparable rent analysis"
+          ],
+          "outcome": "CALCULATE"
+        },
+        {
+          "choice": "lease",
+          "label": "Lease (in lieu of Schedule E)",
+          "conditions": {
+            "allowed_when": [
+              "Most recent tax return doesn't include property on Schedule E (e.g., on extension)",
+              "Property out of service during prior year with documented repairs/renovation"
+            ]
+          },
+          "calculation": {
+            "method": "75_percent_lease",
+            "formula": "75% of gross monthly rent from lease"
+          },
+          "documentation_required": [
+            "Complete Form 1040 (even if property not on Schedule E)",
+            "Form 72 or Form 1000",
+            "Current fully executed lease",
+            "First rent payment due ≤ first mortgage payment due",
+            "Proof of income: Form 72/1000 OR 2 months rent OR security deposit + first month"
+          ],
+          "outcome": "CALCULATE"
+        }
+      ]
+    },
+
+    "RENTAL_NON_SUBJECT_TIMING": {
+      "node_id": "RENTAL_NON_SUBJECT_TIMING",
+      "question": "When was property purchased or placed in service as rental?",
+      "type": "decision",
+      
+      "options": [
+        {
+          "choice": "current_calendar_year",
+          "label": "Current Calendar Year",
+          "calculation": {
+            "method": "75_percent_lease",
+            "formula": "75% of gross monthly rent from lease"
+          },
+          "documentation_required": [
+            "Purchase/conversion date documented",
+            "Current fully executed lease",
+            "First rent payment due ≤ first mortgage payment due",
+            "Proof of income: Form 72/1000 OR 2 months rent OR security deposit + first month"
+          ],
+          "outcome": "CALCULATE"
+        },
+        {
+          "choice": "prior_calendar_year",
+          "label": "Prior Calendar Year",
+          "calculation": {
+            "method": "schedule_e_or_lease",
+            "note": "Similar to subject property - use Schedule E or lease with same rules"
+          },
+          "documentation_required": [
+            "Complete Form 1040 including Schedule E",
+            "Or: Lease with conditions allowing use in lieu of Schedule E"
+          ],
+          "outcome": "SEE_GUIDE"
+        }
+      ]
+    },
+
+    "OTHER_INCOME_ROOT": {
+      "node_id": "OTHER_INCOME_ROOT",
+      "question": "What type of other income?",
+      "type": "decision",
+      "note": "See Chapter 5305 for detailed requirements",
+      
+      "options": [
+        {
+          "choice": "social_security_pension",
+          "label": "Social Security, Pension, Disability, Retirement",
+          "outcome": "SEE_GUIDE",
+          "reference": "Chapter 5305"
+        },
+        {
+          "choice": "alimony_child_support",
+          "label": "Alimony, Child Support, Separate Maintenance",
+          "outcome": "SEE_GUIDE",
+          "reference": "Chapter 5305"
+        },
+        {
+          "choice": "investment_income",
+          "label": "Capital Gains, Dividends, Interest",
+          "outcome": "SEE_GUIDE",
+          "reference": "Chapter 5305"
+        },
+        {
+          "choice": "trust_income",
+          "label": "Trust Income",
+          "outcome": "SEE_GUIDE",
+          "reference": "Chapter 5305"
+        },
+        {
+          "choice": "public_assistance",
+          "label": "Public Assistance, VA Benefits",
+          "outcome": "SEE_GUIDE",
+          "reference": "Chapter 5305"
+        },
+        {
+          "choice": "notes_receivable",
+          "label": "Notes Receivable",
+          "outcome": "SEE_GUIDE",
+          "reference": "Chapter 5305"
+        },
+        {
+          "choice": "foster_care",
+          "label": "Foster Care Income",
+          "outcome": "SEE_GUIDE",
+          "reference": "Chapter 5305"
+        }
+      ]
+    }
+  },
+
+  "outcomes": {
+    "CALCULATE": {
+      "status": "approved",
+      "action": "Calculate income using the specified formula and documentation",
+      "next_steps": [
+        "Apply calculation formula",
+        "Verify all required documentation present",
+        "Include in stable monthly income"
+      ]
+    },
+    
+    "CALCULATE_WITH_ANALYSIS": {
+      "status": "conditional_approval",
+      "action": "Calculate income with additional analysis and documentation",
+      "requirements": [
+        "Provide written analysis",
+        "Document reason for condition (fluctuation, decline, short history)",
+        "Support income stability and continuance",
+        "Additional documentation as specified"
+      ],
+      "next_steps": [
+        "Complete additional analysis",
+        "Gather additional documentation",
+        "Apply calculation formula",
+        "Include written analysis in file"
+      ]
+    },
+    
+    "REJECT": {
+      "status": "rejected",
+      "action": "Income does not meet requirements - cannot be used for qualification",
+      "next_steps": [
+        "Document reason for rejection",
+        "Explore alternative income sources",
+        "Consider if borrower can wait to meet requirements"
+      ]
+    },
+    
+    "SEE_GUIDE": {
+      "status": "refer_to_guide",
+      "action": "Refer to specific guide section for detailed requirements",
+      "next_steps": [
+        "Review referenced guide section",
+        "Follow specific requirements",
+        "Document according to guidelines"
+      ]
+    },
+    
+    "USE_EMPLOYED_RULES": {
+      "status": "redirect",
+      "action": "Use employed income rules instead of self-employment",
+      "next_steps": [
+        "Return to EMPLOYED_ROOT node",
+        "Follow employed income decision tree"
+      ]
+    }
+  },
+
+  "usage_instructions": {
+    "how_to_use": "Start at the ROOT node and answer each question to traverse the tree",
+    "for_llm_agents": [
+      "Parse the node_id starting with 'ROOT'",
+      "Present the question to determine classification",
+      "Follow the 'next_node' based on the answer",
+      "Continue until reaching an outcome (CALCULATE, REJECT, etc.)",
+      "Apply the specified calculation method and documentation requirements"
+    ],
+    "log_format": {
+      "user": "Brendan",
+      "example": "Node: EMPLOYED_ROOT -> Choice: primary -> Node: EMPLOYED_HISTORY -> Choice: 2_years_plus -> Node: EARNINGS_TYPE -> Choice: base_non_fluctuating -> Outcome: CALCULATE with weekly pay frequency"
+    }
+  }
+}

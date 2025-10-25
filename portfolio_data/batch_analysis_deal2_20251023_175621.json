@@ -1,0 +1,465 @@
+{
+  "deal_id": 2,
+  "analysis_date": "2025-10-23T17:56:21.794573",
+  "num_loans_targeted": 50,
+  "num_loans_processed": 50,
+  "income_runs_per_loan": 5,
+  "statistics": {
+    "form_1003_extracted": 48,
+    "income_analysis_completed": 50,
+    "both_completed": 48,
+    "errors": 0
+  },
+  "results": [
+    {
+      "loan_number": "1000175957",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 18599.14,
+      "ai_income_avg": 19350.809629629628,
+      "variance": 18.835852709847376,
+      "error": null
+    },
+    {
+      "loan_number": "1000176265",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 16058.91,
+      "ai_income_avg": 8261.20125,
+      "variance": 14.817336643384643,
+      "error": null
+    },
+    {
+      "loan_number": "1000176563",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 3222.58,
+      "ai_income_avg": 3832.6175,
+      "variance": 28.068545843669508,
+      "error": null
+    },
+    {
+      "loan_number": "1000176779",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 3365.0,
+      "ai_income_avg": 2708.2025,
+      "variance": 1.50579581844416,
+      "error": null
+    },
+    {
+      "loan_number": "1000176806",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 11666.66,
+      "ai_income_avg": 11664.57875,
+      "variance": 0.14291129030270444,
+      "error": null
+    },
+    {
+      "loan_number": "1000177034",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 4070.46,
+      "ai_income_avg": 4048.7059999999997,
+      "variance": 40.86960129977331,
+      "error": null
+    },
+    {
+      "loan_number": "1000177101",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 8380.0,
+      "ai_income_avg": 8092.806,
+      "variance": 19.096095964737064,
+      "error": null
+    },
+    {
+      "loan_number": "1000177183",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 4977.99,
+      "ai_income_avg": 4642.2,
+      "variance": 2.630649261126188,
+      "error": null
+    },
+    {
+      "loan_number": "1000177216",
+      "form_1003_success": false,
+      "income_analysis_success": true,
+      "form_1003_income": null,
+      "ai_income_avg": null,
+      "variance": null,
+      "error": null
+    },
+    {
+      "loan_number": "1000177229",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 14207.57,
+      "ai_income_avg": 12540.53,
+      "variance": 0.00015948289267229181,
+      "error": null
+    },
+    {
+      "loan_number": "1000177311",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 9166.67,
+      "ai_income_avg": 9166.67,
+      "variance": 0.0,
+      "error": null
+    },
+    {
+      "loan_number": "1000177371",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 14374.16,
+      "ai_income_avg": 6649.988,
+      "variance": 146.32853472818297,
+      "error": null
+    },
+    {
+      "loan_number": "1000177492",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 15622.53,
+      "ai_income_avg": 15624.001999999999,
+      "variance": 0.07462876668858501,
+      "error": null
+    },
+    {
+      "loan_number": "1000177613",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 11165.26,
+      "ai_income_avg": 5405.198,
+      "variance": 7.9281092015500585,
+      "error": null
+    },
+    {
+      "loan_number": "1000177722",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 8823.63,
+      "ai_income_avg": 7283.094,
+      "variance": 35.658059610379865,
+      "error": null
+    },
+    {
+      "loan_number": "1000177761",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 7855.53,
+      "ai_income_avg": 7713.464,
+      "variance": 19.457794837701968,
+      "error": null
+    },
+    {
+      "loan_number": "1000177814",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 9587.67,
+      "ai_income_avg": 9310.786,
+      "variance": 6.033325220878237,
+      "error": null
+    },
+    {
+      "loan_number": "1000177883",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 8647.4,
+      "ai_income_avg": 8486.564,
+      "variance": 5.999954752005636,
+      "error": null
+    },
+    {
+      "loan_number": "1000177898",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 12333.32,
+      "ai_income_avg": 12227.511999999999,
+      "variance": 23.948943987951115,
+      "error": null
+    },
+    {
+      "loan_number": "1000177899",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 13122.74,
+      "ai_income_avg": 12541.89,
+      "variance": 0.0,
+      "error": null
+    },
+    {
+      "loan_number": "1000177906",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 14117.12,
+      "ai_income_avg": 13232.582,
+      "variance": 4.414180089720967,
+      "error": null
+    },
+    {
+      "loan_number": "1000177991",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 7945.99,
+      "ai_income_avg": 8652.076000000001,
+      "variance": 13.04288126918904,
+      "error": null
+    },
+    {
+      "loan_number": "1000178047",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 9606.23,
+      "ai_income_avg": 9390.606,
+      "variance": 9.673497109771207,
+      "error": null
+    },
+    {
+      "loan_number": "1000178066",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 9169.33,
+      "ai_income_avg": 9169.33,
+      "variance": 0.0,
+      "error": null
+    },
+    {
+      "loan_number": "1000178151",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 7437.5,
+      "ai_income_avg": 7035.95,
+      "variance": 2.3216481072207786,
+      "error": null
+    },
+    {
+      "loan_number": "1000178193",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 12041.14,
+      "ai_income_avg": 11489.634,
+      "variance": 12.274368356729195,
+      "error": null
+    },
+    {
+      "loan_number": "1000178196",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 6614.6,
+      "ai_income_avg": 5970.89,
+      "variance": 0.0,
+      "error": null
+    },
+    {
+      "loan_number": "1000178202",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 10403.47,
+      "ai_income_avg": 10256.68,
+      "variance": 4.779519298642439,
+      "error": null
+    },
+    {
+      "loan_number": "1000178230",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 3527.6,
+      "ai_income_avg": 2622.68,
+      "variance": 37.62182195311665,
+      "error": null
+    },
+    {
+      "loan_number": "1000178255",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 6258.12,
+      "ai_income_avg": 6244.882,
+      "variance": 3.5742869120665537,
+      "error": null
+    },
+    {
+      "loan_number": "1000178277",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 14937.57,
+      "ai_income_avg": 15109.01,
+      "variance": 1.7576267406004726,
+      "error": null
+    },
+    {
+      "loan_number": "1000178300",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 5833.34,
+      "ai_income_avg": 5889.99,
+      "variance": 4.809006466904019,
+      "error": null
+    },
+    {
+      "loan_number": "1000178306",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 25926.7,
+      "ai_income_avg": 23877.764000000003,
+      "variance": 3.818699271841365,
+      "error": null
+    },
+    {
+      "loan_number": "1000178325",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 19226.66,
+      "ai_income_avg": 19201.591999999997,
+      "variance": 1.0605370638017901,
+      "error": null
+    },
+    {
+      "loan_number": "1000178340",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 18879.47,
+      "ai_income_avg": 21014.782,
+      "variance": 10.458114673756787,
+      "error": null
+    },
+    {
+      "loan_number": "1000178372",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 5973.04,
+      "ai_income_avg": 5902.04,
+      "variance": 0.0,
+      "error": null
+    },
+    {
+      "loan_number": "1000178388",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 9017.0,
+      "ai_income_avg": 9868.912,
+      "variance": 16.055366589549077,
+      "error": null
+    },
+    {
+      "loan_number": "1000178394",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 10839.77,
+      "ai_income_avg": 10726.626,
+      "variance": 9.108922041283064,
+      "error": null
+    },
+    {
+      "loan_number": "1000178414",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 8140.97,
+      "ai_income_avg": 5332.944,
+      "variance": 31.119209202271776,
+      "error": null
+    },
+    {
+      "loan_number": "1000178434",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 8083.13,
+      "ai_income_avg": 16295.545999999998,
+      "variance": 92.87758753220054,
+      "error": null
+    },
+    {
+      "loan_number": "1000178442",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 15217.67,
+      "ai_income_avg": 15611.476,
+      "variance": 42.12631784464199,
+      "error": null
+    },
+    {
+      "loan_number": "1000178455",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 8333.35,
+      "ai_income_avg": 8537.682,
+      "variance": 5.002528789430203,
+      "error": null
+    },
+    {
+      "loan_number": "1000178499",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 7705.15,
+      "ai_income_avg": 10571.486,
+      "variance": 12.082312742030785,
+      "error": null
+    },
+    {
+      "loan_number": "1000178503",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 6640.08,
+      "ai_income_avg": 6343.2919999999995,
+      "variance": 14.848914412264167,
+      "error": null
+    },
+    {
+      "loan_number": "1000178528",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 3986.67,
+      "ai_income_avg": 4165.273999999999,
+      "variance": 7.697212716378327,
+      "error": null
+    },
+    {
+      "loan_number": "1000178549",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 9313.2,
+      "ai_income_avg": 10640.967999999999,
+      "variance": 6.920141099945034,
+      "error": null
+    },
+    {
+      "loan_number": "1000178578",
+      "form_1003_success": false,
+      "income_analysis_success": true,
+      "form_1003_income": null,
+      "ai_income_avg": 13177.014,
+      "variance": 22.470341156198213,
+      "error": null
+    },
+    {
+      "loan_number": "1000178579",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 9458.32,
+      "ai_income_avg": 9405.988000000001,
+      "variance": 2.782057557377282,
+      "error": null
+    },
+    {
+      "loan_number": "1000178589",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 19664.76,
+      "ai_income_avg": 18030.886,
+      "variance": 0.927963273684941,
+      "error": null
+    },
+    {
+      "loan_number": "1000178611",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 12830.79,
+      "ai_income_avg": 14071.367999999999,
+      "variance": 6.826486237869695,
+      "error": null
+    }
+  ]
+}

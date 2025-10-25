@@ -19,34 +19,33 @@ load_dotenv()
 
 def load_freddie_mac_guidelines():
     """
-    Load the compressed Freddie Mac guidelines for income calculation.
+    Load the Freddie Mac income underwriting decision tree.
     
     Returns:
-        String containing relevant income calculation rules
+        String containing decision tree for income calculation
     """
-    guidelines_file = Path("guidelines/freddie_mac_guide_5300_5400_compressed.json")
+    guidelines_file = Path("guidelines/income_underwriting_decision_tree.json")
     
     if not guidelines_file.exists():
         return ""
     
     try:
         with open(guidelines_file, 'r', encoding='utf-8') as f:
-            guidelines = json.load(f)
+            decision_tree = json.load(f)
         
-        # Format the rules into a readable string
-        rules_text = "FREDDIE MAC INCOME CALCULATION GUIDELINES:\n\n"
-        for rule in guidelines.get('rules', []):
-            rules_text += f"Section {rule['section']} - {rule['topic']}:\n"
-            rules_text += f"  {rule['rule']}\n"
-            if rule.get('details'):
-                for detail in rule['details']:
-                    rules_text += f"  • {detail}\n"
-            rules_text += "\n"
+        # Format the decision tree into a readable string
+        rules_text = "FREDDIE MAC INCOME UNDERWRITING DECISION TREE:\n\n"
+        rules_text += f"Title: {decision_tree.get('metadata', {}).get('title', 'Unknown')}\n"
+        rules_text += f"Description: {decision_tree.get('metadata', {}).get('description', 'Unknown')}\n"
+        rules_text += f"Usage: {decision_tree.get('metadata', {}).get('usage', 'Unknown')}\n\n"
+        
+        # Convert the structured decision tree to text format
+        rules_text += json.dumps(decision_tree, indent=2)
         
         return rules_text
         
     except Exception as e:
-        print(f"Warning: Could not load Freddie Mac guidelines: {e}")
+        print(f"Warning: Could not load decision tree: {e}")
         return ""
 
 
@@ -314,32 +313,58 @@ async def analyze_income(income_docs, loan_id, run_number=1):
     # Load Freddie Mac guidelines
     guidelines = load_freddie_mac_guidelines()
     
+    # Load income scenario classification if available
+    scenario_file = Path(f"loan_docs/{loan_id}/income_analysis/income_scenario.json")
+    scenario_context = ""
+    if scenario_file.exists():
+        try:
+            with open(scenario_file, 'r', encoding='utf-8') as f:
+                scenario = json.load(f)
+                scenario_context = f"""
+INCOME SCENARIO CLASSIFICATION:
+(This classification has already analyzed the documents to identify the income situation)
+
+{json.dumps(scenario, indent=2)}
+
+Use this scenario classification to understand the employment and income situation before applying the decision tree.
+"""
+        except Exception as e:
+            print(f"Warning: Could not load scenario classification: {e}")
+    
     # Create prompt with income documents
     prompt = f"""You are a mortgage underwriting income analyst. Analyze the following income documents and calculate the borrower's monthly income using Freddie Mac guidelines.
 
 {guidelines}
+{scenario_context}
 
 INCOME DOCUMENTS:
 {json.dumps(income_docs, indent=2)}
 
-INSTRUCTIONS:
-1. Review all paystubs, W2 documents, and 1099-R forms provided
-2. Apply the Freddie Mac guidelines above for income calculation:
-   - For paystubs: Calculate year-to-date average if multiple paystubs available
-   - For W2s: Use most recent year's income divided by 12 for monthly amount
-   - For 1099-R (pension/retirement): Use gross distribution divided by 12 for monthly amount
-   - Consider consistency between paystubs, W2s, and 1099-R forms
-   - Account for pay frequency (weekly, bi-weekly, semi-monthly, monthly)
-   - Include base pay, overtime, bonuses, commissions (with 2-year average if applicable)
-   - Include pension/retirement income from 1099-R forms
-   - Follow the specific requirements in the guidelines above (2-year history, continuance, etc.)
-3. Calculate total monthly gross income
-4. Provide detailed methodology showing how you arrived at the calculation and which Freddie Mac rules you followed
+CRITICAL INSTRUCTIONS:
+
+1. Follow the Freddie Mac Income Underwriting Decision Tree provided above
+   - Start at the ROOT node and traverse based on the borrower's situation
+   - Answer each decision node's question based on the documents provided
+   - Continue until you reach a CALCULATE or REJECT outcome
+   - Apply the exact formula specified in the leaf node
+
+2. Calculate qualifying monthly gross income using ONLY the documents provided - you have complete information
+
+3. STRICT EVIDENCE REQUIREMENT:
+   - If the decision tree requires specific documentation (e.g., "two-year history"), you MUST see that documentation in the provided files
+   - If documentation is insufficient per the decision tree requirements → exclude that income component (set to $0)
+   - DO NOT propose conditional/provisional income "subject to" obtaining additional documents
+   - DO NOT say income is "pending verification" - either it meets requirements (include it) or it doesn't (exclude it)
+
+4. Your monthly_gross_income is the FINAL qualifying amount based on applying the decision tree to available evidence
+
+5. In your response, document the decision path you followed through the tree (e.g., "ROOT → EMPLOYED_ROOT → EMPLOYED_HISTORY → EARNINGS_TYPE → BASE_NON_FLUCTUATING_CALC")
 
 Return ONLY a JSON object with this structure (no markdown, no code blocks):
 {{
   "monthly_gross_income": <number>,
   "calculation_methodology": {{
+    "decision_path": "<node path through decision tree>",
     "paystubs_analysis": "<detailed explanation of paystub calculations>",
     "w2_analysis": "<detailed explanation of W2 calculations>",
     "reconciliation": "<how paystubs and W2s reconcile or any discrepancies>",
@@ -355,7 +380,12 @@ Return ONLY a JSON object with this structure (no markdown, no code blocks):
       "<step 1>",
       "<step 2>",
       "..."
-    ]
+    ],
+    "freddie_mac_compliance": {{
+      "base_income_rule_applied": "<which decision tree node/outcome>",
+      "variable_income_treatment": "<included with 2yr avg | excluded - insufficient history>",
+      "documentation_gaps": "<list any income sources visible but not usable due to lack of required documentation>"
+    }}
   }},
   "confidence_level": "<high|medium|low>",
   "notes": "<any additional notes or concerns>"

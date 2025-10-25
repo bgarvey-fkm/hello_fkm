@@ -1,0 +1,156 @@
+{
+  "meta": {
+    "source": "Freddie Mac Single-Family Seller/Servicer Guide, Sections 5301–5305",
+    "as_of": "2025-08-06",
+    "purpose": "Detailed reference for automated income analysis and underwriting logic per Freddie Mac."
+  },
+  "5301": {
+    "title": "Stable Monthly Income - General Requirements",
+    "rules": [
+      {
+        "id": "5301.1.b",
+        "title": "Definition of Stable Monthly Income",
+        "requirement": "Income must be verified, acceptable, and expected to continue ≥ 3 years.",
+        "notes": "Applies to all income types used for qualifying, even if not explicitly listed in 5300.",
+        "evidence_required": ["W-2s", "Paystubs", "Tax Returns", "Verification of Employment"],
+        "exclusions": ["Cryptocurrency income"]
+      },
+      {
+        "id": "5301.1.c",
+        "title": "Income Stability & History",
+        "requirement": "Two-year consistent history normally required; shorter acceptable with compensating factors.",
+        "examples": [
+          "Borrower changed jobs in same industry, minimal gap",
+          "Bonus or overtime varies but overall level stable"
+        ]
+      },
+      {
+        "id": "5301.1.d",
+        "title": "Income Continuance",
+        "requirement": "Must be likely to continue for ≥ 3 years.",
+        "verification": [
+          "Employment/self-employment history",
+          "Receipt pattern",
+          "Probability of continued receipt"
+        ]
+      },
+      {
+        "id": "5301.tables",
+        "title": "Continuance Categories",
+        "table_A": "Types likely to continue (e.g. base pay, bonus, commission, RSU, allowance)",
+        "table_B": "Documentable continuance (e.g. notes receivable, trust income, alimony)",
+        "table_C": "Case-by-case (e.g. retirement, disability, SSI, public assistance)"
+      }
+    ]
+  },
+  "5302": {
+    "title": "Employment & Income Documentation",
+    "subsections": {
+      "5302.1": "General Documentation Requirements",
+      "5302.2": "Paystubs, W-2s, VOE, 10-day Verification",
+      "5302.3": "Third-Party Verification Services",
+      "5302.4": "Tax Returns, Transcripts, Age Rules",
+      "5302.5": "IRS Form 4506-C",
+      "5302.6": "Automated Employment Assessment (AIM)"
+    },
+    "key_points": [
+      "Paystub must cover YTD earnings and be within 30 days of application.",
+      "W-2s required for two prior years; transcripts acceptable substitute.",
+      "10-day Pre-Closing Verification required no earlier than 10 business days pre-Note Date.",
+      "Tax returns required for self-employed, 1099, foreign, or fluctuating income.",
+      "IRS 4506-C required for all borrowers whose income/asset data are used for qualification."
+    ]
+  },
+  "5303": {
+    "title": "Employed Income (W-2 Borrowers)",
+    "sections": {
+      "5303.1": {
+        "topic": "Employed Income Types",
+        "rules": [
+          {
+            "type": "Base Non-Fluctuating",
+            "calculation": "Weekly × 52 ÷ 12; Bi-weekly × 26 ÷ 12; Semi-monthly × 24 ÷ 12",
+            "continuance": "Must continue ≥ 3 years"
+          },
+          {
+            "type": "Fluctuating Hourly / Overtime / Bonus / Commission",
+            "history": "2 years typical, 1 year acceptable with justification",
+            "analysis": [
+              "Trend analysis: consistent, increasing, or declining",
+              "If declining >10%, must document reason and stability",
+              "Exclude one-time events (e.g. renovation closures)"
+            ]
+          },
+          {
+            "type": "Multiple Employers",
+            "rule": "Combine W-2s if consistent employment in same industry; verify no >30-day gaps."
+          }
+        ]
+      },
+      "5303.2": {
+        "topic": "Income Commencing After Note Date",
+        "requirements": [
+          "Start date ≤ 90 days post Note Date (Option 1) or before Delivery Date (Option 2)",
+          "Fully executed, non-contingent offer letter or contract",
+          "Funds to cover gap period between Note and start date"
+        ]
+      },
+      "5303.3": {
+        "topic": "Temporary Leave",
+        "rule": "Use pre-leave income if return before first payment; otherwise, use current reduced income + verified liquid assets"
+      },
+      "5303.4": {
+        "topic": "Automated Income Assessment (AIM) – Employed Data",
+        "note": "Enables R&W relief for eligible income (base, bonus, commission, overtime)"
+      },
+      "5303.5": {
+        "topic": "AIM Using Account Data",
+        "note": "Similar to 5303.4 but income verified via bank deposit history"
+      }
+    }
+  },
+  "5304": {
+    "title": "Self-Employed Income",
+    "summary": "Defines ownership ≥25% as self-employed. Requires 2 years typically, 1 year acceptable with prior related work.",
+    "analysis_requirements": [
+      "Review business tax returns, P&L, balance sheet",
+      "Add back non-cash deductions (depreciation, amortization)",
+      "Evaluate liquidity, consistency, and business viability",
+      "Use Form 91 or Freddie Income Calculator output"
+    ],
+    "automated_assessment": "Allows AIM via tax data for self-employed income (Schedule C, 1120S, 1065)"
+  },
+  "5305": {
+    "title": "Other Income (Non-Employment Sources)",
+    "examples": {
+      "alimony_child_support": "6-month receipt history, 3-year continuance",
+      "capital_gains": "2-year history, assets sufficient for 3-year continuation",
+      "dividends_interest": "2-year history, document assets to support continuance",
+      "foster_care": "2-year history, likely to continue",
+      "retirement": "Case-by-case; Social Security needs no continuance doc",
+      "disability": "May assume continuance unless expiration <3 years",
+      "trust_income": "Require executed trust doc, 1–2 year history, 3-year continuance",
+      "tax_exempt": "May gross up by 25% or actual tax rate"
+    }
+  },
+  "calculation_framework": {
+    "steps": [
+      "Identify income source(s)",
+      "Verify documentation per Section 5302",
+      "Determine history length and stability",
+      "Apply correct averaging rule (24 months typical)",
+      "Verify continuance (≥3 years)",
+      "Produce written analysis"
+    ],
+    "averaging_rules": {
+      "bonus_overtime": "Average 24 months unless declining",
+      "commission": "Average 24 months; if declining, use lower",
+      "self_employed": "Average 24 months unless justified exception"
+    },
+    "exclusions": [
+      "Cryptocurrency",
+      "Undocumented foreign income",
+      "Income likely to cease in <3 years"
+    ]
+  }
+}

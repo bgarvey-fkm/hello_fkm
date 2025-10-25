@@ -1,0 +1,60 @@
+{
+  "deal_id": 2,
+  "analysis_date": "2025-10-23T15:34:55.478597",
+  "num_loans_targeted": 5,
+  "num_loans_processed": 5,
+  "income_runs_per_loan": 3,
+  "statistics": {
+    "form_1003_extracted": 5,
+    "income_analysis_completed": 5,
+    "both_completed": 5,
+    "errors": 0
+  },
+  "results": [
+    {
+      "loan_number": "1000175957",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 18599.14,
+      "ai_income_avg": 19329.71727272727,
+      "variance": 18.85640616763007,
+      "error": null
+    },
+    {
+      "loan_number": "1000176265",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 16058.91,
+      "ai_income_avg": 8363.206666666667,
+      "variance": 14.636491106680769,
+      "error": null
+    },
+    {
+      "loan_number": "1000176563",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 3222.58,
+      "ai_income_avg": 3779.6999999999994,
+      "variance": 0.0,
+      "error": null
+    },
+    {
+      "loan_number": "1000176779",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 3365.0,
+      "ai_income_avg": 2712.6233333333334,
+      "variance": 0.0855260651743084,
+      "error": null
+    },
+    {
+      "loan_number": "1000176806",
+      "form_1003_success": true,
+      "income_analysis_success": true,
+      "form_1003_income": 11666.66,
+      "ai_income_avg": 11666.659999999998,
+      "variance": 0.0,
+      "error": null
+    }
+  ]
+}

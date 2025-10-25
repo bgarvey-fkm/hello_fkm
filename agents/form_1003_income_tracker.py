@@ -15,27 +15,24 @@ import json
 import sys
 from pathlib import Path
 from datetime import datetime
-from openai import AzureOpenAI
+from openai import AsyncAzureOpenAI
 from dotenv import load_dotenv
 import os
+import asyncio
 
 # Fix console encoding for Windows
 if sys.platform == "win32":
     sys.stdout.reconfigure(encoding='utf-8')
     sys.stderr.reconfigure(encoding='utf-8')
 
-load_dotenv()
+# Load environment variables from parent directory
+env_path = Path(__file__).parent.parent / '.env'
+load_dotenv(dotenv_path=env_path)
 
 endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
 deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT")
 subscription_key = os.getenv("AZURE_OPENAI_KEY")
 api_version = os.getenv("AZURE_OPENAI_API_VERSION")
-
-client = AzureOpenAI(
-    api_key=subscription_key,
-    api_version=api_version,
-    azure_endpoint=endpoint
-)
 
 
 def identify_1003_files(loan_id: str) -> list:
@@ -117,7 +114,7 @@ def sort_by_upload_date(form_1003_files: list) -> list:
     return sorted_files
 
 
-def extract_income_from_all_1003s(loan_id: str, sorted_1003_files: list) -> dict:
+async def extract_income_from_all_1003s(loan_id: str, sorted_1003_files: list) -> dict:
     """
     Send all Form 1003 semantic_json files to LLM at once and extract monthly income from each.
     Returns structured data showing income evolution over time.
@@ -133,6 +130,13 @@ def extract_income_from_all_1003s(loan_id: str, sorted_1003_files: list) -> dict
     
     print(f"📤 Sending {len(sorted_1003_files)} Form 1003 semantic JSON files to LLM...")
     print(f"   Model: {deployment}\n")
+    
+    # Initialize async client
+    client = AsyncAzureOpenAI(
+        api_key=subscription_key,
+        api_version=api_version,
+        azure_endpoint=endpoint
+    )
     
     # Build the context with all Form 1003 files
     files_context = []
@@ -234,7 +238,7 @@ Return a JSON object with this exact structure:
 Return ONLY valid JSON. No markdown, no explanations."""
     
     try:
-        response = client.chat.completions.create(
+        response = await client.chat.completions.create(
             model=deployment,
             messages=[
                 {
@@ -571,7 +575,7 @@ def create_html_report(loan_id: str, analysis: dict):
     return output_file
 
 
-def main():
+async def main():
     """Main execution function."""
     
     if len(sys.argv) < 2:
@@ -601,7 +605,7 @@ def main():
     sorted_files = sort_by_upload_date(form_1003_files)
     
     # Step 3: Extract income from all versions at once
-    analysis = extract_income_from_all_1003s(loan_id, sorted_files)
+    analysis = await extract_income_from_all_1003s(loan_id, sorted_files)
     
     if not analysis:
         print("\n❌ Failed to extract income data")
@@ -620,4 +624,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
