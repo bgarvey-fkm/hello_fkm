@@ -58,7 +58,7 @@ Build a production-ready AI income verification system that:
 
 
 ┌─────────────────────────────────────────────────────────────────────────────────┐
-│ PHASE 2: SEMANTIC COMPRESSION (Azure OpenAI GPT-4o-mini)                       │
+│ PHASE 2: SEMANTIC COMPRESSION (Azure OpenAI GPT-5-mini)                        │
 └─────────────────────────────────────────────────────────────────────────────────┘
 
     📄 Raw JSON (63 files)                🧠 Semantic Analysis
@@ -198,8 +198,8 @@ Build a production-ready AI income verification system that:
 
          │
          ▼
-    ┌──────────────────────────────────────────────────────┐
-    │  🤖 AI Income Calculator (GPT-4o-mini)               │
+    ┌──────────────────────────────────────────────────────────┐
+    │  🤖 AI Income Calculator (GPT-5-mini)                │
     │                                                      │
     │  1. Load Freddie Mac Decision Tree                  │
     │     ├─ Base non-fluctuating salary rules            │
@@ -416,7 +416,7 @@ Edit `.env` with your actual values:
 ```env
 AZURE_OPENAI_ENDPOINT=https://your-resource.cognitiveservices.azure.com/
 AZURE_OPENAI_KEY=your-api-key-here
-AZURE_OPENAI_DEPLOYMENT=gpt-4o-mini
+AZURE_OPENAI_DEPLOYMENT=gpt-5-mini
 AZURE_OPENAI_API_VERSION=2024-12-01-preview
 ```
 
@@ -822,7 +822,7 @@ GET https://harvestapi.firstkeyholdings.net:60000/api/pdf/{file_id}
 ## Technical Stack
 
 ### Azure Services
-- **Azure OpenAI**: GPT-4o-mini (400K context window)
+- **Azure OpenAI**: GPT-5-mini (400K context window)
   - Document classification and field extraction
   - Intelligent document filtering
   - Income calculation with guidelines
@@ -866,7 +866,7 @@ Reports (JSON + HTML)
   ```
   AZURE_OPENAI_ENDPOINT=https://...
   AZURE_OPENAI_KEY=...
-  AZURE_OPENAI_DEPLOYMENT=gpt-4o-mini
+  AZURE_OPENAI_DEPLOYMENT=gpt-5-mini
   AZURE_OPENAI_API_VERSION=2024-12-01-preview
   DOC_INTELLIGENCE_ENDPOINT=https://...
   DOC_INTELLIGENCE_KEY=...
@@ -899,7 +899,7 @@ Reports (JSON + HTML)
 ## Requirements
 
 - Python 3.8+
-- Azure OpenAI API access (GPT-4o-mini or similar)
+- Azure OpenAI API access (GPT-5-mini or similar)
 - Azure Document Intelligence API access
 - Network access to Harvest API (internal FirstKey network)
 - Sufficient Azure quota for batch processing

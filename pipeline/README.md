@@ -320,15 +320,19 @@ DOC_INTELLIGENCE_KEY=your-key-here- Bank statements → validate assets
 
 # Azure OpenAI (Step 2)
 
-AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/### **Document Freshness Rules**
+```env
+AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
+AZURE_OPENAI_KEY=your-key-here
+AZURE_OPENAI_DEPLOYMENT=gpt-5-mini
+AZURE_OPENAI_API_VERSION=2024-12-01-preview
+```
 
-AZURE_OPENAI_KEY=your-key-here- Paystubs: Within 30 days of application
+### **Document Freshness Rules**
 
-AZURE_OPENAI_DEPLOYMENT=gpt-4o-mini- Credit report: Within 90-120 days
-
-AZURE_OPENAI_API_VERSION=2024-12-01-preview- W-2s: Most recent 2 years
-
-```- Appraisal: Ordered after application, typically within 30 days
+- Paystubs: Within 30 days of application
+- Credit report: Within 90-120 days
+- W-2s: Most recent 2 years
+- Appraisal: Ordered after application, typically within 30 days
 
 
 
