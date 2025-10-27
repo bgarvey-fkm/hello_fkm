@@ -7,284 +7,174 @@ using generally accepted mortgage underwriting standards.
 
 import json
 import sys
+import io
 import os
 import asyncio
 from pathlib import Path
 from dotenv import load_dotenv
 from openai import AsyncAzureOpenAI
 
+# Fix Windows console encoding issues
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
 # Load environment variables
 load_dotenv()
 
 
-def load_freddie_mac_guidelines():
+def load_employment_history(loan_id):
     """
-    Load the Freddie Mac income underwriting decision tree.
-    
-    Returns:
-        String containing decision tree for income calculation
-    """
-    guidelines_file = Path("guidelines/income_underwriting_decision_tree.json")
-    
-    if not guidelines_file.exists():
-        return ""
-    
-    try:
-        with open(guidelines_file, 'r', encoding='utf-8') as f:
-            decision_tree = json.load(f)
-        
-        # Format the decision tree into a readable string
-        rules_text = "FREDDIE MAC INCOME UNDERWRITING DECISION TREE:\n\n"
-        rules_text += f"Title: {decision_tree.get('metadata', {}).get('title', 'Unknown')}\n"
-        rules_text += f"Description: {decision_tree.get('metadata', {}).get('description', 'Unknown')}\n"
-        rules_text += f"Usage: {decision_tree.get('metadata', {}).get('usage', 'Unknown')}\n\n"
-        
-        # Convert the structured decision tree to text format
-        rules_text += json.dumps(decision_tree, indent=2)
-        
-        return rules_text
-        
-    except Exception as e:
-        print(f"Warning: Could not load decision tree: {e}")
-        return ""
-
-
-async def filter_income_documents_by_guidelines(loan_id, refilter=False):
-    """
-    Load ALL semantic JSON files and use Freddie Mac guidelines to determine
-    which documents are relevant for income verification.
-    
-    Uses cached results if documents already have 'income_verification_relevant' flag.
-    Set refilter=True to force re-classification.
+    Load the employment history report if available.
     
     Args:
         loan_id: The loan identifier
-        refilter: If True, ignore cached flags and re-run LLM filtering
+        
+    Returns:
+        String containing employment history markdown, or empty string if not found
+    """
+    employment_history_file = Path(f"loan_docs/{loan_id}/employment_history/employment_history.md")
+    
+    if employment_history_file.exists():
+        try:
+            with open(employment_history_file, 'r', encoding='utf-8') as f:
+                return f.read()
+        except Exception as e:
+            print(f"Warning: Could not load employment history: {e}")
+            return ""
+    else:
+        print(f"Note: No employment history found for loan {loan_id}. Run employment_history_agent.py first for better results.")
+        return ""
+
+
+def load_freddie_mac_guidelines():
+    """
+    Load the Freddie Mac income underwriting decision tree and edge cases.
+    
+    Returns:
+        String containing decision tree and edge cases for income calculation
+    """
+    guidelines_file = Path("guidelines/income_underwriting_decision_tree.json")
+    edge_cases_file = Path("guidelines/income_edge_cases_and_clarifications.json")
+    
+    rules_text = ""
+    
+    # Load main decision tree
+    if guidelines_file.exists():
+        try:
+            with open(guidelines_file, 'r', encoding='utf-8') as f:
+                decision_tree = json.load(f)
+            
+            # Format the decision tree into a readable string
+            rules_text += "FREDDIE MAC INCOME UNDERWRITING DECISION TREE:\n\n"
+            rules_text += f"Title: {decision_tree.get('metadata', {}).get('title', 'Unknown')}\n"
+            rules_text += f"Description: {decision_tree.get('metadata', {}).get('description', 'Unknown')}\n"
+            rules_text += f"Usage: {decision_tree.get('metadata', {}).get('usage', 'Unknown')}\n\n"
+            
+            # Convert the structured decision tree to text format
+            rules_text += json.dumps(decision_tree, indent=2)
+            rules_text += "\n\n"
+            
+        except Exception as e:
+            print(f"Warning: Could not load decision tree: {e}")
+    
+    # Load edge cases and clarifications
+    if edge_cases_file.exists():
+        try:
+            with open(edge_cases_file, 'r', encoding='utf-8') as f:
+                edge_cases = json.load(f)
+            
+            rules_text += "="*80 + "\n"
+            rules_text += "INCOME UNDERWRITING EDGE CASES AND CLARIFICATIONS\n"
+            rules_text += "="*80 + "\n\n"
+            rules_text += f"Title: {edge_cases.get('metadata', {}).get('title', 'Unknown')}\n"
+            rules_text += f"Description: {edge_cases.get('metadata', {}).get('description', 'Unknown')}\n"
+            rules_text += f"Version: {edge_cases.get('metadata', {}).get('version', 'Unknown')}\n"
+            rules_text += f"Last Updated: {edge_cases.get('metadata', {}).get('last_updated', 'Unknown')}\n\n"
+            rules_text += "IMPORTANT: These edge cases supplement the decision tree above. Use them to handle\n"
+            rules_text += "scenarios not explicitly covered in the main decision tree.\n\n"
+            
+            # Convert edge cases to text format
+            rules_text += json.dumps(edge_cases, indent=2)
+            
+        except Exception as e:
+            print(f"Warning: Could not load edge cases: {e}")
+    
+    return rules_text
+
+
+def load_income_documents(loan_id):
+    """
+    Load semantic JSON files that have been pre-classified as income-relevant.
+    
+    IMPORTANT: Documents must be pre-classified first using:
+        python pipeline/classify_income_documents.py <loan_id>
+    
+    This function only loads documents already marked with 'income_verification_relevant' flag.
+    If no documents are found with this flag, you need to run the classification pipeline step first.
+    
+    Args:
+        loan_id: The loan identifier
         
     Returns:
         List of document objects relevant for income verification
+        
+    Raises:
+        FileNotFoundError: If semantic_json directory doesn't exist
+        RuntimeError: If no classified documents are found (need to run classification first)
     """
     semantic_dir = Path(f"loan_docs/{loan_id}/semantic_json")
     
     if not semantic_dir.exists():
         raise FileNotFoundError(f"Semantic JSON directory does not exist: {semantic_dir}")
     
-    # Load all documents first
-    all_docs = []
-    cached_results_available = True
+    print(f"\n>> Loading pre-classified income documents for loan {loan_id}...")
+    
+    income_docs = []
+    total_docs = 0
+    unclassified_docs = 0
     
     for json_file in semantic_dir.glob("*.json"):
         try:
             with open(json_file, 'r', encoding='utf-8') as f:
                 doc = json.load(f)
             
-            doc_obj = {
-                'file_path': str(json_file),
-                'file_id': doc.get('metadata', {}).get('FileId'),
-                'file_name': doc.get('metadata', {}).get('FileName'),
-                'doc_type': doc.get('semantic_content', {}).get('document_type', 'unknown'),
-                'metadata': doc.get('metadata', {}),
-                'semantic_content': doc.get('semantic_content', {})
-            }
-            all_docs.append(doc_obj)
+            total_docs += 1
             
-            # Check if this document has the cached flag
+            # Check if this document has been classified
             if 'income_verification_relevant' not in doc:
-                cached_results_available = False
+                unclassified_docs += 1
+                continue
+            
+            # Check if marked as income verification relevant
+            if doc.get('income_verification_relevant', {}).get('is_relevant', False):
+                doc_obj = {
+                    'file_id': doc.get('metadata', {}).get('FileId'),
+                    'file_name': doc.get('metadata', {}).get('FileName'),
+                    'document_type': doc.get('semantic_content', {}).get('document_type', 'unknown'),
+                    'upload_date': doc.get('metadata', {}).get('FileUploadDate'),
+                    'semantic_content': doc.get('semantic_content', {}),
+                    'inclusion_reason': doc['income_verification_relevant'].get('reason', 'Previously classified')
+                }
+                income_docs.append(doc_obj)
                 
         except Exception as e:
             continue
     
-    # FAST PATH: Use cached results if available and refilter not requested
-    if cached_results_available and not refilter:
-        print(f"\n>> Using cached income verification flags (found {len(all_docs)} total documents)")
-        income_docs = []
-        
-        for json_file in semantic_dir.glob("*.json"):
-            try:
-                with open(json_file, 'r', encoding='utf-8') as f:
-                    doc = json.load(f)
-                
-                # Check if marked as income verification relevant
-                if doc.get('income_verification_relevant', {}).get('is_relevant', False):
-                    doc_obj = {
-                        'file_id': doc.get('metadata', {}).get('FileId'),
-                        'file_name': doc.get('metadata', {}).get('FileName'),
-                        'document_type': doc.get('semantic_content', {}).get('document_type', 'unknown'),
-                        'upload_date': doc.get('metadata', {}).get('FileUploadDate'),
-                        'semantic_content': doc.get('semantic_content', {}),
-                        'inclusion_reason': doc['income_verification_relevant'].get('reason', 'Previously classified')
-                    }
-                    income_docs.append(doc_obj)
-                    print(f">> ✓ Cached: {doc_obj['file_name'][:60]}")
-                    
-            except Exception as e:
-                continue
-        
-        print(f"\n>> Loaded {len(income_docs)} income verification documents from cache")
-        return income_docs
+    if unclassified_docs > 0:
+        print(f"\n>> WARNING: Found {unclassified_docs} unclassified documents out of {total_docs} total")
+        print(f">> Run classification first: python pipeline/classify_income_documents.py {loan_id}")
+        raise RuntimeError(f"Documents not classified. Run: python pipeline/classify_income_documents.py {loan_id}")
     
-    # SLOW PATH: Run LLM filtering and cache results
-    if refilter:
-        print(f"\n>> Re-filtering requested - running LLM classification...")
-    else:
-        print(f"\n>> No cached results found - running initial LLM classification...")
+    if not income_docs:
+        print(f"\n>> ERROR: No income-relevant documents found for loan {loan_id}")
+        print(f">> Total documents: {total_docs}")
+        print(f">> Run classification first: python pipeline/classify_income_documents.py {loan_id}")
+        raise RuntimeError(f"No income documents found. Run: python pipeline/classify_income_documents.py {loan_id}")
     
-    # Load Freddie Mac guidelines
-    guidelines = load_freddie_mac_guidelines()
-    if not guidelines:
-        raise FileNotFoundError("Freddie Mac guidelines not found - cannot perform intelligent filtering")
+    print(f">> Loaded {len(income_docs)} income-relevant documents (from {total_docs} total)")
     
-    # Initialize Azure OpenAI client
-    client = AsyncAzureOpenAI(
-        api_key=os.getenv("AZURE_OPENAI_KEY"),
-        api_version=os.getenv("AZURE_OPENAI_API_VERSION", "2024-02-15-preview"),
-        azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT")
-    )
-    
-    print(f">> Found {len(all_docs)} total documents")
-    print(f">> Filtering based on Freddie Mac income verification guidelines...")
-    
-    # Create a summary of each document for filtering
-    doc_summaries = []
-    for doc in all_docs:
-        doc_summaries.append({
-            'file_id': doc['file_id'],
-            'file_name': doc['file_name'],
-            'document_type': doc['doc_type'],
-            'summary': doc['semantic_content'].get('summary', ''),
-            'content_preview': str(doc['semantic_content'])[:500]
-        })
-    
-    # Ask LLM to filter based on guidelines
-    filter_prompt = f"""Based on the Freddie Mac income verification guidelines below, review the following list of documents and identify which ones are PRIMARY SOURCE INCOME DOCUMENTS.
-
-{guidelines}
-
-DOCUMENTS TO REVIEW:
-{json.dumps(doc_summaries, indent=2)}
-
-CRITICAL FILTERING CRITERIA:
-
-READ THE SEMANTIC CONTENT of each document and determine:
-
-1. IS THIS A PRIMARY SOURCE DOCUMENT?
-   - Primary source = Original document showing income paid/received (paystub, W-2, 1099, tax return, pension statement, SSA benefit letter, bank statement showing deposits)
-   - NOT primary source = Someone's analysis, worksheet, notes, or summary ABOUT income
-
-2. WHO CREATED THIS DOCUMENT?
-   - INCLUDE: Documents created by employer, IRS, SSA, pension administrator, bank (these are verifiable third-party sources)
-   - EXCLUDE: Documents created by loan officer, underwriter, processor (these are internal work product)
-
-3. WHAT IS THE DOCUMENT'S PURPOSE?
-   - INCLUDE: Documents that directly show income amounts, payment history, or earnings
-   - EXCLUDE: Documents that analyze, summarize, verify employment status, or explain corporate structure
-
-4. WHEN WAS IT CREATED?
-   - INCLUDE: Documents the borrower would submit at application (their pay records, tax docs)
-   - EXCLUDE: Documents created during underwriting (VOE responses, underwriter worksheets, conditional approval items)
-
-Based on the semantic content you see, classify each document.
-
-Return a JSON object with this structure:
-{{
-  "income_verification_documents": [
-    {{
-      "file_id": <file_id>,
-      "reason": "<why this is a PRIMARY SOURCE document per Freddie Mac guidelines>"
-    }}
-  ],
-  "excluded_documents": [
-    {{
-      "file_id": <file_id>,
-      "reason": "<why this is NOT a primary source document>"
-    }}
-  ]
-}}"""
-
-    try:
-        response = await client.chat.completions.create(
-            model=os.getenv("AZURE_OPENAI_DEPLOYMENT"),
-            messages=[
-                {"role": "system", "content": "You are an expert mortgage underwriter who knows Freddie Mac income verification guidelines."},
-                {"role": "user", "content": filter_prompt}
-            ],
-            response_format={"type": "json_object"}
-        )
-        
-        filter_result = json.loads(response.choices[0].message.content)
-        
-        # Extract the file IDs that should be included and excluded
-        included_file_ids = set(doc['file_id'] for doc in filter_result.get('income_verification_documents', []))
-        excluded_file_ids = set(doc['file_id'] for doc in filter_result.get('excluded_documents', []))
-        
-        # Save the flags back to the semantic JSON files (cache for future runs)
-        print(f"\n>> Caching classification results to semantic JSON files...")
-        for doc in all_docs:
-            try:
-                json_path = Path(doc['file_path'])
-                with open(json_path, 'r', encoding='utf-8') as f:
-                    doc_data = json.load(f)
-                
-                # Add income verification flag
-                if doc['file_id'] in included_file_ids:
-                    reason = next((d['reason'] for d in filter_result['income_verification_documents'] 
-                                 if d['file_id'] == doc['file_id']), 'Relevant for income verification')
-                    doc_data['income_verification_relevant'] = {
-                        'is_relevant': True,
-                        'reason': reason,
-                        'classified_date': str(Path(__file__).stat().st_mtime)
-                    }
-                elif doc['file_id'] in excluded_file_ids:
-                    reason = next((d['reason'] for d in filter_result['excluded_documents'] 
-                                 if d['file_id'] == doc['file_id']), 'Not relevant for income verification')
-                    doc_data['income_verification_relevant'] = {
-                        'is_relevant': False,
-                        'reason': reason,
-                        'classified_date': str(Path(__file__).stat().st_mtime)
-                    }
-                else:
-                    # Document wasn't in either list (shouldn't happen, but handle it)
-                    doc_data['income_verification_relevant'] = {
-                        'is_relevant': False,
-                        'reason': 'Not classified by LLM',
-                        'classified_date': str(Path(__file__).stat().st_mtime)
-                    }
-                
-                # Write back to file
-                with open(json_path, 'w', encoding='utf-8') as f:
-                    json.dump(doc_data, f, indent=2, ensure_ascii=False)
-                    
-            except Exception as e:
-                print(f">> Warning: Could not update cache for {doc['file_name']}: {e}")
-                continue
-        
-        print(f">> ✓ Cached {len(included_file_ids)} relevant + {len(excluded_file_ids)} excluded classifications")
-        
-        # Build the return list of income documents
-        income_docs = []
-        for doc in all_docs:
-            if doc['file_id'] in included_file_ids:
-                reason = next((d['reason'] for d in filter_result['income_verification_documents'] 
-                             if d['file_id'] == doc['file_id']), 'Relevant')
-                income_docs.append({
-                    'file_id': doc['file_id'],
-                    'file_name': doc['file_name'],
-                    'document_type': doc['doc_type'],
-                    'upload_date': doc['metadata'].get('FileUploadDate'),
-                    'semantic_content': doc['semantic_content'],
-                    'inclusion_reason': reason
-                })
-                print(f">> ✓ Included: {doc['file_name'][:60]} - {reason[:80]}")
-        
-        print(f"\n>> Filtered to {len(income_docs)} income verification documents (from {len(all_docs)} total)")
-        
-        await client.close()
-        return income_docs
-        
-    except Exception as e:
-        await client.close()
-        raise RuntimeError(f"Document filtering failed: {e}")
+    return income_docs
 
 
 async def analyze_income(income_docs, loan_id, run_number=1):
@@ -313,29 +203,29 @@ async def analyze_income(income_docs, loan_id, run_number=1):
     # Load Freddie Mac guidelines
     guidelines = load_freddie_mac_guidelines()
     
-    # Load income scenario classification if available
-    scenario_file = Path(f"loan_docs/{loan_id}/income_analysis/income_scenario.json")
-    scenario_context = ""
-    if scenario_file.exists():
-        try:
-            with open(scenario_file, 'r', encoding='utf-8') as f:
-                scenario = json.load(f)
-                scenario_context = f"""
-INCOME SCENARIO CLASSIFICATION:
-(This classification has already analyzed the documents to identify the income situation)
+    # Load employment history if available
+    employment_history = load_employment_history(loan_id)
+    employment_context = ""
+    if employment_history:
+        employment_context = f"""
+{'='*80}
+EMPLOYMENT HISTORY REPORT
+{'='*80}
 
-{json.dumps(scenario, indent=2)}
+(This report provides a comprehensive timeline of the borrower's employment based on
+all income verification documents. Use it to understand employment continuity, status
+changes, employer name variations, income sources, and scenario classification.)
 
-Use this scenario classification to understand the employment and income situation before applying the decision tree.
+{employment_history}
+
+{'='*80}
 """
-        except Exception as e:
-            print(f"Warning: Could not load scenario classification: {e}")
     
     # Create prompt with income documents
     prompt = f"""You are a mortgage underwriting income analyst. Analyze the following income documents and calculate the borrower's monthly income using Freddie Mac guidelines.
 
 {guidelines}
-{scenario_context}
+{employment_context}
 
 INCOME DOCUMENTS:
 {json.dumps(income_docs, indent=2)}
@@ -701,48 +591,54 @@ def create_html_report(loan_id, run_suffix="all"):
     
     for run_data, run_label, header_class in [(max_run, f"HIGHEST INCOME - Run {max_run_num}", "max"), 
                                                 (min_run, f"LOWEST INCOME - Run {min_run_num}", "min")]:
-        methodology = run_data['calculation_methodology']
-        income_comp = methodology['income_components']
+        methodology = run_data.get('calculation_methodology', {})
+        income_comp = methodology.get('income_components', {
+            'base_salary': 0,
+            'overtime': 0,
+            'bonus': 0,
+            'commission': 0,
+            'other': 0
+        })
         
         html += f"""    <div class='run-section'>
-        <div class='run-header {header_class}'>{run_label} - ${run_data['monthly_gross_income']:,.2f} <span class='confidence-{run_data['confidence_level']}'>{run_data['confidence_level'].upper()} CONFIDENCE</span></div>
+        <div class='run-header {header_class}'>{run_label} - ${run_data.get('monthly_gross_income', 0):,.2f} <span class='confidence-{run_data.get('confidence_level', 'unknown')}'>{run_data.get('confidence_level', 'UNKNOWN').upper()} CONFIDENCE</span></div>
         
         <div class='income-breakdown'>
             <div class='income-item'>
                 <label>Base Salary</label>
-                <value>${income_comp['base_salary']:,.2f}</value>
+                <value>${income_comp.get('base_salary', 0):,.2f}</value>
             </div>
             <div class='income-item'>
                 <label>Overtime</label>
-                <value>${income_comp['overtime']:,.2f}</value>
+                <value>${income_comp.get('overtime', 0):,.2f}</value>
             </div>
             <div class='income-item'>
                 <label>Bonus</label>
-                <value>${income_comp['bonus']:,.2f}</value>
+                <value>${income_comp.get('bonus', 0):,.2f}</value>
             </div>
             <div class='income-item'>
                 <label>Commission</label>
-                <value>${income_comp['commission']:,.2f}</value>
+                <value>${income_comp.get('commission', 0):,.2f}</value>
             </div>
         </div>
         
         <div class='methodology'>
-            <h4>Pay Frequency: {methodology['pay_frequency']}</h4>
+            <h4>Pay Frequency: {methodology.get('pay_frequency', 'Unknown')}</h4>
         </div>
         
         <div class='methodology'>
             <h4>Paystubs Analysis</h4>
-            <p>{methodology['paystubs_analysis']}</p>
+            <p>{methodology.get('paystubs_analysis', 'N/A')}</p>
         </div>
         
         <div class='methodology'>
             <h4>W2 Analysis</h4>
-            <p>{methodology['w2_analysis']}</p>
+            <p>{methodology.get('w2_analysis', 'N/A')}</p>
         </div>
         
         <div class='methodology'>
             <h4>Reconciliation</h4>
-            <p>{methodology['reconciliation']}</p>
+            <p>{methodology.get('reconciliation', 'N/A')}</p>
         </div>
         
         <div class='methodology'>
@@ -751,7 +647,7 @@ def create_html_report(loan_id, run_suffix="all"):
                 <ol>
 """
         
-        for step in methodology['calculation_steps']:
+        for step in methodology.get('calculation_steps', []):
             html += f"                    <li>{step}</li>\n"
         
         html += f"""                </ol>
@@ -787,35 +683,29 @@ def create_html_report(loan_id, run_suffix="all"):
     print(f"  Consistency: {consistency_rating}")
 
 
-def run_consistency_test(loan_id, num_runs=3, refilter=False):
+def run_consistency_test(loan_id, num_runs=3):
     """
     Run the income analysis multiple times to test consistency.
     
     Args:
         loan_id: The loan identifier
         num_runs: Number of times to run the analysis
-        refilter: If True, force re-filtering of documents (ignore cache)
     """
-    asyncio.run(run_consistency_test_async(loan_id, num_runs, refilter))
+    asyncio.run(run_consistency_test_async(loan_id, num_runs))
 
 
-async def run_consistency_test_async(loan_id, num_runs=3, refilter=False):
+async def run_consistency_test_async(loan_id, num_runs=3):
     """
     Run the income analysis multiple times asynchronously to test consistency.
     
     Args:
         loan_id: The loan identifier
         num_runs: Number of times to run the analysis
-        refilter: If True, force re-filtering of documents (ignore cache)
     """
     print("\n" + "="*80)
     print(f"INCOME ANALYSIS CONSISTENCY TEST (ASYNC)")
     print(f"Loan ID: {loan_id}")
     print(f"\nNumber of Runs: {num_runs}")
-    if refilter:
-        print("Re-filtering: YES (ignoring cached classifications)")
-    else:
-        print("Re-filtering: NO (using cached classifications if available)")
     print("="*80)
     
     # Check for existing run files and determine starting run number
@@ -842,8 +732,8 @@ async def run_consistency_test_async(loan_id, num_runs=3, refilter=False):
     else:
         print(f"DEBUG: Output directory does not exist: {output_dir}")
     
-    # Load income documents once using intelligent filtering
-    income_docs = await filter_income_documents_by_guidelines(loan_id, refilter=refilter)
+    # Load income documents (must be pre-classified by pipeline step)
+    income_docs = load_income_documents(loan_id)
     
     if not income_docs:
         print("\nNo paystub or W2 documents found!")
@@ -993,25 +883,20 @@ async def run_consistency_test_async(loan_id, num_runs=3, refilter=False):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python income_analysis_agent.py <loan_id> [num_runs] [--refilter]")
+        print("Usage: python income_analysis_agent.py <loan_id> [num_runs]")
         print("Example: python income_analysis_agent.py 1000179167 3")
-        print("         python income_analysis_agent.py 1000179167 5 --refilter")
-        print("\nOptions:")
-        print("  --refilter    Force re-classification of documents (ignore cache)")
+        print("\nNOTE: Documents must be pre-classified first:")
+        print("      python pipeline/classify_income_documents.py <loan_id>")
         sys.exit(1)
     
     loan_id = sys.argv[1]
     num_runs = 3
-    refilter = False
     
-    # Parse arguments
-    for i in range(2, len(sys.argv)):
-        if sys.argv[i] == '--refilter':
-            refilter = True
-        else:
-            try:
-                num_runs = int(sys.argv[i])
-            except ValueError:
-                print(f"Warning: Invalid number of runs '{sys.argv[i]}', using default (3)")
+    # Parse number of runs
+    if len(sys.argv) > 2:
+        try:
+            num_runs = int(sys.argv[2])
+        except ValueError:
+            print(f"Warning: Invalid number of runs '{sys.argv[2]}', using default (3)")
     
-    run_consistency_test(loan_id, num_runs, refilter)
+    run_consistency_test(loan_id, num_runs)

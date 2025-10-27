@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Form 1003 Income Tracker
 
@@ -10,6 +11,14 @@ Usage:
 Example:
     python agents/form_1003_income_tracker.py 1000175957
 """
+
+import sys
+import io
+
+# Fix Windows console encoding issues
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 import json
 import sys

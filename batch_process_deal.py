@@ -13,6 +13,7 @@ Fetches loans from a Harvest API deal and processes them through the complete pi
 Usage:
     python batch_process_deal.py --deal-id 2 --num-loans 10
     python batch_process_deal.py --deal-id 2 --num-loans 10 --loan-ids 1000175957,1000176265
+    python batch_process_deal.py --deal-id 2 --num-loans 10 --parallel --max-concurrent 5
 """
 
 import argparse
@@ -100,7 +101,7 @@ async def run_pipeline_step(command: list, description: str):
     return True
 
 
-async def process_single_loan(loan, deal_id: int, skip_existing: bool = True):
+async def process_single_loan(loan, deal_id: int, skip_existing: bool = True, loan_index: int = 1, total_loans: int = 1):
     """Process a single loan through the complete pipeline."""
     
     loan_number = loan['LoanNumber']
@@ -109,7 +110,7 @@ async def process_single_loan(loan, deal_id: int, skip_existing: bool = True):
     borrower = loan['Borrower_Name']
     
     print(f"\n{'='*80}")
-    print(f">> Processing Loan: {loan_number}")
+    print(f">> [{loan_index}/{total_loans}] Processing Loan: {loan_number}")
     print(f"   Borrower: {borrower}")
     print(f"   Security ID: {security_id}")
     print(f"   LoanIdentifierId (FileId): {loan_identifier_id}")
@@ -164,6 +165,39 @@ async def process_single_loan(loan, deal_id: int, skip_existing: bool = True):
     return success
 
 
+async def process_loans_sequential(selected_loans, deal_id, skip_existing):
+    """Process loans one at a time (original sequential behavior)."""
+    results = []
+    for i, loan in enumerate(selected_loans, 1):
+        print(f"\n\n>> [{i}/{len(selected_loans)}] Processing {loan['LoanNumber']}...")
+        success = await process_single_loan(loan, deal_id, skip_existing, i, len(selected_loans))
+        results.append({
+            'loan_number': loan['LoanNumber'],
+            'borrower': loan['Borrower_Name'],
+            'success': success
+        })
+    return results
+
+
+async def process_loans_parallel(selected_loans, deal_id, skip_existing, max_concurrent=5):
+    """Process loans in parallel with a concurrency limit."""
+    semaphore = asyncio.Semaphore(max_concurrent)
+    
+    async def process_with_limit(loan, index):
+        async with semaphore:
+            success = await process_single_loan(loan, deal_id, skip_existing, index, len(selected_loans))
+            return {
+                'loan_number': loan['LoanNumber'],
+                'borrower': loan['Borrower_Name'],
+                'success': success
+            }
+    
+    print(f"\n>> Processing {len(selected_loans)} loans with max {max_concurrent} concurrent")
+    tasks = [process_with_limit(loan, i+1) for i, loan in enumerate(selected_loans)]
+    results = await asyncio.gather(*tasks)
+    return results
+
+
 async def main():
     parser = argparse.ArgumentParser(description='Batch process loans from Harvest API deal')
     parser.add_argument('--deal-id', type=int, required=True, help='Deal ID to process')
@@ -171,6 +205,8 @@ async def main():
     parser.add_argument('--loan-ids', type=str, help='Comma-separated list of specific loan numbers to process')
     parser.add_argument('--skip-existing', action='store_true', default=True, help='Skip loans that already have semantic_json (default: True)')
     parser.add_argument('--reprocess', action='store_true', help='Force reprocess all loans (ignore existing semantic_json)')
+    parser.add_argument('--parallel', action='store_true', help='Process loans in parallel instead of sequentially')
+    parser.add_argument('--max-concurrent', type=int, default=5, help='Maximum number of concurrent loans to process (default: 5)')
     
     args = parser.parse_args()
     
@@ -193,6 +229,9 @@ async def main():
     else:
         print(f"Target Count: ALL loans in deal")
     print(f"Skip Existing: {skip_existing}")
+    print(f"Processing Mode: {'PARALLEL' if args.parallel else 'SEQUENTIAL'}")
+    if args.parallel:
+        print(f"Max Concurrent: {args.max_concurrent}")
     print(f"{'='*80}")
     
     # Step 1: Fetch deal data
@@ -205,20 +244,15 @@ async def main():
         print(f"\nERROR: No loans selected for processing")
         sys.exit(1)
     
-    # Step 3: Process each loan
+    # Step 3: Process loans (sequential or parallel)
     print(f"\n{'='*80}")
     print(f">> PROCESSING {len(selected_loans)} LOANS")
     print(f"{'='*80}")
     
-    results = []
-    for i, loan in enumerate(selected_loans, 1):
-        print(f"\n\n>> [{i}/{len(selected_loans)}] Processing {loan['LoanNumber']}...")
-        success = await process_single_loan(loan, args.deal_id, skip_existing)
-        results.append({
-            'loan_number': loan['LoanNumber'],
-            'borrower': loan['Borrower_Name'],
-            'success': success
-        })
+    if args.parallel:
+        results = await process_loans_parallel(selected_loans, args.deal_id, skip_existing, args.max_concurrent)
+    else:
+        results = await process_loans_sequential(selected_loans, args.deal_id, skip_existing)
     
     # Step 4: Summary
     print(f"\n\n{'='*80}")
