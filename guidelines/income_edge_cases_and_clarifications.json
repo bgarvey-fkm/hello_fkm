@@ -1,0 +1,280 @@
+{
+  "metadata": {
+    "title": "Income Underwriting Edge Cases and Clarifications",
+    "description": "Scenarios and edge cases not explicitly covered in the Freddie Mac decision tree, providing additional context for complex situations.",
+    "version": "1.0",
+    "last_updated": "2025-10-26",
+    "usage": "Use this as supplemental guidance alongside the Freddie Mac Income Underwriting Decision Tree to handle ambiguous scenarios."
+  },
+  "edge_cases": [
+    {
+      "case_id": "EC001",
+      "title": "Employment Status Change at Same Employer",
+      "scenario": "Borrower transitions employment status at current employer (e.g., PRN→FT, PT→FT, hourly→salary, temp→permanent)",
+      "decision_tree_gap": "Decision tree covers 'new employment' and 'current employment' but doesn't explicitly address status/compensation changes at the SAME employer",
+      "correct_treatment": "This is NOT new employment - it's a compensation change at an existing employer",
+      "when_to_use_new_salary": [
+        "VOE or paystub confirms borrower is currently employed at the employer issuing the offer",
+        "Executed offer letter signed by both parties shows new compensation",
+        "Offer effective date is on or before loan closing",
+        "Employment history shows continuity at same employer"
+      ],
+      "calculation": "Use the new salary from offer letter as qualifying income, NOT historical lower wages",
+      "why": "Established employment at same employer mitigates new job risk. Treat as promotion/raise, not new employment requiring seasoning.",
+      "documentation_needed": [
+        "Executed offer letter with new compensation and effective date",
+        "VOE or paystub confirming current active employment",
+        "Evidence of employment continuity (W-2s, employment start date)"
+      ]
+    },
+    {
+      "case_id": "EC002",
+      "title": "VA Disability Compensation and CRDP (Concurrent Retirement Disability Pay)",
+      "scenario": "Military retiree receives VA disability compensation, which may appear in DFAS retiree statements as CRDP messages or be paid separately by VA",
+      "decision_tree_gap": "Decision tree covers pension/retirement income and Social Security but doesn't explicitly address VA disability compensation or how CRDP is documented",
+      "correct_treatment": "VA disability compensation is qualifying income when properly documented with VA rating decision or award letter",
+      "documentation_sources": [
+        "VA rating decision showing disability rating percentage and effective date",
+        "VA award letter showing monthly benefit amount",
+        "DFAS retiree account statement with CRDP amount in payment details or messages",
+        "VA benefit verification letter"
+      ],
+      "calculation": "Include the full VA disability/CRDP monthly amount as 'Other Income' alongside military retirement pay",
+      "why": "VA disability compensation is stable, recurring income backed by the federal government. It does not fluctuate and continues for life unless the disability rating changes.",
+      "important_notes": [
+        "CRDP amount may be embedded in DFAS statement messages rather than main payment fields",
+        "VA disability and military retirement are separate income sources - both should be included",
+        "DFAS may show CRDP as informational but the actual VA payment comes from VA",
+        "Requires independent verification from VA (rating decision or award letter), not just DFAS statement reference"
+      ],
+      "verification_requirement": "Must have VA rating decision, award letter, or benefit verification letter showing the disability rating and monthly amount. DFAS statement alone (showing only CRDP message) is insufficient without VA documentation."
+    },
+    {
+      "case_id": "EC003",
+      "title": "Return to Work After Temporary Leave (Gaps in Employment)",
+      "scenario": "Borrower has returned to work from temporary leave (medical, family, disability, layoff, etc.) and YTD earnings are artificially low due to the absence period",
+      "decision_tree_gap": "Decision tree requires documentation that borrower has returned to work but does not specify calculation method when YTD is not representative due to recent return from leave",
+      "correct_treatment": "When borrower has returned to work and return is documented, use historical earnings (W-2 averaging or pre-leave pay rate) rather than YTD-only method",
+      "when_this_applies": [
+        "VOE or employer documentation confirms borrower has returned to work",
+        "Return-to-work date is documented (within last few months of loan application)",
+        "YTD gross is significantly lower than historical earnings due to leave period",
+        "Borrower has 2+ year employment history with same employer showing stable pre-leave income"
+      ],
+      "calculation_method": "Use 2-year W-2 average OR most recent pre-leave pay rate (if available and verified), NOT YTD annualization",
+      "why": "YTD annualization produces artificially low income that doesn't represent borrower's actual earning capacity post-return. Historical W-2s or verified pre-leave pay rate better reflect stable ongoing income.",
+      "freddie_mac_basis": "Freddie Mac requires documentation that borrower has returned to work and that income is 'likely to continue.' Using YTD during return-to-work transition period doesn't reflect continuance - historical earnings do.",
+      "documentation_needed": [
+        "VOE or employer letter confirming return-to-work date",
+        "W-2s for prior 2 years showing stable employment",
+        "Most recent paystub (after return) showing borrower is actively working",
+        "Employer confirmation that borrower has returned to regular schedule/hours"
+      ],
+      "calculation_examples": [
+        {
+          "situation": "Borrower returned 04/30/2025, paystub dated 06/13/2025 shows YTD $6,329",
+          "wrong_approach": "YTD / months: $6,329 / 5.2 months = $1,218/month",
+          "correct_approach": "W-2 average: ($49,012 + $44,124) / 2 / 12 = $3,878/month",
+          "reasoning": "YTD reflects only 1.5 months of work due to return date, not representative of ongoing capacity"
+        }
+      ],
+      "important_notes": [
+        "Borrower must have actually returned to work - cannot use historical income if still on leave",
+        "Return-to-work must be verified by VOE, employer letter, or recent paystub showing active employment",
+        "If variable income (overtime/bonus), may need to exclude or reduce those components if not yet re-established post-return",
+        "Declining trend analysis should be based on full-year W-2s, not YTD that includes leave period"
+      ]
+    },
+    {
+      "case_id": "EC004",
+      "title": "Variable Income (Bonus/Commission) Without Historical Documentation",
+      "scenario": "Current year paystub shows significant YTD bonus or commission income, but prior year W-2s and paystubs do not separately document historical bonus amounts",
+      "decision_tree_gap": "Decision tree requires 2+ years of variable income history for inclusion, but doesn't address what to do when current YTD shows bonus but historical breakdown is unavailable",
+      "freddie_mac_requirement": "Income must be 'likely to continue for at least the next three years.' When historical bonus amounts are not documented, there is insufficient evidence to establish continuance pattern.",
+      "correct_treatment": "EXCLUDE variable income components when prior year amounts cannot be verified through documentation",
+      "when_this_applies": [
+        "Current YTD paystub shows material bonus, commission, or other variable income",
+        "Prior year W-2s show only total Box 1 wages without separate bonus breakdown",
+        "No historical paystubs available showing prior year bonus amounts and payment timing",
+        "No VOE or employer letter specifically documenting bonus program history and amounts",
+        "W-2 Box 14 does not separately list prior year bonus amounts"
+      ],
+      "why_exclusion_required": [
+        "Cannot establish 2-year history without documentation of prior year amounts",
+        "Cannot determine if bonus is recurring vs. one-time without payment pattern history",
+        "Cannot average YTD with unknown prior amounts per Freddie Mac guidance",
+        "YTD annualization alone assumes pattern not in evidence"
+      ],
+      "freddie_mac_annual_bonus_rule": "When bonus is paid annually, 'the amounts received in the current and prior year must be averaged over a 2-year period. It is inaccurate to average the prior year and YTD number of months.' This averaging is IMPOSSIBLE without documented prior year bonus amounts.",
+      "incorrect_approaches": [
+        "Annualizing current YTD bonus (e.g., YTD $52,068 × 2 = $104,136 annual) - assumes undocumented pattern",
+        "Averaging YTD bonus across months as if it's continuous (e.g., $52,068 / 6 months) - violates annual bonus averaging rule",
+        "Including YTD bonus in total W-2 average without isolating amounts - double-counts unknown portions",
+        "Assuming W-2 year-over-year increase represents bonus - cannot separate base increases from variable pay"
+      ],
+      "correct_approach": "Use base salary only (hourly rate × hours or documented salary) and EXCLUDE bonus unless/until:",
+      "documentation_needed_to_include": [
+        "Prior 2 years of paystubs or W-2 Box 14 showing actual bonus amounts received each year",
+        "VOE or employer letter specifically stating bonus program details, amounts, and payment dates for prior 2 years",
+        "Employment contract or compensation agreement documenting guaranteed/recurring bonus with historical payment evidence",
+        "Year-end paystubs for prior 2 years showing YTD bonus line items"
+      ],
+      "calculation_when_excluded": "Use only documented base compensation - hourly × hours × pay periods, or annual salary ÷ 12",
+      "example_loan_1000178340": {
+        "situation": "Executive with 2025 YTD Accountability Bonus of $52,068.32 (paid in lump sum early 2025)",
+        "available_documentation": [
+          "2023 W-2 Box 1: $216,811.81 (no bonus breakdown)",
+          "2024 W-2 Box 1: $259,798.94 (no bonus breakdown)",
+          "2025 paystubs showing Accountability Bonus YTD $52,068.32",
+          "Current earnings for bonus = $0 (already paid)"
+        ],
+        "missing_documentation": [
+          "2023 bonus amount",
+          "2024 bonus amount",
+          "Bonus payment dates/frequency history",
+          "Employer statement on bonus program"
+        ],
+        "correct_calculation": "Base salary only: $108.92/hr × 80 hrs biweekly × 26 ÷ 12 = $18,879/month",
+        "ai_error": "AI annualized 2025 YTD ($174,066 × 2 = $348,133) and averaged with prior years = $22,909/month - incorrectly assumes $104k annual bonus will recur",
+        "variance": "+21% overestimation vs actual underwriter treatment"
+      },
+      "important_notes": [
+        "Large mid-year bonus payments (e.g., $52k in June) cannot be annualized without historical evidence of similar annual patterns",
+        "W-2 Box 1 'total wages' alone is insufficient to establish variable income history - need itemized amounts",
+        "If employer provides VOE stating 'no bonus history available' or 'first year of bonus program,' must exclude",
+        "Exception: If borrower provides employment contract guaranteeing minimum bonus, may use guaranteed amount only",
+        "Conservative approach when documentation incomplete: Use base only to avoid overstating qualifying income"
+      ],
+      "when_bonus_can_be_included": "Only when prior year bonus amounts are documented through paystubs, VOE, W-2 Box 14 breakdown, or employer verification letter showing 2+ year history with amounts and payment timing"
+    },
+    {
+      "case_id": "EC005",
+      "title": "Teacher Income - Annual Salary Paid Over Less Than 12 Months",
+      "scenario": "Teacher or other professional employed on a less-than-12-month annual schedule (e.g., 10-month school year) where current monthly paystubs show amounts materially higher than historical W-2 annualized income",
+      "decision_tree_gap": "Decision tree covers base non-fluctuating salary but doesn't prominently flag the special teacher calculation rule when paystubs appear higher than W-2 average",
+      "freddie_mac_rule": "Annual base non-fluctuating salary paid out over less than 12 months per year (e.g., teachers): Divide annual gross pay by 12. Example: If the annual salary is paid out over 10 months of the year, multiply the monthly base salary amount by 10 months and divide by 12.",
+      "correct_treatment": "Use W-2 annual income ÷ 12, NOT current monthly paystub amount",
+      "when_this_applies": [
+        "Borrower is identified as a teacher, school employee, or similar professional with academic-year employment (job title/employer contains teacher, educator, school, etc.)",
+        "AND current YTD paystub annualized (× 12/months) is materially higher than prior year W-2 (typically >15% difference)",
+        "This indicates actual less-than-12-month work schedule (e.g., 10-month academic year)",
+        "If paystub amounts are consistent with W-2 ÷ 12 (within ~5%), teacher likely works/is paid 12 months - use standard calculation"
+      ],
+      "why_paystub_is_misleading": [
+        "Some teachers work and are paid for ~10 months (academic year), not 12 months",
+        "When this occurs, annual salary (W-2) represents only 10 months of work",
+        "Monthly paystub shows 1/10 of annual salary, not 1/12",
+        "Using monthly paystub would overstate qualifying income by ~20% because it represents 10-month pay condensed into higher monthly amounts",
+        "W-2 Box 1 reflects actual annual compensation which must be spread over 12 months for qualifying income calculation per Freddie Mac",
+        "NOTE: Not all teachers have this issue - only when paystub amounts materially exceed W-2 ÷ 12"
+      ],
+      "calculation_method": "Annual W-2 gross income ÷ 12 months",
+      "incorrect_approach": "Using current monthly paystub amount as qualifying monthly income",
+      "example_scenario": {
+        "job_title": "High School Special Education Teacher",
+        "employer": "County Public School District",
+        "documentation": [
+          "VOE confirms: Teacher position, 2+ years employment history",
+          "Current paystub: Monthly gross $5,850, YTD $29,250 (5 months)",
+          "W-2 prior year: Box 1 wages $56,000",
+          "W-2 two years prior: Box 1 wages $55,500"
+        ],
+        "key_indicator": "Paystub annualized ($29,250 × 12/5 = $70,200) is 25% higher than W-2 ($56,000), indicating 10-month work period paid over 12 months",
+        "ai_incorrect_calculation": {
+          "method": "Used current monthly paystub per BASE_NON_FLUCTUATING_CALC (monthly) rule",
+          "amount": "$5,850/month",
+          "reasoning": "AI applied base non-fluctuating monthly calculation: 'Use the monthly gross pay'",
+          "error": "Failed to recognize teacher-specific exception requiring W-2 ÷ 12 instead of paystub"
+        },
+        "correct_calculation": {
+          "method": "Annual salary ÷ 12 per Freddie Mac teacher rule",
+          "w2_prior_year": "$56,000 ÷ 12 = $4,667/month",
+          "w2_two_years_prior": "$55,500 ÷ 12 = $4,625/month",
+          "qualifying_income": "$4,667/month (using most recent W-2 ÷ 12)",
+          "reasoning": "Teacher works/is paid for 10 months. Annual W-2 ($56,000) represents 10 months of work. Freddie requires spreading this over 12 months: $56,000 ÷ 12 = $4,667/month for qualifying purposes."
+        },
+        "variance_analysis": {
+          "incorrect_ai_amount": "$5,850/month",
+          "correct_amount": "$4,667/month",
+          "difference": "$1,183/month overstatement",
+          "percentage_error": "+25.3% overstatement",
+          "impact": "Using monthly paystub for teachers overstates income by ~20-25% due to compressed pay schedule"
+        }
+      },
+      "how_to_identify_teacher_scenario": [
+        "STEP 1 - Check occupation: Job title/employer contains teacher, educator, instructor, professor, lecturer, school, district, university, college",
+        "STEP 2 - Check mathematical discrepancy: Current YTD paystub annualized (× 12/months) is materially higher than prior year W-2 (>15% difference)",
+        "BOTH conditions must be met to trigger this edge case",
+        "If teacher but paystub ≈ W-2 ÷ 12 (within ~5%), use standard base non-fluctuating calculation (monthly paystub is acceptable)",
+        "Mathematical indicator: YTD × (12/months) vs prior W-2 comparison reveals compressed pay schedule"
+      ],
+      "documentation_needed": [
+        "Prior 2 years W-2s showing annual compensation",
+        "VOE or paystub confirming teacher/educator position",
+        "Current paystub (for employment verification, not income calculation)",
+        "Employment contract showing 10-month schedule (optional - not required if teacher identified)"
+      ],
+      "freddie_mac_citation": "Freddie Mac Single-Family Seller/Servicer Guide Section 5303.1(c)(i) - Calculation of base non-fluctuating employment earnings table: 'Annual base non-fluctuating salary paid out over less than 12 months per year (e.g., teachers): Divide annual gross pay by 12'",
+      "important_notes": [
+        "This edge case ONLY applies when BOTH conditions are met: (1) teacher/educator role AND (2) paystub materially exceeds W-2 ÷ 12",
+        "NOT all teachers have less-than-12-month schedules - some work year-round or have 12-month contracts",
+        "If teacher's paystub is consistent with W-2 ÷ 12, use standard base non-fluctuating monthly calculation",
+        "The mathematical discrepancy (paystub annualized >15% higher than W-2) is the key trigger, not just job title alone",
+        "NO explicit contract or pay schedule documentation is required - the mathematical discrepancy combined with teacher role is sufficient evidence",
+        "The Freddie Mac guide uses teachers as the PRIMARY EXAMPLE for less-than-12-month calculation",
+        "If borrower receives summer school income or additional employment during summer break, that would be evaluated separately as secondary employment income"
+      ],
+      "ai_decision_tree_correction_needed": [
+        "Add two-step check: (1) Is borrower teacher/educator? (2) Does paystub annualized exceed W-2 by >15%?",
+        "If BOTH true: Use W-2 ÷ 12, do NOT use monthly paystub",
+        "If teacher but paystub ≈ W-2 ÷ 12: Use standard BASE_NON_FLUCTUATING_CALC (monthly paystub acceptable)",
+        "Flag when current paystub materially exceeds W-2 ÷ 12 for educational employment",
+        "Include teacher job titles in keyword detection: teacher, educator, instructor, professor, school employee"
+      ],
+      "when_monthly_paystub_can_be_used": [
+        "Borrower is NOT employed in educational/academic role",
+        "Job title and employer do not indicate school/university employment",
+        "OR borrower IS a teacher/educator BUT current paystub amount is consistent with W-2 annual income ÷ 12 (within ~5%)",
+        "Employer explicitly confirms 12-month work schedule (not academic year) - though mathematical check is sufficient"
+      ]
+    }
+  ],
+  "general_principles": {
+    "employment_continuity": {
+      "title": "Defining 'New Employment' vs. 'Employment Status Change'",
+      "new_employment": [
+        "Completely new employer with no prior relationship",
+        "Gap in employment between jobs",
+        "Job offer with employer where borrower has never worked"
+      ],
+      "status_change_at_same_employer": [
+        "Promotion or raise at current employer",
+        "Status change (PRN→FT, PT→FT, hourly→salary, temp→permanent)",
+        "Transfer to new location/department at same employer"
+      ],
+      "key_rule": "If VOE or paystub confirms borrower is CURRENTLY employed at the employer issuing the offer letter, treat compensation changes as current employment, not new employment requiring seasoning."
+    },
+    "documentation_hierarchy": {
+      "title": "Acceptable Income Documentation (in priority order)",
+      "order": [
+        "IRS tax transcripts (most authoritative)",
+        "Signed filed tax returns",
+        "W-2s, 1099s from third parties",
+        "Paystubs with YTD",
+        "VOE (employment verification)",
+        "Executed offer letters (for status changes)",
+        "Bank statements (secondary)"
+      ],
+      "conflict_resolution": "When sources conflict, prioritize IRS transcripts and filed returns. For current situation changes, use most recent verified documentation."
+    },
+    "handling_guideline_gaps": {
+      "when_freddie_is_silent": [
+        "Look for analogous situations explicitly covered",
+        "Apply general principle: use most representative income",
+        "Document the gap and reasoning",
+        "Be consistent with actual underwriting practice",
+        "Consider risk: is income stable, verified, likely to continue?"
+      ]
+    }
+  }
+}
