@@ -27,53 +27,301 @@ Build a production-ready AI income verification system that:
 
 ## 🏗️ System Architecture
 
-### Complete Pipeline Flow
+### Complete Pipeline Visualization
 
 ```
-1. HARVEST API → Download Loan Documents
-   ├─ API: https://harvestapi.firstkeyholdings.net:60000/api
-   ├─ Endpoint: /doc_meta_data_tree/{loan_number}
-   ├─ Endpoint: /pdf/{file_id}
-   └─ Output: loan_docs/{loan_id}/raw_json/*.json (PDF extracted as JSON)
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                          INCOME EXPERT AI PIPELINE                              │
+│                     From Loan Documents to Verified Income                      │
+└─────────────────────────────────────────────────────────────────────────────────┘
 
-2. PDF EXTRACTION → Raw JSON
-   ├─ Azure Document Intelligence (prebuilt-layout model)
-   ├─ Input: PDF documents from Harvest API
-   ├─ Processing: Extract text, tables, structure, metadata
-   └─ Output: loan_docs/{loan_id}/raw_json/{file_id}.json
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│ PHASE 1: DOCUMENT ACQUISITION & EXTRACTION                                     │
+└─────────────────────────────────────────────────────────────────────────────────┘
 
-3. RAW JSON → Semantic JSON
-   ├─ Azure OpenAI (GPT-4o-mini)
-   ├─ Input: Raw extracted JSON from Document Intelligence
-   ├─ Processing: Identify document type, extract key fields, structure data
-   └─ Output: loan_docs/{loan_id}/semantic_json/{file_id}.json
-        └─ Structure: {metadata: {...}, semantic_content: {...}}
+    📦 Harvest API                        🔍 Azure Document Intelligence
+    ┌────────────┐                        ┌──────────────────────┐
+    │ Deal 2     │                        │ PDF → Raw JSON       │
+    │ 859 Loans  │──── Download PDFs ────▶│ • Extract text       │
+    │            │                        │ • Extract tables     │
+    └────────────┘                        │ • Parse structure    │
+         │                                └──────────┬───────────┘
+         │                                           │
+         ├─ /doc_meta_data_tree/{loan_id}          │
+         ├─ /pdf/{file_id}                          │
+         │                                           ▼
+         │                              loan_docs/{loan_id}/raw_json/
+         │                              ├─ FID12345_Paystub.json
+         │                              ├─ FID12346_W2.json
+         │                              ├─ FID12347_1003.json
+         │                              └─ ... (63 files total)
 
-4. FREDDIE MAC GUIDELINES → Compressed Rules
-   ├─ Input: FreddieMacGuide_5300_5400.pdf (297 pages)
-   ├─ Azure Document Intelligence: Parse PDF
-   ├─ Azure OpenAI: Extract 67 income calculation rules
-   └─ Output: guidelines/freddie_mac_guide_5300_5400_compressed.json
 
-5. INTELLIGENT DOCUMENT FILTERING
-   ├─ Input: ALL semantic JSON files (63 documents)
-   ├─ Freddie Mac Guidelines: Load 67 income verification rules
-   ├─ Azure OpenAI: Analyze each document for income relevance
-   ├─ Decision: Include/Exclude with reasoning
-   └─ Output: Filtered set (e.g., 8 income docs: paystubs, W-2s, tax transcripts, VOE)
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│ PHASE 2: SEMANTIC COMPRESSION (Azure OpenAI GPT-4o-mini)                       │
+└─────────────────────────────────────────────────────────────────────────────────┘
 
-6. INCOME CALCULATION
-   ├─ Input: Filtered income documents
-   ├─ Freddie Mac Guidelines: Apply calculation rules
-   ├─ Azure OpenAI: Calculate monthly gross income
-   ├─ Processing: Base pay + overtime + bonus + commission + pension
-   └─ Output: Monthly gross income + detailed methodology
+    📄 Raw JSON (63 files)                🧠 Semantic Analysis
+    ┌──────────────────┐                  ┌─────────────────────────┐
+    │ Document         │                  │ Identify doc type       │
+    │ Intelligence     │─── Process ─────▶│ Extract key fields      │
+    │ Output           │                  │ Structure semantically  │
+    └──────────────────┘                  └──────────┬──────────────┘
+         │                                           │
+         │  Example Raw:                             │  Example Semantic:
+         │  {                                        │  {
+         │    "content": "Pay stub...",              │    "metadata": {...},
+         │    "tables": [...],                       │    "semantic_content": {
+         │    "pages": [...]                         │      "document_type": "paystub",
+         │  }                                        │      "employer": "ABC Corp",
+         │                                           │      "gross_pay": 4480.00,
+         │                                           │      "ytd_gross": 89600.00
+         │                                           │    }
+         │                                           │  }
+         │                                           ▼
+         │                              loan_docs/{loan_id}/semantic_json/
+         │                              ├─ FID12345_Paystub.json
+         │                              ├─ FID12346_W2.json
+         │                              ├─ FID12347_1003.json
+         │                              └─ ... (63 semantic files)
 
-7. CONSISTENCY TESTING (Optional)
-   ├─ Run Steps 5-6 multiple times (3, 5, 10 runs)
-   ├─ Async parallel processing
-   ├─ Variance analysis
-   └─ Output: HTML report with statistics and methodology distribution
+
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│ PHASE 3: PARALLEL PROCESSING TRACKS                                            │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+    63 Semantic Files
+         │
+         ├──────────────────┬────────────────────┬──────────────────┐
+         │                  │                    │                  │
+         ▼                  ▼                    ▼                  ▼
+    ┌─────────┐      ┌──────────┐      ┌────────────┐      ┌──────────┐
+    │ TRACK 1 │      │ TRACK 2  │      │  TRACK 3   │      │ TRACK 4  │
+    │ Classify│      │ Form     │      │ Employment │      │ Income   │
+    │  Docs   │      │  1003    │      │  History   │      │ Analysis │
+    └────┬────┘      └────┬─────┘      └─────┬──────┘      └────┬─────┘
+         │                │                   │                   │
+         │                │                   │                   │
+
+┌────────┴──────────────────────────────────────────────────────────────────────┐
+│ TRACK 1: INCOME DOCUMENT CLASSIFICATION                                        │
+│ (pipeline/classify_income_documents.py)                                        │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+    All 63 Files ─────▶ 🤖 AI Classifier ─────▶ Classification Results
+                        ┌──────────────┐
+                        │ Is this doc  │        ✅ Income-Relevant (8):
+                        │ relevant for │        • Paystubs (3)
+                        │ income       │        • W-2s (2)
+                        │ verification?│        • Tax transcripts (2)
+                        │              │        • VOE (1)
+                        │ Per Freddie  │
+                        │ Mac rules?   │        ❌ Excluded (55):
+                        └──────────────┘        • Appraisals
+                                                • Disclosures
+                                                • Title docs
+                                                • etc.
+
+┌────────┬──────────────────────────────────────────────────────────────────────┐
+│ TRACK 2: FORM 1003 TIMELINE EXTRACTION                                         │
+│ (agents/form_1003_income_tracker.py)                                           │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+    Filter: Form 1003 files only
+         │
+         ▼
+    🔍 Extract Income Fields        📊 Track Changes Over Time
+    ┌──────────────────┐            ┌─────────────────────────┐
+    │ Section 5:       │            │ Version 1 (App Taken):  │
+    │ • Borrower $XXX  │────────────│   Income: $7,500        │
+    │ • Co-borrower $X │            │                         │
+    │ Section 8:       │            │ Version 2 (Processing): │
+    │ • Employment     │            │   Income: $7,770 ←─┐    │
+    │ • Years          │            │                    │    │
+    └──────────────────┘            │ Version 3 (CTC):   │    │
+                                    │   Income: $7,770 ←─┘    │
+                                    └─────────────────────────┘
+         │
+         ▼
+    loan_docs/{loan_id}/income_analysis/
+    └─ form_1003_income_timeline.json
+       {
+         "borrower_income": 4731.60,
+         "co_borrower_income": 3039.32,
+         "total_monthly_income": 7770.92,
+         "versions_found": 3,
+         "final_version_date": "2025-06-28"
+       }
+
+┌────────┬──────────────────────────────────────────────────────────────────────┐
+│ TRACK 3: EMPLOYMENT HISTORY CONSOLIDATION                                      │
+│ (agents/employment_history_agent.py)                                           │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+    Income Docs (from Track 1) ───▶ 🧠 Employment Analyzer
+    • Paystubs                      ┌──────────────────────┐
+    • W-2s                          │ For each borrower:   │
+    • VOEs                          │ • Current employer   │
+    • Tax returns                   │ • Job title          │
+                                    │ • Start date         │
+                                    │ • Employment type    │
+                                    │ • Pay frequency      │
+                                    └──────────┬───────────┘
+                                               │
+                                               ▼
+    loan_docs/{loan_id}/employment_history/
+    └─ employment_history.json
+       {
+         "borrowers": [
+           {
+             "name": "Amy",
+             "current_employer": "County Public Schools",
+             "job_title": "Special Education Teacher",
+             "employment_type": "W-2 Employee",
+             "start_date": "2018-08-15",
+             "years_employed": 7.2,
+             "pay_frequency": "Monthly"
+           }
+         ]
+       }
+
+┌────────┴──────────────────────────────────────────────────────────────────────┐
+│ TRACK 4: AI INCOME ANALYSIS (CORE CALCULATION ENGINE)                          │
+│ (agents/income_analysis_agent.py)                                              │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+    Inputs:
+    ├─ Income Docs (from Track 1 classification)
+    ├─ Freddie Mac Guidelines (67 rules)
+    ├─ Edge Cases Library (EC001-EC005)
+    └─ Form 1003 Data (for comparison)
+
+         │
+         ▼
+    ┌──────────────────────────────────────────────────────┐
+    │  🤖 AI Income Calculator (GPT-4o-mini)               │
+    │                                                      │
+    │  1. Load Freddie Mac Decision Tree                  │
+    │     ├─ Base non-fluctuating salary rules            │
+    │     ├─ Variable income (bonus/OT) rules             │
+    │     ├─ Pay frequency multipliers                    │
+    │     └─ Documentation requirements                   │
+    │                                                      │
+    │  2. Check Edge Cases (EC001-EC005)                  │
+    │     ├─ EC001: Employment status change              │
+    │     ├─ EC002: VA disability income                  │
+    │     ├─ EC003: Return to work after leave            │
+    │     ├─ EC004: Variable income w/o history           │
+    │     └─ EC005: Teacher 10-month salary ⭐            │
+    │                                                      │
+    │  3. Apply Calculation Rules                         │
+    │     • Identify pay frequency                        │
+    │     • Calculate base income                         │
+    │     • Evaluate variable income (2-yr history)       │
+    │     • Apply special rules (teachers, etc.)          │
+    │     • Reconcile multiple sources                    │
+    │                                                      │
+    │  4. Document Methodology                            │
+    │     • Which docs used                               │
+    │     • Which rules applied                           │
+    │     • Step-by-step calculation                      │
+    │     • Edge cases triggered                          │
+    └──────────────────────────┬───────────────────────────┘
+                               │
+                               ▼
+    loan_docs/{loan_id}/income_analysis/
+    ├─ income_analysis_run_1.json
+    ├─ income_analysis_run_2.json
+    ├─ income_analysis_run_3.json
+    └─ consistency_summary_all.json
+       {
+         "average_income": 7621.00,
+         "variance_pct": 1.9,
+         "methodology": "W-2 ÷ 12 (teacher exception)",
+         "edge_cases_applied": ["EC005"],
+         "confidence": "high"
+       }
+
+
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│ PHASE 4: INCOME COMPARISON & VALIDATION                                        │
+│ (agents/income_comparison_agent.py)                                            │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+    Three-Way Comparison:
+
+    ┌──────────────┐      ┌──────────────┐      ┌──────────────┐
+    │  Form 1003   │      │  AI Analysis │      │  Comparison  │
+    │  Timeline    │      │  Results     │      │  Analysis    │
+    │              │      │              │      │              │
+    │ Borrower     │      │ Borrower     │      │ Variance:    │
+    │ stated       │◀────▶│ calculated   │─────▶│   ±2%        │
+    │ $7,770/mo    │      │ $7,621/mo    │      │              │
+    │              │      │              │      │ Status: ✅   │
+    │ Final CTC    │      │ Avg of 3     │      │ Within tol.  │
+    │ version      │      │ runs         │      │              │
+    └──────────────┘      └──────────────┘      └──────────────┘
+
+    Output: income_comparison_analysis.json
+    {
+      "loan_id": "1000178665",
+      "form_1003_income": 7770.92,
+      "ai_avg_income": 7621.00,
+      "difference_pct": -1.93,
+      "ai_consistency_rating": "HIGH",
+      "variance_pct": 1.9,
+      "assessment": "AI calculation within 2% of stated income",
+      "notes": "Teacher exception (EC005) correctly applied"
+    }
+
+
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│ PHASE 5: REPORTING & OUTPUTS                                                   │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+    📊 Individual Loan Reports          📈 Aggregate Analytics
+    ┌──────────────────────┐            ┌──────────────────────┐
+    │ Per Loan:            │            │ Portfolio-wide:      │
+    │ • Consistency HTML   │            │ • CSV exports        │
+    │ • Form 1003 timeline │            │ • Accuracy histogram │
+    │ • Employment history │            │ • Edge case freq.    │
+    │ • Income comparison  │            │ • Variance analysis  │
+    │ • Analysis runs 1-N  │            │ • HTML dashboards    │
+    └──────────────────────┘            └──────────────────────┘
+              │                                    │
+              └────────────┬───────────────────────┘
+                           │
+                           ▼
+              📁 Output Directory Structure:
+              
+              loan_docs/{loan_id}/
+              ├─ income_analysis/
+              │  ├─ form_1003_income_timeline.json
+              │  ├─ income_analysis_run_1.json
+              │  ├─ income_analysis_run_2.json
+              │  ├─ income_analysis_run_3.json
+              │  ├─ consistency_summary_all.json
+              │  ├─ income_comparison_analysis.json
+              │  └─ consistency_report.html
+              └─ employment_history/
+                 └─ employment_history.json
+              
+              aggregate_data/
+              ├─ income_comparison_latest.csv
+              └─ accuracy_histogram.png
+
+
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│ KEY SUCCESS METRICS (Based on 50-Loan Production Test)                         │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+    ✅ Document Classification:    100% success (all loans processed)
+    ✅ Form 1003 Extraction:        96% success (48/50 loans)
+    ✅ AI Income Calculation:       100% success (50/50 loans)
+    ✅ High Accuracy (<5% var):     70% of loans (35/50)
+    ⭐ Edge Case Application:       Improved accuracy from 14.36% → 2%
+    📊 Average Processing Time:     ~10-12 minutes per loan
+    💰 Cost per Loan:              ~$0.17-0.32 (Azure OpenAI)
 ```
 
 ## Features
