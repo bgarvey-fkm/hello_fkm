@@ -1,45 +1,33 @@
 """
 Generate Histogram of AI Median vs Final Form 1003 Accuracy
 Shows distribution of errors in 2.5% increments with tails at ±10%+
+Refactored to use the income_comparison_latest.csv file
 """
 
-import json
 import pandas as pd
 import matplotlib.pyplot as plt
 from pathlib import Path
 import numpy as np
 
 
-def load_all_comparisons():
-    """Load all income_comparison_analysis.json files from loan directories."""
+def load_comparison_csv():
+    """Load the income comparison CSV file."""
     
     base_dir = Path(__file__).parent
-    loan_docs_dir = base_dir / "loan_docs"
+    csv_path = base_dir / "aggregate_data" / "income_comparison_latest.csv"
     
-    # Find all income_comparison_analysis.json files
-    comparison_files = list(loan_docs_dir.glob("*/income_analysis/income_comparison_analysis.json"))
-    
-    print(f"Found {len(comparison_files)} income comparison files")
-    
-    if not comparison_files:
-        print("\n❌ No comparison files found!")
+    if not csv_path.exists():
+        print(f"\n❌ CSV file not found: {csv_path}")
+        print("Run generate_income_comparison_csv.py first to create the CSV.")
         return None
     
-    # Load all comparison data
-    data = []
-    for comp_file in comparison_files:
-        try:
-            with open(comp_file, 'r', encoding='utf-8') as f:
-                comparison = json.load(f)
-                data.append(comparison)
-        except Exception as e:
-            print(f"⚠️  Error loading {comp_file}: {e}")
-    
-    # Create DataFrame
-    df = pd.DataFrame(data)
-    print(f"✅ Loaded {len(df)} loan comparisons into DataFrame")
-    
-    return df
+    try:
+        df = pd.read_csv(csv_path)
+        print(f"✅ Loaded {len(df)} loan comparisons from CSV")
+        return df
+    except Exception as e:
+        print(f"❌ Error loading CSV: {e}")
+        return None
 
 
 def create_single_histogram(ax, errors, title, subtitle=""):
@@ -141,7 +129,7 @@ def create_histogram(df, output_path=None):
         output_path = reports_dir / "accuracy_histogram.png"
     
     # Get the median vs final 1003 percentage differences
-    errors_all = df['ai_median_vs_final_1003_pct'].values
+    errors_all = df['median_vs_1003_pct'].values
     
     # Create figure with 4 subplots (2x2 grid)
     fig, axes = plt.subplots(2, 2, figsize=(16, 12))
@@ -166,7 +154,7 @@ def create_histogram(df, output_path=None):
     if len(available_types) > 0:
         income_type_1 = available_types[0]
         df_type_1 = df[df['income_type'] == income_type_1]
-        errors_1 = df_type_1['ai_median_vs_final_1003_pct'].values
+        errors_1 = df_type_1['median_vs_1003_pct'].values
         subtitle2 = f'n={len(errors_1)} | MAE={np.abs(errors_1).mean():.2f}% | Median AE={np.median(np.abs(errors_1)):.2f}%'
         title_1 = income_type_1.replace('_', ' ').upper()
         create_single_histogram(ax2, errors_1, title_1, subtitle2)
@@ -180,7 +168,7 @@ def create_histogram(df, output_path=None):
     if len(available_types) > 1:
         income_type_2 = available_types[1]
         df_type_2 = df[df['income_type'] == income_type_2]
-        errors_2 = df_type_2['ai_median_vs_final_1003_pct'].values
+        errors_2 = df_type_2['median_vs_1003_pct'].values
         subtitle3 = f'n={len(errors_2)} | MAE={np.abs(errors_2).mean():.2f}% | Median AE={np.median(np.abs(errors_2)):.2f}%'
         title_2 = income_type_2.replace('_', ' ').upper()
         create_single_histogram(ax3, errors_2, title_2, subtitle3)
@@ -194,7 +182,7 @@ def create_histogram(df, output_path=None):
     if len(available_types) > 2:
         income_type_3 = available_types[2]
         df_type_3 = df[df['income_type'] == income_type_3]
-        errors_3 = df_type_3['ai_median_vs_final_1003_pct'].values
+        errors_3 = df_type_3['median_vs_1003_pct'].values
         subtitle4 = f'n={len(errors_3)} | MAE={np.abs(errors_3).mean():.2f}% | Median AE={np.median(np.abs(errors_3)):.2f}%'
         title_3 = income_type_3.replace('_', ' ').upper()
         create_single_histogram(ax4, errors_3, title_3, subtitle4)
@@ -238,7 +226,7 @@ def create_histogram(df, output_path=None):
     print("-"*80)
     for income_type in available_types:
         df_type = df[df['income_type'] == income_type]
-        errors_type = df_type['ai_median_vs_final_1003_pct'].values
+        errors_type = df_type['median_vs_1003_pct'].values
         within_5_type = np.sum(np.abs(errors_type) <= 5.0)
         print(f"\n{income_type.replace('_', ' ').upper()} ({len(errors_type)} loans):")
         print(f"  Mean Absolute Error: {np.abs(errors_type).mean():.2f}%")
@@ -255,11 +243,11 @@ def main():
     print("AI ACCURACY HISTOGRAM GENERATOR")
     print("="*80 + "\n")
     
-    # Load all comparison data
-    df = load_all_comparisons()
+    # Load comparison CSV
+    df = load_comparison_csv()
     
     if df is None or len(df) == 0:
-        print("\n❌ No comparison data found. Run batch_income_comparison.py first.")
+        print("\n❌ No comparison data found. Run generate_income_comparison_csv.py first.")
         return
     
     # Create histogram
