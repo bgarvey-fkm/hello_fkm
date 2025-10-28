@@ -2,8 +2,8 @@
   "metadata": {
     "title": "Income Underwriting Edge Cases and Clarifications",
     "description": "Scenarios and edge cases not explicitly covered in the Freddie Mac decision tree, providing additional context for complex situations.",
-    "version": "1.0",
-    "last_updated": "2025-10-26",
+    "version": "1.1",
+    "last_updated": "2025-10-28",
     "usage": "Use this as supplemental guidance alongside the Freddie Mac Income Underwriting Decision Tree to handle ambiguous scenarios."
   },
   "edge_cases": [
@@ -236,6 +236,120 @@
         "Job title and employer do not indicate school/university employment",
         "OR borrower IS a teacher/educator BUT current paystub amount is consistent with W-2 annual income ÷ 12 (within ~5%)",
         "Employer explicitly confirms 12-month work schedule (not academic year) - though mathematical check is sufficient"
+      ]
+    },
+    {
+      "case_id": "EC006",
+      "title": "Social Security Retirement Income - Gross vs Net After Medicare Deduction",
+      "scenario": "SSA Benefit Verification Letter shows both 'Full Monthly Before Deductions' (gross) and 'Regular Monthly Payment' (net after Medicare Part B premium deduction)",
+      "decision_tree_gap": "Decision tree covers retirement income (Social Security) but doesn't explicitly specify whether to use gross amount before Medicare deduction or net payment amount after deduction",
+      "freddie_mac_rule": "Section 5305.1(m) states: 'Monthly income amount: documented fixed monthly payment amount used for qualifying.' Industry standard practice treats Medicare deductions similarly to tax withholding - use GROSS income before mandatory deductions.",
+      "correct_treatment": "Use the GROSS 'Full Monthly Before Deductions' amount, NOT the net 'Regular Monthly Payment' after Medicare deduction",
+      "when_this_applies": [
+        "Borrower receives Social Security retirement benefits",
+        "SSA Benefit Verification Letter shows both gross and net payment amounts",
+        "Medicare Part B premium (or other deductions) are shown on the SSA letter",
+        "Difference between gross and net is typically $164.90-$594.00 depending on income level (2025 standard Part B premium is $185/month)"
+      ],
+      "why_use_gross_amount": [
+        "Freddie Mac Section 5305.1(r) acknowledges that up to 85% of Social Security is tax-free, and allows gross-up treatment, indicating they consider gross amounts",
+        "Medicare Part B is a mandatory federal deduction, similar to FICA/federal tax withholding on W-2 income",
+        "Industry standard: qualifying income uses gross wages before tax withholding - same principle applies to Social Security",
+        "The SSA letter's 'Full Monthly Before Deductions' represents the borrower's actual benefit award amount",
+        "Net payment varies based on Medicare coverage choices (Part B, Part D, supplemental) - using net would penalize borrowers for comprehensive coverage",
+        "Consistency: pension income uses gross amounts, Social Security should follow same treatment"
+      ],
+      "ssa_benefit_letter_fields": {
+        "use_this_field": "Full Monthly Benefit Amount Before Deductions (or similar gross field)",
+        "do_not_use": "Regular Monthly Payment / Net Payment Amount (after Medicare/other deductions)",
+        "typical_deductions_shown": [
+          "Medicare Part B Premium ($164.90 - $594.00+ depending on IRMAA)",
+          "Medicare Part D Premium (varies by plan)",
+          "Voluntary federal tax withholding (optional)",
+          "Medicare Advantage premiums (if applicable)"
+        ],
+        "field_names_vary": "SSA letters use different terminology: 'Full Monthly Before Deductions,' 'Monthly Benefit Amount,' 'Gross Monthly Benefit' - use the HIGHEST amount shown which represents pre-deduction benefit"
+      },
+      "calculation_method": "Gross Social Security amount shown on SSA Benefit Verification Letter (before Medicare/tax deductions)",
+      "incorrect_approach": "Using 'Regular Monthly Payment' or 'Net Payment' after Medicare Part B deduction",
+      "example_scenario": {
+        "document": "SSA Benefit Verification Letter dated 03/28/2025",
+        "ssa_fields_shown": {
+          "full_monthly_before_deductions": "$2,234.50",
+          "medicare_part_b_premium": "$259.50",
+          "regular_monthly_payment": "$1,975.00"
+        },
+        "other_income": {
+          "pension_gross_monthly": "$4,877.20",
+          "source": "Police Pension Fund lifetime annuity"
+        },
+        "ai_incorrect_calculation": {
+          "method": "Used 'Regular Monthly Payment' field from SSA letter",
+          "social_security_amount": "$1,975.00/month",
+          "pension_amount": "$4,877.20/month",
+          "total_income": "$6,852.20/month",
+          "reasoning": "AI read 'Regular Monthly Payment' as the documented monthly amount borrower receives",
+          "error": "Used net payment after Medicare deduction instead of gross benefit amount"
+        },
+        "correct_calculation": {
+          "method": "Use 'Full Monthly Before Deductions' per gross income standard",
+          "social_security_gross": "$2,234.50/month",
+          "pension_amount": "$4,877.20/month",
+          "total_income": "$7,111.70/month",
+          "reasoning": "Gross Social Security benefit (before Medicare Part B deduction of $259.50) is the qualifying income amount, consistent with using gross wages before tax withholding"
+        },
+        "variance_analysis": {
+          "incorrect_ai_amount": "$6,852.20/month",
+          "correct_amount": "$7,111.70/month",
+          "difference": "$259.50/month understatement",
+          "percentage_error": "-3.65% understatement",
+          "cause": "Medicare Part B premium amount ($259.50)",
+          "form_1003_comparison": "$7,111.70 (matches correct calculation exactly)"
+        }
+      },
+      "how_to_identify_this_scenario": [
+        "STEP 1 - Document type: SSA Benefit Verification Letter, SSA award letter, or IRS Form 1099-SSA",
+        "STEP 2 - Check for multiple payment amounts: Letter shows BOTH gross/before-deductions AND net/regular payment amounts",
+        "STEP 3 - Identify Medicare deduction: Difference between amounts equals Medicare Part B premium ($164.90-$594.00 range)",
+        "STEP 4 - Use the HIGHER amount (gross before deductions) for qualifying income"
+      ],
+      "documentation_needed": [
+        "SSA Benefit Verification Letter showing gross benefit amount before deductions",
+        "Letter must show effective date and payment frequency",
+        "Age of documentation per Freddie Mac Section 5102.4 requirements",
+        "IRS Form 1099-SSA may be used as alternative documentation (Box 5 shows gross benefits before Medicare withholding)"
+      ],
+      "irs_form_1099_ssa_guidance": {
+        "box_3_or_5": "Shows gross Social Security benefits paid during tax year (before Medicare withholding)",
+        "box_6": "Shows Medicare Part B premiums withheld",
+        "calculation": "Use Box 3 or Box 5 amount ÷ 12 for monthly gross benefit",
+        "note": "1099-SSA shows annual totals - divide by 12 for monthly; SSA Benefit Verification Letter already shows monthly amount"
+      },
+      "freddie_mac_citation": "Freddie Mac Single-Family Seller/Servicer Guide Section 5305.1(m): 'Monthly income amount: documented fixed monthly payment amount used for qualifying.' Combined with Section 5305.1(r) tax-exempt income gross-up provisions indicating gross treatment of Social Security.",
+      "important_notes": [
+        "This edge case applies ONLY when SSA letter shows both gross and net amounts - if only one amount shown, use that amount",
+        "Medicare Part B premium amounts vary: Standard $164.90-$185/month, IRMAA high-income surcharges up to $594/month (2025)",
+        "Medicare deductions are MANDATORY for most Social Security recipients age 65+ - not optional withholding",
+        "Some SSA letters show voluntary federal tax withholding in addition to Medicare - both are deductions from gross, use pre-deduction amount",
+        "IRS Form 1099-SSA Box 5 (or Box 3) shows gross benefits and can be used to verify correct gross amount: annual amount ÷ 12",
+        "Consistency with employment income: W-2 Box 1 is gross before FICA/Medicare employee taxes - same gross principle applies to Social Security benefits",
+        "If borrower receives BOTH Social Security AND pension, use gross for BOTH income sources"
+      ],
+      "ai_decision_tree_correction_needed": [
+        "When SSA Benefit Verification Letter is identified, check for presence of TWO payment amounts (gross and net)",
+        "If letter shows 'Full Monthly Before Deductions' AND 'Regular Monthly Payment' (or similar fields), always use the HIGHER gross amount",
+        "Add field name recognition: 'Full Monthly Before Deductions,' 'Monthly Benefit Amount Before Medicare,' 'Gross Monthly Benefit'",
+        "Flag any Medicare Part B deduction, Part D premium, or tax withholding as indicators to use gross amount",
+        "Include note in calculation methodology explaining use of gross vs net and citing Medicare deduction amount"
+      ],
+      "when_net_amount_might_be_acceptable": [
+        "ONLY if SSA documentation shows a single payment amount with no gross/net breakdown",
+        "However, best practice is to obtain SSA Benefit Verification Letter which clearly states gross amount",
+        "Bank statements showing deposits would reflect net amount - not recommended as primary income documentation for Social Security"
+      ],
+      "related_edge_cases": [
+        "EC002 (VA Disability) - also uses gross benefit amounts",
+        "EC005 (Teacher Income) - similar principle of using annual/gross rather than compressed or net amounts"
       ]
     }
   ],
