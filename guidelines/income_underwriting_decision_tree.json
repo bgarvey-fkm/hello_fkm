@@ -191,6 +191,7 @@
       "node_id": "BASE_NON_FLUCTUATING_CALC",
       "question": "What is the pay frequency?",
       "type": "calculation",
+      "documentation_note": "IMPORTANT: Items below are ACCEPTABLE ALTERNATIVES per Freddie Mac Section 5302.2, not cumulative requirements. If YTD paystub unavailable, W-2 + VOE is acceptable.",
       
       "options": [
         {
@@ -200,11 +201,19 @@
             "formula": "weekly_gross_pay × 52 ÷ 12",
             "description": "Multiply weekly pay by 52 weeks, divide by 12 months"
           },
-          "documentation_required": [
-            "YTD paystub(s)",
-            "W-2 for most recent year (primary) or 2 years (secondary)",
-            "10-day PCV"
-          ],
+          "documentation_required": {
+            "option_1_preferred": [
+              "YTD paystub(s)",
+              "W-2 for most recent year (primary) or 2 years (secondary)",
+              "10-day PCV"
+            ],
+            "option_2_acceptable": [
+              "W-2 for most recent year (primary) or 2 years (secondary)",
+              "Written VOE documenting YTD earnings and current employment",
+              "10-day PCV"
+            ],
+            "freddie_mac_citation": "Section 5302.2(b): W-2 acceptable; Section 5302.2(c): VOE supplements. Section 5303.1(c)(i): Lists alternatives with OR structure."
+          },
           "outcome": "CALCULATE"
         },
         {
@@ -214,11 +223,19 @@
             "formula": "biweekly_gross_pay × 26 ÷ 12",
             "description": "Multiply bi-weekly pay by 26 periods, divide by 12 months"
           },
-          "documentation_required": [
-            "YTD paystub(s)",
-            "W-2 for most recent year (primary) or 2 years (secondary)",
-            "10-day PCV"
-          ],
+          "documentation_required": {
+            "option_1_preferred": [
+              "YTD paystub(s)",
+              "W-2 for most recent year (primary) or 2 years (secondary)",
+              "10-day PCV"
+            ],
+            "option_2_acceptable": [
+              "W-2 for most recent year (primary) or 2 years (secondary)",
+              "Written VOE documenting YTD earnings and current employment",
+              "10-day PCV"
+            ],
+            "freddie_mac_citation": "Section 5302.2(b): W-2 acceptable; Section 5302.2(c): VOE supplements. Section 5303.1(c)(i): Lists alternatives with OR structure."
+          },
           "outcome": "CALCULATE"
         },
         {
@@ -228,11 +245,19 @@
             "formula": "semimonthly_gross_pay × 24 ÷ 12",
             "description": "Multiply semi-monthly pay by 24 periods, divide by 12 months"
           },
-          "documentation_required": [
-            "YTD paystub(s)",
-            "W-2 for most recent year (primary) or 2 years (secondary)",
-            "10-day PCV"
-          ],
+          "documentation_required": {
+            "option_1_preferred": [
+              "YTD paystub(s)",
+              "W-2 for most recent year (primary) or 2 years (secondary)",
+              "10-day PCV"
+            ],
+            "option_2_acceptable": [
+              "W-2 for most recent year (primary) or 2 years (secondary)",
+              "Written VOE documenting YTD earnings and current employment",
+              "10-day PCV"
+            ],
+            "freddie_mac_citation": "Section 5302.2(b): W-2 acceptable; Section 5302.2(c): VOE supplements. Section 5303.1(c)(i): Lists alternatives with OR structure."
+          },
           "outcome": "CALCULATE"
         },
         {
@@ -242,11 +267,19 @@
             "formula": "monthly_gross_pay",
             "description": "Use monthly gross pay directly"
           },
-          "documentation_required": [
-            "YTD paystub(s)",
-            "W-2 for most recent year (primary) or 2 years (secondary)",
-            "10-day PCV"
-          ],
+          "documentation_required": {
+            "option_1_preferred": [
+              "YTD paystub(s)",
+              "W-2 for most recent year (primary) or 2 years (secondary)",
+              "10-day PCV"
+            ],
+            "option_2_acceptable": [
+              "W-2 for most recent year (primary) or 2 years (secondary)",
+              "Written VOE documenting YTD earnings and current employment",
+              "10-day PCV"
+            ],
+            "freddie_mac_citation": "Section 5302.2(b): W-2 acceptable; Section 5302.2(c): VOE supplements. Section 5303.1(c)(i): Lists alternatives with OR structure."
+          },
           "outcome": "CALCULATE"
         },
         {
@@ -257,12 +290,21 @@
             "description": "Divide annual salary by 12 regardless of payment schedule",
             "example": "If $50,000 annual paid over 10 months: $50,000 ÷ 12 = $4,166.67/month"
           },
-          "documentation_required": [
-            "YTD paystub(s)",
-            "W-2 for most recent year (primary) or 2 years (secondary)",
-            "10-day PCV",
-            "Documentation of annual salary and payment schedule"
-          ],
+          "documentation_required": {
+            "option_1_preferred": [
+              "YTD paystub(s)",
+              "W-2 for most recent year (primary) or 2 years (secondary)",
+              "10-day PCV",
+              "Documentation of annual salary and payment schedule"
+            ],
+            "option_2_acceptable": [
+              "W-2 for most recent year (primary) or 2 years (secondary)",
+              "Written VOE documenting YTD earnings and current employment",
+              "10-day PCV",
+              "Documentation of annual salary and payment schedule"
+            ],
+            "freddie_mac_citation": "Section 5302.2(b): W-2 acceptable; Section 5302.2(c): VOE supplements. Section 5303.1(c)(i): Lists alternatives with OR structure."
+          },
           "outcome": "CALCULATE"
         }
       ]
