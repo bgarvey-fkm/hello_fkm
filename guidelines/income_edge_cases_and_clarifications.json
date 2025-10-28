@@ -2,7 +2,7 @@
   "metadata": {
     "title": "Income Underwriting Edge Cases and Clarifications",
     "description": "Scenarios and edge cases not explicitly covered in the Freddie Mac decision tree, providing additional context for complex situations.",
-    "version": "1.1",
+    "version": "1.2",
     "last_updated": "2025-10-28",
     "usage": "Use this as supplemental guidance alongside the Freddie Mac Income Underwriting Decision Tree to handle ambiguous scenarios."
   },
@@ -350,6 +350,167 @@
       "related_edge_cases": [
         "EC002 (VA Disability) - also uses gross benefit amounts",
         "EC005 (Teacher Income) - similar principle of using annual/gross rather than compressed or net amounts"
+      ]
+    },
+    {
+      "case_id": "EC007",
+      "title": "Merit Increases and Pay Raises - Using New Rate vs. Old Rate",
+      "scenario": "Borrower has documented merit increase or pay raise effective on or before loan closing date, but most recent paystubs still reflect old pay rate because raise hasn't been paid yet",
+      "decision_tree_gap": "Decision tree covers 'income commencing after Note Date' for future employment changes, but doesn't explicitly address documented merit increases at current employer that are effective before/at closing but after most recent paystub date",
+      "freddie_mac_rule": "Section 5303.1(d)(i): 'Pay raises may justify different averaging methods; verification (paystubs showing old/new rate, VOE) may support using increased pay in qualifying income when raise is documented.' AND 'Seller may apply current pay rate to prior year's average hours if consistent and raise is verified and reasonable.'",
+      "correct_treatment": "Use NEW merit rate when documented by employer and effective on or before Note Date",
+      "when_this_applies": [
+        "Borrower has formal documentation of merit increase or pay raise (offer letter, merit statement, employer letter)",
+        "New rate is effective on or before the Note Date (loan closing)",
+        "Raise is verified and reasonable (e.g., 2-5% annual merit increase, not extraordinary)",
+        "Most recent paystub may still show old rate if raise effective date is after paystub date",
+        "Employer documentation clearly states: current rate, new rate, increase percentage, effective date"
+      ],
+      "why_use_new_rate": [
+        "Freddie Mac explicitly allows using increased pay when raise is documented and verified",
+        "Merit increases are routine annual compensation adjustments at same employer (not new employment)",
+        "If effective date is on/before closing, the new rate represents borrower's actual compensation at time of loan",
+        "Using old rate would understate borrower's true qualifying income capacity",
+        "Section 5303.1(d)(i) specifically authorizes 'applying current pay rate to prior year's average hours'",
+        "Raise documentation 'useful when degree of fluctuation exceeds 10%' - merit increases explain YTD variance"
+      ],
+      "required_documentation": [
+        "Formal employer documentation showing merit increase details:",
+        "- Group Salary Annual Results Statement (performance review merit statement)",
+        "- Offer letter with new compensation and effective date",
+        "- Written employer letter or VOE stating new pay rate and effective date",
+        "- HR system printout showing current rate, new rate, increase %, effective date",
+        "Documentation must show:",
+        "- Current/old hourly or salary rate",
+        "- New hourly or salary rate",
+        "- Increase percentage or dollar amount",
+        "- Effective date of increase",
+        "- Employee name and position confirmation"
+      ],
+      "verification_requirements": [
+        "Merit increase must be verified and reasonable (typical annual merit: 2-5%)",
+        "Effective date must be on or before Note Date (loan closing)",
+        "Employer documentation must be official (company letterhead, HR system, signed offer)",
+        "VOE or paystub confirms borrower currently employed at same employer",
+        "If effective date is AFTER Note Date, see Section 5303.2 for future income rules (requires additional reserves)"
+      ],
+      "calculation_method": "Use NEW pay rate × average hours (for hourly) or NEW salary ÷ 12 (for salaried)",
+      "calculation_examples": [
+        {
+          "scenario": "RN with documented merit increase",
+          "documentation": "Group Salary Annual Results Statement dated 06/30/2025",
+          "details": {
+            "current_hourly_rate": "$43.94",
+            "increase_percentage": "2.38%",
+            "new_hourly_rate": "$44.99",
+            "effective_date": "06/30/2025",
+            "performance_rating": "On Target",
+            "position": "Home Therapies RN CAP 2"
+          },
+          "most_recent_paystubs": "05/30/2025 and 06/13/2025 (show old rate $43.94)",
+          "note_date": "Presumably July 2025 (after effective date)",
+          "correct_calculation": {
+            "method": "Use new merit rate × average hours per Freddie Mac Section 5303.1(d)(i)",
+            "hourly_rate_used": "$44.99 (new merit rate)",
+            "average_biweekly_hours": "78.5 hours (from recent paystub history)",
+            "calculation": "$44.99/hr × 78.5 hrs × 26 pay periods ÷ 12 = $7,635/month",
+            "reasoning": "Merit increase documented, verified (2.38% is reasonable), effective before Note Date"
+          },
+          "incorrect_calculation": {
+            "method": "Using old rate from paystubs",
+            "hourly_rate_used": "$43.94 (old rate)",
+            "calculation": "$43.94/hr × 78.5 hrs × 26 ÷ 12 = $7,481/month",
+            "difference": "$154/month understatement (-2.0%)",
+            "why_incorrect": "Ignores documented merit increase effective before closing, contradicts Freddie Mac guidance to use 'current pay rate' when verified"
+          }
+        }
+      ],
+      "important_distinctions": {
+        "merit_increase_at_current_employer": {
+          "situation": "Annual performance review merit increase, promotion, or cost-of-living adjustment at current employer",
+          "treatment": "Use new rate per Section 5303.1(d)(i) when documented and effective by Note Date",
+          "documentation": "Merit statement, offer letter, VOE with new rate",
+          "no_additional_reserves_required": "This is NOT 'income commencing after Note Date' - it's a rate change at established employment"
+        },
+        "future_income_after_note_date": {
+          "situation": "Merit increase or raise effective AFTER Note Date (post-closing)",
+          "treatment": "Falls under Section 5303.2 'Income commencing after Note Date'",
+          "requirements": [
+            "Must start no later than 90 days after Note Date",
+            "Non-fluctuating salaried income only",
+            "Employer not family/interested party",
+            "Must verify additional funds = (monthly housing + liabilities) × months between Note Date and effective date + 1"
+          ],
+          "documentation": "Offer letter, 10-day PCV, evidence of additional reserve funds"
+        },
+        "new_employment_different_employer": {
+          "situation": "Job offer from different/new employer",
+          "treatment": "New employment requiring seasoning per standard decision tree",
+          "not_covered_by_ec007": "This edge case is for merit increases at CURRENT employer only"
+        }
+      },
+      "how_to_identify_this_scenario": [
+        "STEP 1 - Check for merit increase documentation: Offer letter, merit statement, employer letter showing pay rate change",
+        "STEP 2 - Verify same employer: VOE or paystub confirms borrower currently employed at employer issuing merit documentation",
+        "STEP 3 - Check effective date: New rate effective date is on or before estimated Note Date (loan closing)",
+        "STEP 4 - Verify increase is reasonable: Typical merit 2-5%; larger increases (promotions) may require more documentation",
+        "STEP 5 - If all conditions met: Use NEW rate for qualifying income calculation"
+      ],
+      "when_new_rate_can_be_used": [
+        "Formal employer documentation shows new rate and effective date",
+        "Effective date is on or before Note Date (loan closing date)",
+        "Merit increase is verified and reasonable (2-5% typical, up to 10% for promotion)",
+        "Borrower is currently employed at same employer (VOE/paystub confirmation)",
+        "Documentation is official company communication (HR system, signed letter, merit statement)"
+      ],
+      "when_old_rate_must_be_used": [
+        "No formal documentation of merit increase exists",
+        "Merit increase effective date is AFTER Note Date (use Section 5303.2 future income rules instead)",
+        "Increase is extraordinary/unverified (e.g., 50% raise without explanation)",
+        "Documentation is informal (verbal promise, email without official approval)",
+        "Merit increase is contingent or conditional (not yet approved/final)"
+      ],
+      "freddie_mac_citations": [
+        "Section 5303.1(d)(i): 'Pay raises may justify different averaging methods; verification (paystubs showing old/new rate, VOE) may support using increased pay in qualifying income when raise is documented.'",
+        "Section 5303.1(d)(i): 'Seller may apply current pay rate to prior year's average hours if consistent and raise is verified and reasonable.'",
+        "Section 5303.1(d)(i): 'Raise documentation useful when degree of fluctuation exceeds 10%.'",
+        "Section 5303.2: 'Income commencing after the Note Date' - applies when effective date is AFTER closing"
+      ],
+      "variance_troubleshooting": {
+        "high_variance_indicator": "If AI runs show wide variance (>10%) and borrower has recent merit increase, this edge case likely applies",
+        "ai_may_inconsistently": [
+          "Some runs use old paystub rate (conservative approach ignoring merit doc)",
+          "Some runs use new merit rate (correctly applying Section 5303.1(d)(i))",
+          "Some runs average historical W-2s (ignoring current rate change)",
+          "Result: High variance across runs when some apply merit increase and others don't"
+        ],
+        "resolution": "Teach AI to consistently identify merit increase documentation and apply new rate when verified and effective by Note Date"
+      },
+      "important_notes": [
+        "Merit increases are ROUTINE annual compensation adjustments - treat differently than 'new employment'",
+        "Freddie Mac explicitly allows 'applying current pay rate' when raise is documented - this is the authority for using new rates",
+        "Effective date is critical: on/before Note Date = use new rate; after Note Date = apply Section 5303.2 future income rules",
+        "Most recent paystub may lag merit effective date by 1-2 pay periods - documentation of new rate overrides old paystub amounts",
+        "Reasonable merit increases: 2-3% COLA typical, 3-5% performance merit typical, 5-10% promotion typical, >10% requires strong justification",
+        "This edge case is for SAME employer only - job changes to different employer follow standard 'new employment' rules",
+        "VOE confirming new rate and effective date is ideal documentation; merit statement from employer HR system also acceptable",
+        "If merit increase explains why YTD annualized exceeds prior W-2, document this as explanation for >10% fluctuation"
+      ],
+      "ai_decision_tree_enhancement": [
+        "Add merit increase detection: Search for keywords in documents: 'merit,' 'salary increase,' 'pay raise,' 'annual review,' 'performance rating,' 'new hourly rate,' 'promotion'",
+        "When merit documentation found:",
+        "  1. Extract: current rate, new rate, increase %, effective date",
+        "  2. Verify same employer (compare to VOE/paystub employer name)",
+        "  3. Compare effective date to Note Date estimate",
+        "  4. If effective ≤ Note Date: Use NEW rate in calculation",
+        "  5. If effective > Note Date: Flag for Section 5303.2 future income analysis",
+        "Document in calculation notes: 'Merit increase of X% effective [date] verified per [document type]. New rate $X.XX applied per Freddie Mac Section 5303.1(d)(i).'",
+        "Include merit increase as explanation when YTD vs W-2 variance >10%"
+      ],
+      "related_edge_cases": [
+        "EC001 (Employment Status Change at Same Employer) - similar principle of using new compensation when documented at current employer",
+        "EC003 (Return to Work) - both cases involve compensation changes requiring documented verification",
+        "EC005 (Teacher Income) - both involve choosing correct rate/amount from multiple possible calculation methods"
       ]
     }
   ],
