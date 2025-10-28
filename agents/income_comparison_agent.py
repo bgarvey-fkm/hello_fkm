@@ -29,8 +29,13 @@ COMPARISON_SYSTEM_PROMPT = """You are an expert mortgage underwriting analyst sp
 Your task is to analyze AI-calculated income results (from multiple runs) and compare them against the "ground truth" Form 1003 loan application data.
 
 You will be provided with two JSON documents:
-1. consistency_summary_all.json - Contains AI income calculation runs with statistics (may have 3, 10, or other number of runs)
+1. consistency_summary_all.json - Contains AI income calculation runs with statistics AND underwriter_decision section
 2. form_1003_income_timeline.json - Contains the actual Form 1003 income values (initial and final)
+
+CRITICAL: Use the 'underwriter_decision' section from the consistency summary as the PRIMARY AI income value.
+- The underwriter_decision.authoritative_income is a confidence-weighted value that gives more weight to high-confidence runs
+- This is the income value the AI system would actually use in production
+- Also compare the simple_average, confidence_weighted_avg, and high_confidence_only_avg metrics
 
 CRITICAL: If there are multiple Form 1003 versions, check if the borrowers on the final Form 1003 are the same as the initial Form 1003.
 - If borrowers changed (someone was added or removed), you MUST adjust the AI income comparison to only include income for borrowers who appear on the FINAL Form 1003.
@@ -49,24 +54,28 @@ Generate a structured comparison analysis in JSON format with the following keys
   "final_borrowers": ["<name1>", "<name2>", ...],
   "borrowers_removed": ["<names of removed borrowers>"],
   "borrowers_added": ["<names of added borrowers>"],
-  "ai_avg_income": <average from all runs>,
-  "ai_median_income": <median from all runs>,
-  "ai_min_income": <minimum from all runs>,
-  "ai_max_income": <maximum from all runs>,
-  "ai_variance_pct": <variance percentage from summary>,
+  "ai_authoritative_income": <from underwriter_decision.authoritative_income>,
+  "ai_simple_average": <from underwriter_decision.simple_average>,
+  "ai_confidence_weighted": <from underwriter_decision.confidence_weighted_avg>,
+  "ai_high_confidence_only": <from underwriter_decision.high_confidence_only_avg>,
+  "ai_confidence_distribution": <from underwriter_decision.confidence_distribution>,
+  "ai_confidence_in_result": <from underwriter_decision.confidence_in_result>,
+  "ai_min_income": <minimum from statistics>,
+  "ai_max_income": <maximum from statistics>,
+  "ai_variance_pct": <variance percentage from statistics>,
   "ai_consistency_rating": "<HIGH if <1%, MEDIUM if 1-5%, LOW if >5%>",
-  "ai_avg_income_adjusted": <if borrowers changed, average income for only final borrowers; else same as ai_avg_income>,
-  "ai_median_income_adjusted": <if borrowers changed, median income for only final borrowers; else same as ai_median_income>,
   "form_1003_initial_income": <total_monthly_income from first version>,
   "form_1003_final_income": <total_monthly_income from last version>,
   "form_1003_num_versions": <number of 1003 versions>,
   "form_1003_net_change": <net change from initial to final>,
-  "ai_avg_vs_final_1003_diff": <ai_avg_income_adjusted - form_1003_final_income>,
-  "ai_avg_vs_final_1003_pct": <percentage difference>,
-  "ai_median_vs_final_1003_diff": <ai_median_income_adjusted - form_1003_final_income>,
-  "ai_median_vs_final_1003_pct": <percentage difference>,
-  "best_ai_metric": "<'mean' or 'median' - which is closer to final 1003>",
-  "notes": "<brief analysis including: accuracy, any borrower changes, and patterns observed>"
+  "ai_authoritative_vs_1003_diff": <ai_authoritative_income - form_1003_final_income>,
+  "ai_authoritative_vs_1003_pct": <percentage difference>,
+  "ai_simple_avg_vs_1003_diff": <ai_simple_average - form_1003_final_income>,
+  "ai_simple_avg_vs_1003_pct": <percentage difference>,
+  "ai_high_conf_vs_1003_diff": <ai_high_confidence_only - form_1003_final_income>,
+  "ai_high_conf_vs_1003_pct": <percentage difference>,
+  "best_ai_metric": "<which metric is closest to Form 1003: 'authoritative', 'simple_average', or 'high_confidence_only'>",
+  "notes": "<brief analysis including: accuracy, confidence patterns, variance causes, and which AI metric performed best>"
 }
 
 IMPORTANT:
@@ -195,6 +204,8 @@ async def process_loan_comparison(loan_id: str, output_dir: Path = None) -> dict
     # Print summary
     print(f"\nSummary:")
     print(f"  AI Runs: {comparison.get('num_ai_runs', 0)}")
+    print(f"  Confidence Distribution: {comparison.get('ai_confidence_distribution', {})}")
+    print(f"  Confidence in Result: {comparison.get('ai_confidence_in_result', 'unknown').upper()}")
     print(f"  Borrowers Changed: {comparison.get('borrowers_changed', False)}")
     if comparison.get('borrowers_changed'):
         print(f"  Initial Borrowers: {', '.join(comparison.get('initial_borrowers', []))}")
@@ -203,16 +214,17 @@ async def process_loan_comparison(loan_id: str, output_dir: Path = None) -> dict
             print(f"  Removed: {', '.join(comparison.get('borrowers_removed', []))}")
         if comparison.get('borrowers_added'):
             print(f"  Added: {', '.join(comparison.get('borrowers_added', []))}")
-    print(f"  AI Average: ${comparison.get('ai_avg_income', 0):,.2f}")
-    print(f"  AI Median: ${comparison.get('ai_median_income', 0):,.2f}")
-    if comparison.get('borrowers_changed'):
-        print(f"  AI Average (Adjusted): ${comparison.get('ai_avg_income_adjusted', 0):,.2f}")
-        print(f"  AI Median (Adjusted): ${comparison.get('ai_median_income_adjusted', 0):,.2f}")
+    print(f"\n  AI Income Metrics:")
+    print(f"    Authoritative (confidence-weighted): ${comparison.get('ai_authoritative_income', 0):,.2f}")
+    print(f"    Simple Average:                       ${comparison.get('ai_simple_average', 0):,.2f}")
+    print(f"    High-Confidence Only:                 ${comparison.get('ai_high_confidence_only', 0):,.2f}")
     print(f"  AI Variance: {comparison.get('ai_variance_pct', 0):.2f}%")
-    print(f"  Final 1003: ${comparison.get('form_1003_final_income', 0):,.2f}")
-    print(f"  AI Avg vs Final: {comparison.get('ai_avg_vs_final_1003_pct', 0):+.2f}%")
-    print(f"  AI Median vs Final: {comparison.get('ai_median_vs_final_1003_pct', 0):+.2f}%")
-    print(f"  Best Metric: {comparison.get('best_ai_metric', 'N/A')}")
+    print(f"\n  Form 1003: ${comparison.get('form_1003_final_income', 0):,.2f}")
+    print(f"\n  Comparison to Form 1003:")
+    print(f"    Authoritative: {comparison.get('ai_authoritative_vs_1003_pct', 0):+.2f}%")
+    print(f"    Simple Avg:    {comparison.get('ai_simple_avg_vs_1003_pct', 0):+.2f}%")
+    print(f"    High-Conf Only:{comparison.get('ai_high_conf_vs_1003_pct', 0):+.2f}%")
+    print(f"\n  Best Metric: {comparison.get('best_ai_metric', 'N/A')}")
     
     return comparison
 

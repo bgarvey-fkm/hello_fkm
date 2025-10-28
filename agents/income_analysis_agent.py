@@ -852,6 +852,53 @@ async def run_consistency_test_async(loan_id, num_runs=3):
             all_min_idx = all_incomes.index(all_min_income)
             all_max_idx = all_incomes.index(all_max_income)
             
+            # Calculate confidence-weighted metrics
+            confidence_weights = {'high': 1.0, 'medium': 0.7, 'low': 0.4}
+            
+            weighted_sum = 0
+            weight_total = 0
+            high_conf_incomes = []
+            confidence_counts = {'high': 0, 'medium': 0, 'low': 0}
+            
+            for result in all_results:
+                if 'error' not in result:
+                    income = result.get('monthly_gross_income', 0)
+                    confidence = result.get('confidence_level', 'medium').lower()
+                    
+                    # Track confidence distribution
+                    if confidence in confidence_counts:
+                        confidence_counts[confidence] += 1
+                    
+                    # Calculate weighted sum
+                    weight = confidence_weights.get(confidence, 0.7)
+                    weighted_sum += income * weight
+                    weight_total += weight
+                    
+                    # Collect high-confidence incomes
+                    if confidence == 'high':
+                        high_conf_incomes.append(income)
+            
+            # Calculate confidence-weighted average
+            confidence_weighted_avg = weighted_sum / weight_total if weight_total > 0 else all_avg_income
+            
+            # Calculate high-confidence-only average
+            high_confidence_avg = sum(high_conf_incomes) / len(high_conf_incomes) if high_conf_incomes else all_avg_income
+            
+            # Determine overall confidence in result
+            high_pct = (confidence_counts['high'] / len(all_results) * 100) if all_results else 0
+            if high_pct >= 80:
+                confidence_in_result = "high"
+                rationale = f"{confidence_counts['high']}/{len(all_results)} runs achieved high confidence with {all_variance_pct:.2f}% variance"
+                recommendation = "USE authoritative_income value - high confidence with strong consistency" if all_variance_pct < 1 else "USE authoritative_income value - high confidence but review variance"
+            elif high_pct >= 50:
+                confidence_in_result = "medium"
+                rationale = f"{confidence_counts['high']}/{len(all_results)} runs achieved high confidence; {confidence_counts['medium']} medium, {confidence_counts['low']} low"
+                recommendation = "REVIEW authoritative_income value - moderate confidence, consider manual verification"
+            else:
+                confidence_in_result = "low"
+                rationale = f"Only {confidence_counts['high']}/{len(all_results)} runs achieved high confidence; variance {all_variance_pct:.2f}%"
+                recommendation = "MANUAL REVIEW REQUIRED - low confidence across runs or high variance detected"
+            
             all_summary = {
                 'loan_id': loan_id,
                 'total_runs': len(all_results),
@@ -867,6 +914,16 @@ async def run_consistency_test_async(loan_id, num_runs=3):
                     'variance_percentage': all_variance_pct,
                     'min_run_number': all_min_idx + 1,
                     'max_run_number': all_max_idx + 1
+                },
+                'underwriter_decision': {
+                    'authoritative_income': round(confidence_weighted_avg, 2),
+                    'confidence_weighted_avg': round(confidence_weighted_avg, 2),
+                    'high_confidence_only_avg': round(high_confidence_avg, 2),
+                    'simple_average': round(all_avg_income, 2),
+                    'confidence_distribution': confidence_counts,
+                    'confidence_in_result': confidence_in_result,
+                    'rationale': rationale,
+                    'recommendation': recommendation
                 }
             }
             
@@ -876,6 +933,22 @@ async def run_consistency_test_async(loan_id, num_runs=3):
                 json.dump(all_summary, f, indent=2)
             
             print(f">> Comprehensive summary (all {len(all_results)} runs) saved to: {all_summary_file}")
+            
+            # Print underwriter decision
+            print(f"\n{'='*80}")
+            print(f"UNDERWRITER DECISION")
+            print(f"{'='*80}")
+            decision = all_summary['underwriter_decision']
+            print(f"  Authoritative Income: ${decision['authoritative_income']:,.2f}")
+            print(f"  Confidence in Result: {decision['confidence_in_result'].upper()}")
+            print(f"  Confidence Distribution: {decision['confidence_distribution']['high']} high, {decision['confidence_distribution']['medium']} medium, {decision['confidence_distribution']['low']} low")
+            print(f"  Rationale: {decision['rationale']}")
+            print(f"  Recommendation: {decision['recommendation']}")
+            print(f"\n  Comparison:")
+            print(f"    Simple Average:        ${decision['simple_average']:,.2f}")
+            print(f"    Confidence-Weighted:   ${decision['confidence_weighted_avg']:,.2f}")
+            print(f"    High-Confidence Only:  ${decision['high_confidence_only_avg']:,.2f}")
+            print(f"{'='*80}\n")
             
             # Create comprehensive HTML report
             create_html_report(loan_id, "all")

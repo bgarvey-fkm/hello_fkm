@@ -39,8 +39,12 @@ class PipelineOrchestrator:
         """Initialize orchestrator with Python executable path."""
         self.python_exe = python_exe or sys.executable
     
-    def _check_completed(self, loan_id: str, step: str) -> bool:
+    def _check_completed(self, loan_id: str, step: str, force_analysis: bool = False) -> bool:
         """Check if a pipeline step has already been completed."""
+        # Special case: if force_analysis is True, never skip analysis step
+        if force_analysis and step == 'analysis':
+            return False
+        
         checks = {
             'harvest_ocr': lambda: self._check_path(f"loan_docs/{loan_id}/raw_json", min_files=1),
             'semantic': lambda: self._check_path(f"loan_docs/{loan_id}/semantic_json", min_files=1),
@@ -110,8 +114,15 @@ class PipelineOrchestrator:
             print(f"  ❌ Exception: {e}")
             return False
     
-    def process_loan(self, loan_id: str, resume: bool = False, num_runs: int = 3) -> bool:
-        """Process a single loan through the complete pipeline."""
+    def process_loan(self, loan_id: str, resume: bool = False, num_runs: int = 3, force_analysis: bool = False) -> bool:
+        """Process a single loan through the complete pipeline.
+        
+        Args:
+            loan_id: The loan ID to process
+            resume: Skip steps that are already completed
+            num_runs: Number of income analysis runs
+            force_analysis: If True, always run analysis even if already completed
+        """
         print(f"\n{'='*80}")
         print(f"PROCESSING LOAN {loan_id}")
         print(f"{'='*80}")
@@ -160,12 +171,17 @@ class PipelineOrchestrator:
             step_name = step['name']
             
             # Check if already completed
-            if resume and self._check_completed(loan_id, step_name):
+            if resume and self._check_completed(loan_id, step_name, force_analysis):
                 print(f"\n  ✅ Step {i}/6 [{step_name}]: Already completed, skipping")
                 continue
             
+            # Special message for forced analysis
+            if force_analysis and step_name == 'analysis':
+                print(f"\n  [{i}/6] {step_name.upper()} (FORCED - running {num_runs} new runs)")
+            else:
+                print(f"\n  [{i}/6] {step_name.upper()}")
+            
             # Run the step
-            print(f"\n  [{i}/6] {step_name.upper()}")
             success = self._run_command(step['description'], step['command'])
             
             if not success:
@@ -221,6 +237,9 @@ Examples:
   
   # Custom number of analysis runs
   python pipeline_orchestrator.py 1000178625 --runs 5
+  
+  # Force analysis to run even if already completed (skip other completed steps)
+  python pipeline_orchestrator.py 1000178625 --resume --force-analysis --runs 5
         """
     )
     
@@ -229,16 +248,28 @@ Examples:
                        help='Skip steps that are already completed')
     parser.add_argument('--runs', type=int, default=3, 
                        help='Number of income analysis runs (default: 3)')
+    parser.add_argument('--force-analysis', action='store_true',
+                       help='Always run analysis even if already completed (useful with --resume)')
     
     args = parser.parse_args()
     
     orchestrator = PipelineOrchestrator()
     
     if len(args.loan_ids) == 1:
-        success = orchestrator.process_loan(args.loan_ids[0], resume=args.resume, num_runs=args.runs)
+        success = orchestrator.process_loan(
+            args.loan_ids[0], 
+            resume=args.resume, 
+            num_runs=args.runs,
+            force_analysis=args.force_analysis
+        )
         sys.exit(0 if success else 1)
     else:
-        results = orchestrator.process_multiple_loans(args.loan_ids, resume=args.resume, num_runs=args.runs)
+        results = orchestrator.process_multiple_loans(
+            args.loan_ids, 
+            resume=args.resume, 
+            num_runs=args.runs,
+            force_analysis=args.force_analysis
+        )
         all_success = all(results.values())
         sys.exit(0 if all_success else 1)
 

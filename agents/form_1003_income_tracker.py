@@ -165,7 +165,12 @@ I have provided {len(sorted_1003_files)} Form 1003 semantic JSON files, already 
 
 **YOUR TASK:**
 
-For EACH Form 1003 version, extract the monthly income information and return it in chronological order.
+1. **FIRST**: Determine if the borrowers are CONSISTENT across all Form 1003 versions
+   - Are the primary borrower and co-borrower the SAME PEOPLE in all versions?
+   - Minor name variations are OK (e.g., "BOB MONCRIEF" vs "BOBBY L MONCRIEF" = SAME PERSON)
+   - But if a co-borrower is ADDED or REMOVED, or replaced with a different person = INCONSISTENT
+
+2. **SECOND**: For EACH Form 1003 version, extract the monthly income information
 
 **WHAT TO EXTRACT:**
 
@@ -197,6 +202,12 @@ Return a JSON object with this exact structure:
   "loan_id": "{loan_id}",
   "analysis_date": "CURRENT_ISO_TIMESTAMP",
   "total_versions_found": {len(sorted_1003_files)},
+  "borrower_consistency": {{
+    "is_consistent": true or false,
+    "primary_borrower_name": "Normalized name from final version",
+    "co_borrower_name": "Normalized name from final version or null",
+    "explanation": "Brief explanation of why borrowers are consistent or inconsistent across versions"
+  }},
   "income_by_version": [
     {{
       "version_number": 1,
@@ -239,6 +250,9 @@ Return a JSON object with this exact structure:
 }}
 
 **IMPORTANT:**
+- **BORROWER CONSISTENCY**: Determine if the same people are borrowing across all versions
+  - Minor name spelling variations = SAME PERSON (consistent)
+  - Adding/removing/replacing a borrower = DIFFERENT PEOPLE (inconsistent)
 - Extract EXACT dollar amounts from the semantic content
 - If a field is not present, use 0 or null appropriately
 - Monthly income is the key metric - ensure all amounts are monthly (not annual)
@@ -291,6 +305,31 @@ def print_income_summary(analysis: dict):
     print(f"Loan ID: {analysis.get('loan_id')}")
     print(f"Total Form 1003 Versions: {analysis.get('total_versions_found', 0)}")
     print(f"Analysis Date: {analysis.get('analysis_date')}")
+    
+    # Print borrower consistency check
+    borrower_consistency = analysis.get('borrower_consistency', {})
+    if borrower_consistency:
+        is_consistent = borrower_consistency.get('is_consistent', False)
+        print(f"\n{'─'*80}")
+        print("BORROWER CONSISTENCY CHECK")
+        print(f"{'─'*80}\n")
+        
+        if is_consistent:
+            print(f"✅ CONSISTENT - Same borrowers across all versions")
+        else:
+            print(f"❌ INCONSISTENT - Borrowers changed between versions")
+        
+        print(f"\nPrimary Borrower: {borrower_consistency.get('primary_borrower_name', 'N/A')}")
+        co_borrower = borrower_consistency.get('co_borrower_name')
+        if co_borrower:
+            print(f"Co-Borrower: {co_borrower}")
+        else:
+            print(f"Co-Borrower: None")
+        
+        print(f"\nExplanation: {borrower_consistency.get('explanation', 'N/A')}")
+        
+        if not is_consistent:
+            print(f"\n⚠️  WARNING: Income comparison may not be valid due to borrower changes")
     
     income_versions = analysis.get('income_by_version', [])
     
@@ -587,12 +626,63 @@ def create_html_report(loan_id: str, analysis: dict):
 async def main():
     """Main execution function."""
     
-    if len(sys.argv) < 2:
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='Form 1003 Income Timeline Tracker')
+    parser.add_argument('loan_id', nargs='?', help='Loan ID to process')
+    parser.add_argument('--force', action='store_true', help='Process all loans in loan_docs directory')
+    
+    args = parser.parse_args()
+    
+    if args.force:
+        # Process all loans
+        loan_docs_dir = Path("loan_docs")
+        if not loan_docs_dir.exists():
+            print("❌ loan_docs directory not found!")
+            sys.exit(1)
+        
+        loan_dirs = [d for d in loan_docs_dir.iterdir() if d.is_dir()]
+        loan_ids = [d.name for d in loan_dirs]
+        
+        print(f"\n{'='*80}")
+        print(f"📋 BATCH PROCESSING ALL LOANS")
+        print(f"{'='*80}")
+        print(f"\nFound {len(loan_ids)} loans to process\n")
+        
+        success_count = 0
+        error_count = 0
+        
+        for idx, loan_id in enumerate(loan_ids, 1):
+            print(f"\n[{idx}/{len(loan_ids)}] Processing {loan_id}...")
+            try:
+                await process_loan(loan_id)
+                print(f"  [OK] {loan_id}")
+                success_count += 1
+            except Exception as e:
+                print(f"  [ERROR] {loan_id}: {str(e)}")
+                error_count += 1
+        
+        print(f"\n{'='*80}")
+        print(f"BATCH PROCESSING COMPLETE")
+        print(f"{'='*80}")
+        print(f"✅ Success: {success_count}")
+        print(f"❌ Errors: {error_count}")
+        print(f"📊 Total: {len(loan_ids)}\n")
+        
+        return
+    
+    if not args.loan_id:
         print("Usage: python agents/form_1003_income_tracker.py <loan_id>")
-        print("Example: python agents/form_1003_income_tracker.py 1000175957")
+        print("   or: python agents/form_1003_income_tracker.py --force")
+        print("\nExample: python agents/form_1003_income_tracker.py 1000175957")
+        print("Example: python agents/form_1003_income_tracker.py --force")
         sys.exit(1)
     
-    loan_id = sys.argv[1]
+    await process_loan(args.loan_id)
+
+
+async def process_loan(loan_id: str):
+    """Process a single loan."""
     
     print(f"\n{'='*80}")
     print(f"📋 FORM 1003 INCOME TRACKER")
