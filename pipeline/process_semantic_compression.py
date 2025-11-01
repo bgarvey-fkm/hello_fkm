@@ -190,13 +190,66 @@ For Paystub:
   "employer": {{"name": "...", "address": "..."}},
   "employee": {{"name": "...", "address": "..."}},
   "pay_period": {{"start": "...", "end": "...", "pay_date": "..."}},
-  "earnings": [...],
-  "gross_pay": 4750,
-  "deductions": [...],
-  "net_pay": 3200,
-  "ytd_totals": {{...}}
+  "earnings": [
+    {{
+      "type": "Salary",
+      "hours": 40.0,
+      "rate": 25.0,
+      "amount": 1000.0,
+      "ytd_hours": 2000.0,
+      "ytd_amount": 50000.0
+    }},
+    {{
+      "type": "Commission",
+      "hours": null,
+      "rate": null,
+      "amount": 5000.0,
+      "ytd_hours": null,
+      "ytd_amount": 60000.0
+    }},
+    {{
+      "type": "Bonus-Regular",
+      "hours": null,
+      "rate": null,
+      "amount": 10000.0,
+      "ytd_hours": null,
+      "ytd_amount": 40000.0
+    }},
+    {{
+      "type": "Overtime",
+      "hours": 5.0,
+      "rate": 37.5,
+      "amount": 187.5,
+      "ytd_hours": 100.0,
+      "ytd_amount": 3750.0
+    }}
+  ],
+  "taxes": [
+    {{
+      "type": "Federal Withholding",
+      "amount": 2000.0,
+      "ytd_amount": 25000.0
+    }},
+    {{
+      "type": "Social Security",
+      "amount": 620.0,
+      "ytd_amount": 7750.0
+    }}
+  ],
+  "gross_pay": 16187.5,
+  "net_pay": 12500.0,
+  "ytd_gross": 153750.0
 }}
-}}
+
+CRITICAL FOR PAYSTUBS: 
+1. Paystubs show earnings in tables with headers like: "INCOME | HRS/UNITS | RATE | AMT | YTD HRS/UNITS | YTD AMT"
+2. EVERY earnings row (Salary, Commission, Bonus, Overtime, Tips) has BOTH a current amount AND a YTD amount
+3. You MUST extract BOTH values for EACH earnings type
+4. Look for the YTD column - it's usually the rightmost column in the earnings section
+5. Even if the current period amount is 0, the YTD amount is still valuable and MUST be extracted
+6. Example: "Bonus-Regular    10,000.00    20,000.00" means current bonus $10k, YTD bonus $20k
+7. Example: "Bonus-Regular    0    101,960.82" means no bonus this period, but $101,960.82 YTD
+8. This is CRITICAL for income calculations - bonuses/commissions can be $100k+ annually
 
 For W2:
 {{
