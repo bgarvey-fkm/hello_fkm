@@ -196,11 +196,17 @@ READ THE SEMANTIC CONTENT of each document and determine if it falls into ANY of
    - INCLUDE: Government benefit documents (VA, SSA, military retirement)
    - EXCLUDE: Internal analysis documents created by underwriters/loan officers (worksheets, calculation tools, notes)
 
-4. WHAT TO EXCLUDE:
+4. WHAT TO EXCLUDE (NOT income verification documents):
+   - **Form 1003 / URLA (Uniform Residential Loan Application)** - This is the loan application, NOT a source document
    - Underwriter worksheets, income calculation spreadsheets
    - Loan officer notes or summaries
    - DTI calculations, pricing grids
    - Internal analysis documents (not from employer/IRS/third party)
+   - Appraisals, title documents, insurance policies
+   - Closing disclosures, settlement statements
+   - Credit reports (unless they contain VOE data)
+
+**CRITICAL**: Form 1003 documents should ALWAYS be marked as NOT income-relevant. They are loan applications, not income verification documents.
 
 **IMPORTANT**: Both PRIMARY SOURCES (paystubs, W-2s, tax returns) AND VERIFICATION DOCUMENTS (VOEs, offer letters) should be INCLUDED as income verification documents.
 
